@@ -14,4 +14,10 @@ public class User extends BaseEntity {
 
     @Column(name = "role_id")
     private Long roleId;
+
+    @Column
+    private String email;
+
+    @Column(name = "is_withdrawn")
+    private Boolean isWithdrawn;
 }

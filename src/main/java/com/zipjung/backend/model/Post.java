@@ -18,4 +18,7 @@ public class Post extends BaseEntity {
 
     @Column(name = "service_id")
     private Long serviceId;
+
+    @Column(name = "is_deleted")
+    private Boolean isDeleted;
 }
