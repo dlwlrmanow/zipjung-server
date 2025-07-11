@@ -1,4 +1,4 @@
-package com.zipjung.backend.model;
+package com.zipjung.backend.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;

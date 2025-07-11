@@ -1,4 +1,4 @@
-package com.zipjung.backend.model;
+package com.zipjung.backend.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
