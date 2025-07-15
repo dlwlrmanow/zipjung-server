@@ -2,7 +2,6 @@ package com.zipjung.backend.service;
 
 import com.zipjung.backend.dto.FocusLogDto;
 import com.zipjung.backend.entity.FocusLog;
-import com.zipjung.backend.entity.FocusTime;
 import com.zipjung.backend.entity.Post;
 import com.zipjung.backend.repository.FocusLogRepository;
 import com.zipjung.backend.repository.FocusTimeRepository;
@@ -10,9 +9,6 @@ import com.zipjung.backend.repository.PostRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
