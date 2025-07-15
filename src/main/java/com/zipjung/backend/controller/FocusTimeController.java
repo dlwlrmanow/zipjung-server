@@ -15,6 +15,8 @@ public class FocusTimeController {
 
     @PostMapping("/focus-time")
     public ResponseEntity<Void> saveFocusTime(@RequestBody FocusTime focusTime) {
+        System.out.println(focusTime.getStartFocusTime());
+        System.out.println(focusTime.getFocusedTime());
         focusTimeService.saveFocusTime(focusTime);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }

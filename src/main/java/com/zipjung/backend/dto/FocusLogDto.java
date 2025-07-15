@@ -4,10 +4,6 @@ import lombok.*;
 
 import java.util.List;
 
-//@Getter
-//@Setter
-//@NoArgsConstructor
-//@ToString
 @Data
 public class FocusLogDto {
     private List<Long> focusTimeId;

@@ -16,11 +16,11 @@ public class FocusTime extends BaseEntity {
     private Long focusedTime;
 
     @Column(name = "start_focus_time")
-    private Long startFocusTime;
+    private String startFocusTime;
 
     @Column(name = "focus_log_id")
     private Long focusLogId;
 
     @Column(name = "is_deleted")
-    private Boolean isDeleted;
+    private Boolean isDeleted = false;
 }
