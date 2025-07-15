@@ -8,12 +8,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/send")
+@RequestMapping("/save")
 @RequiredArgsConstructor
 public class FocusTimeController {
     final private FocusTimeService focusTimeService;
 
-    @PostMapping("/focus_time")
+    @PostMapping("/focus-time")
     public ResponseEntity<Void> saveFocusTime(@RequestBody FocusTime focusTime) {
         focusTimeService.saveFocusTime(focusTime);
         return new ResponseEntity<>(HttpStatus.CREATED);
