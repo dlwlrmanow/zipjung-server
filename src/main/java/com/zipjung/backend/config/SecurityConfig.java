@@ -18,7 +18,7 @@ public class SecurityConfig {
                     .requestMatchers("/api-test").permitAll()
                     .requestMatchers("/focus-log/save").permitAll()
                     .requestMatchers("/focus-time/fetch").permitAll()
-                    .requestMatchers("/focus_log_list/fetch").permitAll()
+                    .requestMatchers("/focus-log/fetch").permitAll()
                     .requestMatchers("/focus-time/save").permitAll()
                     .anyRequest().authenticated()
             );

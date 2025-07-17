@@ -1,14 +1,18 @@
 package com.zipjung.backend.service;
 
 import com.zipjung.backend.dto.FocusLogDto;
+import com.zipjung.backend.dto.FocusLogForListDto;
 import com.zipjung.backend.entity.FocusLog;
 import com.zipjung.backend.entity.Post;
+import com.zipjung.backend.repository.FocusLogCustomRepositoryImpl;
 import com.zipjung.backend.repository.FocusLogRepository;
 import com.zipjung.backend.repository.FocusTimeRepository;
 import com.zipjung.backend.repository.PostRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -35,5 +39,10 @@ public class FocusLogService {
             int count = focusTimeRepository.updateFocusLogId(focusLogId, focusTimeId);
             if (count != 0) System.out.println("update success: " + count);
         }
+    }
+
+    @Transactional
+    public List<FocusLogForListDto> getFocusLogs() {
+        return focusLogRepository.getFocusLogList();
     }
 }
