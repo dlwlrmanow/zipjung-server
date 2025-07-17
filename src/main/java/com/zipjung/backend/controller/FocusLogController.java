@@ -11,12 +11,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/save")
+@RequestMapping("/focus-log")
 @RequiredArgsConstructor
 public class FocusLogController {
     final private FocusLogService focusLogService;
 
-    @PostMapping("/focus-log")
+    @PostMapping("/save")
     public ResponseEntity<Void> save(@RequestBody FocusLogDto focusLogDto) {
         focusLogService.saveFocusLog(focusLogDto);
         return new ResponseEntity<>(HttpStatus.CREATED); // post요청은 이렇게 보내야함

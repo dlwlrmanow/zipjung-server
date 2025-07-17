@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class FocusLogService {
-    // TODO: 여기에서 @Transactional 로 묶어서 처리해야 데이터 꼬이지 않음
+    // TODO: 여기에서 하나의 @Transactional 로 묶어서 처리해야 데이터 꼬이지 않음
     private final FocusLogRepository focusLogRepository;
     private final PostRepository postRepository;
     private final FocusTimeRepository focusTimeRepository;
@@ -31,7 +31,7 @@ public class FocusLogService {
         focusLogRepository.save(focusLog);
         // 4. 해당하는 focus_time에 focus_log.id update
         Long focusLogId = focusLog.getId();
-        for(Long focusTimeId : focusLogDto.getFocusTimeId()) {
+        for(Long focusTimeId : focusLogDto.getFocusTimeId()) { // focus_time_id가 리스트 형태로 들어옴
             int count = focusTimeRepository.updateFocusLogId(focusLogId, focusTimeId);
             if (count != 0) System.out.println("update success: " + count);
         }

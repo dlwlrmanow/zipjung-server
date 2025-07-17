@@ -16,8 +16,10 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/api-test").permitAll()
-                    .requestMatchers("/save/focus-log").permitAll()
-                    .requestMatchers("/save/focus-time").permitAll()
+                    .requestMatchers("/focus-log/save").permitAll()
+                    .requestMatchers("/focus-time/fetch").permitAll()
+                    .requestMatchers("/focus_log_list/fetch").permitAll()
+                    .requestMatchers("/focus-time/save").permitAll()
                     .anyRequest().authenticated()
             );
 
