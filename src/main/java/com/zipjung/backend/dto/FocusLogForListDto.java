@@ -8,13 +8,15 @@ import java.time.LocalDateTime;
 @Getter
 public class FocusLogForListDto {
     // 리스트에 표면적으로 보일 내용
+    private Long focusLogId;
     private String title;
     private int rating;
     private LocalDateTime postCreatedAt;
     private Long totalFocusedTime;
 
     @QueryProjection
-    public FocusLogForListDto(String title, int rating, LocalDateTime postCreatedAt, Long totalFocusedTime) {
+    public FocusLogForListDto(Long focusLogId, String title, int rating, LocalDateTime postCreatedAt, Long totalFocusedTime) {
+        this.focusLogId = focusLogId;
         this.title = title;
         this.rating = rating;
         this.postCreatedAt = postCreatedAt;
