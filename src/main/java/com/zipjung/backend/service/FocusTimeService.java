@@ -6,6 +6,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -33,5 +34,15 @@ public class FocusTimeService {
         }
 
         return focusTimes;
+    }
+
+    @Transactional // 오늘의 집중 시간 가져오기
+    public List<FocusTime> fetchTodayFocusTime() {
+        LocalDate today = LocalDate.now();
+
+        LocalDateTime startOfDay = today.atStartOfDay();
+        LocalDateTime endOfDay = today.plusDays(1).atStartOfDay(); // 내일이 되는 00:00:00
+
+        return focusTimeRepository.getTodayFocusTimes(startOfDay, endOfDay);
     }
 }

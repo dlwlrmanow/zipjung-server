@@ -33,4 +33,13 @@ public class FocusTimeController {
         return ResponseEntity.ok().body(new Result<>(focusTimeList, focusTimeList.size()));
     }
 
+    @GetMapping("/today/fetch")
+    public ResponseEntity<Result<List<FocusTime>>> fetchTodayFocusTimes() {
+        List<FocusTime> focusTimeTodayList = focusTimeService.fetchTodayFocusTime();
+        if(focusTimeTodayList == null) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        return ResponseEntity.ok().body(new Result<>(focusTimeTodayList, focusTimeTodayList.size()));
+    }
+
 }
