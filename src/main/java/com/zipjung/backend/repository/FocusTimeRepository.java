@@ -23,6 +23,6 @@ public interface FocusTimeRepository extends JpaRepository<FocusTime, Long> {
 //    @Query("SELECT f.focusedTime FROM FocusTime f WHERE f.id = :focusLogId")
 //    List<Long> getTotalFocusTime(@Param("focusLogId") Long focusLogId);
 
-    @Query("SELECT f FROM FocusTime f WHERE f.createdAt BETWEEN :startOfDay AND :endOfDay AND f.isDeleted = false")
-    List<FocusTime> getTodayFocusTimes(@Param("startOfDay") LocalDateTime startOfDay, @Param("endOfDay") LocalDateTime endOfDay);
+    @Query("SELECT f.focusedTime FROM FocusTime f WHERE f.createdAt BETWEEN :startOfDay AND :endOfDay AND f.isDeleted = false")
+    List<Long> getTodayFocusTimes(@Param("startOfDay") LocalDateTime startOfDay, @Param("endOfDay") LocalDateTime endOfDay);
 }

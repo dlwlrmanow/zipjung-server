@@ -4,13 +4,12 @@ import com.zipjung.backend.dto.FocusLogDto;
 import com.zipjung.backend.dto.FocusLogForListDto;
 import com.zipjung.backend.entity.FocusLog;
 import com.zipjung.backend.entity.Post;
-import com.zipjung.backend.repository.FocusLogCustomRepositoryImpl;
 import com.zipjung.backend.repository.FocusLogRepository;
 import com.zipjung.backend.repository.FocusTimeRepository;
 import com.zipjung.backend.repository.PostRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -41,7 +40,7 @@ public class FocusLogService {
         }
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<FocusLogForListDto> getFocusLogs() {
         return focusLogRepository.getFocusLogList();
     }
