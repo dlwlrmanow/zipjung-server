@@ -17,14 +17,13 @@ public class FocusTimeController {
     final private FocusTimeService focusTimeService;
 
     @PostMapping("/save")
-    public ResponseEntity<Void> saveFocusTime(@RequestBody FocusTime focusTime) {
-        System.out.println(focusTime.getStartFocusTime());
-        System.out.println(focusTime.getFocusedTime());
-        focusTimeService.saveFocusTime(focusTime);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+    public ResponseEntity<Long> saveFocusTime(@RequestBody FocusTime focusTime) {
+        Long savedId = focusTimeService.saveFocusTime(focusTime);
+        // TODO: 생성된 focusTime id 클라이언트에 던져줘야함!
+        return new ResponseEntity<>(savedId, HttpStatus.CREATED);
     }
 
-    @GetMapping("/fetch")
+    @GetMapping("/list/fetch")
     public ResponseEntity<Result<List<FocusTime>>> fetchFocusTimes() {
         List<FocusTime> focusTimeList = focusTimeService.fetchRecentFocusTime();
         if(focusTimeList == null) {
@@ -39,4 +38,14 @@ public class FocusTimeController {
         return ResponseEntity.ok(todayFocusTime);
     }
 
+    @GetMapping("/fetch/{id}")
+    public ResponseEntity<FocusTime> fetchFocusTime(@PathVariable Long id) {
+        FocusTime savedFocusTime = focusTimeService.fetchFocusTimeById(id);
+
+        if(savedFocusTime == null) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+
+        return ResponseEntity.ok(savedFocusTime);
+    }
 }

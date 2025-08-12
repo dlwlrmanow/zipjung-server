@@ -18,11 +18,15 @@ public class FocusTimeService {
     private final FocusTimeRepository focusTimeRepository;
 
     @Transactional
-    public void saveFocusTime(FocusTime focusTime) {
+    public Long saveFocusTime(FocusTime focusTime) {
         focusTimeRepository.save(focusTime);
+
+        // 저장된 focusTime_id return
         if (focusTime.getId() == null) {
             System.out.println("focus time id is null: 생성안됨!!");
         }
+
+        return focusTime.getId();
     }
 
     @Transactional(readOnly = true)
@@ -54,5 +58,10 @@ public class FocusTimeService {
             }
         }
         return todayTimeSum;
+    }
+
+    @Transactional(readOnly = true)
+    public FocusTime fetchFocusTimeById(Long id) {
+        return focusTimeRepository.findById(id).orElse(null);
     }
 }
