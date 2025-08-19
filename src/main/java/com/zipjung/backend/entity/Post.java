@@ -5,12 +5,14 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
+@Setter
 @Table(name = "post")
 public class Post extends BaseEntity {
-    @Column
+    @Column(length = 16) // title 글자 수 제한
     private String title;
 
     @Column

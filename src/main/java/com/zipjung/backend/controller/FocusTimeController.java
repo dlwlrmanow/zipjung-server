@@ -23,6 +23,7 @@ public class FocusTimeController {
         return new ResponseEntity<>(savedId, HttpStatus.CREATED);
     }
 
+    // 최근 일주일의 집중 시간 리스트 뽑기
     @GetMapping("/list/fetch")
     public ResponseEntity<Result<List<FocusTime>>> fetchFocusTimes() {
         List<FocusTime> focusTimeList = focusTimeService.fetchRecentFocusTime();

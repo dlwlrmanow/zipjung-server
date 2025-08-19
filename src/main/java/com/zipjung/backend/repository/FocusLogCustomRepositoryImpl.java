@@ -23,10 +23,11 @@ public class FocusLogCustomRepositoryImpl implements FocusLogCustomRepository {
         QFocusTime focusTime = QFocusTime.focusTime;
 
         List<FocusLogForListDto> focusLogList = jpaQueryFactory
-                .select(new QFocusLogForListDto(focusLog.id, post.title, focusLog.rating, post.createdAt, focusTime.focusedTime.sum()))
+                .select(new QFocusLogForListDto(post.id, focusLog.id, post.title, focusLog.rating, post.createdAt, focusTime.focusedTime.sum()))
                 .from(focusLog)
                 .leftJoin(post).on(focusLog.postId.eq(post.id))
                 .leftJoin(focusTime).on(focusLog.id.eq(focusTime.focusLogId))
+                .where(post.isDeleted.eq(false))
                 .groupBy(focusLog.id)
                 .fetch();
 
