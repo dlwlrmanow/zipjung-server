@@ -24,6 +24,8 @@ public class FocusTimeController {
     }
 
     // 최근 일주일의 집중 시간 리스트 뽑기
+    // TODO: 사용자 기록 삭제시 해당 집중 시간도 뜨지 않는 문제 해결
+    // TODO: focus_log_id가 한번 할당되어서 뜨지 않았음
     @GetMapping("/list/fetch")
     public ResponseEntity<Result<List<FocusTime>>> fetchFocusTimes() {
         List<FocusTime> focusTimeList = focusTimeService.fetchRecentFocusTime();

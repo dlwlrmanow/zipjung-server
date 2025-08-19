@@ -16,7 +16,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class FocusLogService {
-    // TODO: 여기에서 하나의 @Transactional 로 묶어서 처리해야 데이터 꼬이지 않음
+    // DONE: 여기에서 하나의 @Transactional 로 묶어서 처리해야 데이터 꼬이지 않음
     private final FocusLogRepository focusLogRepository;
     private final PostRepository postRepository;
     private final FocusTimeRepository focusTimeRepository;
@@ -42,7 +42,7 @@ public class FocusLogService {
 
     @Transactional(readOnly = true)
     public List<FocusLogForListDto> getFocusLogs() {
-        // TODO: is_deleted = 0인 리스트만 뽑기
+        // DONE: is_deleted = 0인 리스트만 뽑기
         return focusLogRepository.getFocusLogList();
     }
 }

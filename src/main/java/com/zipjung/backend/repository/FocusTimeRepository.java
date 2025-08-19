@@ -19,7 +19,7 @@ public interface FocusTimeRepository extends JpaRepository<FocusTime, Long> {
     List<FocusTime> getRecentWeekFocusTimes(@Param("oneWeekAgo") LocalDateTime oneWeekAgo);
 
 //    // totalFocusedTime 가져오기
-//    // TODO: focusLogId에 해당하는 총 집중 시간
+//    // DONE: focusLogId에 해당하는 총 집중 시간
 //    @Query("SELECT f.focusedTime FROM FocusTime f WHERE f.id = :focusLogId")
 //    List<Long> getTotalFocusTime(@Param("focusLogId") Long focusLogId);
 
