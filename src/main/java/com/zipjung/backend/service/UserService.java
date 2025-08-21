@@ -6,14 +6,18 @@ import com.zipjung.backend.entity.User;
 import com.zipjung.backend.repository.UserCustomRepository;
 import com.zipjung.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
     private final UserCustomRepository userCustomRepository;
     private final UserRepository userRepository;
+    private final DataSourceTransactionManager dataSourceTransactionManager;
 
     @Transactional
     public void SignUp(RegisterDto registerDto) {
@@ -31,11 +35,24 @@ public class UserService {
             profile.setUserId(user.getId());
 
         }
-        // TODO: Error msg 던지기
         // 2: 가입한 적 있음
-        if(state == 2L) {}
+        if(state == 2L) {
+            System.out.println("존재하는 email : " + registerDto.getEmail());
+        }
         // 3: 중복된 username
-        if(state == 3L) {}
+        if(state == 3L) {
+            System.out.println("중복 username : " + registerDto.getUsername());
+        }
+    }
+
+    // TODO: email로 가입한 계정 찾기
+    // TODO: 예외처리 적용해보기
+    @Transactional
+    public String findUsernameByEmail(String email) {
+        Optional<String> usernameOrNot = userRepository.findByEmail(email);
+        String username = usernameOrNot.get();
+        System.out.println(username);
+        return username;
     }
 
 
