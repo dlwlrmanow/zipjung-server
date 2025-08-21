@@ -4,11 +4,13 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Size;
+import lombok.Setter;
 
 @Entity
 @Table(name = "profile")
+@Setter
 public class Profile extends BaseEntity{
-    @Column
+    @Column(name = "user_id", nullable = false)
     private Long userId;
 
     @Column(length = 10)
@@ -21,9 +23,9 @@ public class Profile extends BaseEntity{
     @Column
     private String bio;
 
-    @Column
+    @Column(nullable = false)
     private String email;
 
-    @Column
-    private Boolean isWithdrawn;
+    @Column(name = "is_withdrawn")
+    private Boolean isWithdrawn = false;
 }

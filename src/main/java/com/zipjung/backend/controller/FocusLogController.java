@@ -16,7 +16,7 @@ import java.util.List;
 @RequestMapping("/focus-log")
 @RequiredArgsConstructor
 public class FocusLogController {
-    final private FocusLogService focusLogService;
+    private final FocusLogService focusLogService;
     private final PostService postService;
 
     @PostMapping("/save")

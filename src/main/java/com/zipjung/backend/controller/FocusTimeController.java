@@ -14,7 +14,7 @@ import java.util.List;
 @RequestMapping("/focus-time")
 @RequiredArgsConstructor
 public class FocusTimeController {
-    final private FocusTimeService focusTimeService;
+    private final FocusTimeService focusTimeService;
 
     @PostMapping("/save")
     public ResponseEntity<Long> saveFocusTime(@RequestBody FocusTime focusTime) {
