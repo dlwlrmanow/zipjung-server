@@ -1,10 +1,9 @@
 package com.zipjung.backend.service;
 
-import com.zipjung.backend.model.ApiTest;
+import com.zipjung.backend.entity.ApiTest;
 import com.zipjung.backend.repository.ApiTestRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 @Service
 @RequiredArgsConstructor

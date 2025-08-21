@@ -1,6 +1,6 @@
 package com.zipjung.backend.controller;
 
-import com.zipjung.backend.model.ApiTest;
+import com.zipjung.backend.entity.ApiTest;
 import com.zipjung.backend.service.ApiTestService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

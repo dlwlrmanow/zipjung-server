@@ -1,4 +1,4 @@
-package com.zipjung.backend.model;
+package com.zipjung.backend.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -8,5 +8,8 @@ import jakarta.persistence.Table;
 @Table(name = "service")
 public class Service extends BaseEntity {
     @Column
-    private String serviceName;
+    private String name;
+
+    @Column(name = "is_deleted")
+    private Boolean isDeleted;
 }
