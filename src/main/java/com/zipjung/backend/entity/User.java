@@ -1,8 +1,6 @@
 package com.zipjung.backend.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,8 +17,8 @@ public class User extends BaseEntity {
     @Size(min = 12, max = 24)
     private String password;
 
-    @Column(name = "role_id")
-    private Long roleId;
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
     @Column(name = "is_withdrawn")
     private Boolean isWithdrawn = false;
