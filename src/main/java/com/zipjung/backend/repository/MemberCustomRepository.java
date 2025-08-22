@@ -4,7 +4,6 @@ import com.zipjung.backend.dto.RegisterDto;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface UserCustomRepository {
-    // 중복 회원, 중복 username 조회
+public interface MemberCustomRepository {
     Long areYouNew(RegisterDto registerDto);
 }

@@ -6,10 +6,10 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "user")
+@Table(name = "member")
 @Getter
 @Setter
-public class User extends BaseEntity {
+public class Member extends BaseEntity {
     @Column
     private String username;
 

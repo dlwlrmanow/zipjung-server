@@ -12,7 +12,7 @@ import lombok.Setter;
 @Setter
 @Table(name = "post")
 public class Post extends BaseEntity {
-    @Column(length = 16) // title 글자 수 제한
+    @Column
     private String title;
 
     @Column

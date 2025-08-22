@@ -4,6 +4,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 import static org.springframework.security.config.Customizer.withDefaults;
@@ -28,6 +30,30 @@ public class SecurityConfig {
                     .anyRequest().authenticated()
             );
 
+        http
+            .formLogin(login -> login
+                    .loginProcessingUrl("/login")
+                    .usernameParameter("username")
+                    .passwordParameter("password")
+                    .successHandler((request, response, authentication) -> {
+                        // 로그인 성공 시 JSON 응답 반환
+                        response.setContentType("application/json");
+                        response.setCharacterEncoding("UTF-8");
+                        response.getWriter().write("{\"status\": \"success\", \"message\": \"로그인 성공!\"}");
+                    })
+                    .failureHandler((request, response, exception) -> {
+                        // 로그인 실패 시 JSON 응답 반환
+                        response.setContentType("application/json");
+                        response.setCharacterEncoding("UTF-8");
+                        response.getWriter().write("{\"status\": \"failure\", \"message\": \"로그인 실패ㅠ\"}");
+                    })
+                    .permitAll());
+
         return http.build();
+    }
+
+    @Bean // 비밀번호 암호화해주는 bean
+    public PasswordEncoder getPasswordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }
