@@ -6,7 +6,7 @@ import com.zipjung.backend.entity.Profile;
 import com.zipjung.backend.repository.MemberCustomRepository;
 import com.zipjung.backend.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,7 +17,7 @@ import java.util.Optional;
 public class MemberService {
     private final MemberCustomRepository memberCustomRepository;
     private final MemberRepository memberRepository;
-    private final DataSourceTransactionManager dataSourceTransactionManager;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public void SignUp(RegisterDto registerDto) {
@@ -27,8 +27,8 @@ public class MemberService {
         if(state == 0L) {
             Member member = new Member();
             member.setUsername(registerDto.getUsername());
-            member.setPassword(registerDto.getPassword());
-            memberRepository.save(member);
+            member.setPassword(passwordEncoder.encode(registerDto.getPassword())); // pw 암호화해서 우리 DB에 저장
+            memberRepository.save(member); // memberId 필요하기 때문에 먼저 save
 
             Profile profile = new Profile();
             profile.setEmail(registerDto.getEmail());

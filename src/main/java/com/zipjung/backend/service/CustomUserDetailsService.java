@@ -1,7 +1,5 @@
 package com.zipjung.backend.service;
 
-//import com.zipjung.backend.entity.Member;
-
 import com.zipjung.backend.entity.Member;
 import com.zipjung.backend.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +28,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         List<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority(member.getRole().name()));
 
-        return new User(member.getUsername(), member.getPassword(), authorities);
+        return new User(member.getUsername(), member.getPassword(), authorities); // security에서 사용하는 userr객체에 담아서 반환
     }
 
 }
