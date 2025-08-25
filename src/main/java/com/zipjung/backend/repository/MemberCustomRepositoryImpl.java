@@ -1,7 +1,7 @@
 package com.zipjung.backend.repository;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.zipjung.backend.dto.RegisterDto;
+import com.zipjung.backend.dto.JoinRequestDto;
 import com.zipjung.backend.entity.QProfile;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -12,14 +12,14 @@ public class MemberCustomRepositoryImpl implements MemberCustomRepository {
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public Long areYouNew(RegisterDto registerDto) {
+    public Long areYouNew(JoinRequestDto joinRequestDto) {
         QProfile profile = QProfile.profile;
 //        QMember
         // email에서 가입한 적이 있는 지 조회
         Long isExistMember = jpaQueryFactory
                 .select(profile.count())
                 .from(profile)
-                .where(profile.email.eq(registerDto.getEmail()))
+                .where(profile.email.eq(joinRequestDto.getEmail()))
                 .fetchOne();
         if (isExistMember > 0) {
             return 2L;

@@ -1,6 +1,6 @@
 package com.zipjung.backend.service;
 
-import com.zipjung.backend.dto.RegisterDto;
+import com.zipjung.backend.dto.JoinRequestDto;
 import com.zipjung.backend.entity.Member;
 import com.zipjung.backend.entity.Profile;
 import com.zipjung.backend.repository.MemberCustomRepository;
@@ -20,29 +20,33 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public void SignUp(RegisterDto registerDto) {
-        Long state = memberCustomRepository.areYouNew(registerDto);
+    public Long registerMember(JoinRequestDto joinRequestDto) {
+        Long state = memberCustomRepository.areYouNew(joinRequestDto);
 
         // 0: 가입 가능
         if(state == 0L) {
             Member member = new Member();
-            member.setUsername(registerDto.getUsername());
-            member.setPassword(passwordEncoder.encode(registerDto.getPassword())); // pw 암호화해서 우리 DB에 저장
+            member.setUsername(joinRequestDto.getUsername());
+            member.setPassword(passwordEncoder.encode(joinRequestDto.getPassword())); // pw 암호화해서 우리 DB에 저장
             memberRepository.save(member); // memberId 필요하기 때문에 먼저 save
 
             Profile profile = new Profile();
-            profile.setEmail(registerDto.getEmail());
+            profile.setEmail(joinRequestDto.getEmail());
             profile.setUserId(member.getId());
+            return 0L;
 
         }
         // 2: 가입한 적 있음
         if(state == 2L) {
-            System.out.println("존재하는 email : " + registerDto.getEmail());
+            System.out.println("존재하는 email : " + joinRequestDto.getEmail());
+            return 2L;
         }
         // 3: 중복된 username
         if(state == 3L) {
-            System.out.println("중복 username : " + registerDto.getUsername());
+            System.out.println("중복 username : " + joinRequestDto.getUsername());
+            return 3L;
         }
+        return 4L;
     }
 
     // TODO: email로 가입한 계정 찾기
