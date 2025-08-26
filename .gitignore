@@ -40,3 +40,6 @@ out/
 
 ##applicaion.properties##
 /src/main/resources/application.properties
+
+## jasypt ##
+/src/test/java/com/zipjung/backend/JasyptConfigTest.java

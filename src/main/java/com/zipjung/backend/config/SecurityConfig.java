@@ -48,6 +48,8 @@ public class SecurityConfig {
                         response.setCharacterEncoding("UTF-8");
                         response.getWriter().write("{\"status\": \"failure\", \"message\": \"로그인 실패ㅠ\"}");
                     })
+                    // TODO: 로그아웃 구현
+                    // TODO: JWT 구현
                     .permitAll());
 
         return http.build();
