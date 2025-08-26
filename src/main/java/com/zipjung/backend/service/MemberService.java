@@ -3,6 +3,7 @@ package com.zipjung.backend.service;
 import com.zipjung.backend.dto.JoinRequestDto;
 import com.zipjung.backend.entity.Member;
 import com.zipjung.backend.entity.Profile;
+import com.zipjung.backend.entity.Role;
 import com.zipjung.backend.exception.DuplicateEmailException;
 import com.zipjung.backend.exception.DuplicateUsernameException;
 import com.zipjung.backend.repository.MemberCustomRepository;
@@ -37,6 +38,7 @@ public class MemberService {
         Member member = new Member();
         member.setUsername(joinRequestDto.getUsername());
         member.setPassword(passwordEncoder.encode(joinRequestDto.getPassword())); // pw 암호화해서 우리 DB에 저장
+        member.setRole(Role.ROLE_USER);
         memberRepository.save(member); // memberId 필요하기 때문에 먼저 save
 
         Profile profile = new Profile();
