@@ -1,7 +1,6 @@
 package com.zipjung.backend.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,8 +12,7 @@ public class Member extends BaseEntity {
     @Column
     private String username;
 
-    @Column(length = 24, nullable = false)
-    @Size(min = 12, max = 24)
+    @Column(nullable = false)
     private String password;
 
     @Enumerated(EnumType.STRING)
