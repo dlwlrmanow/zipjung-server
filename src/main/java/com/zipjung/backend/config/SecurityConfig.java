@@ -1,24 +1,43 @@
 package com.zipjung.backend.config;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-
-import static org.springframework.security.config.Customizer.withDefaults;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+
+    @Bean
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration authenticationConfiguration
+    ) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(auth -> auth
+                    .sessionManagement(session ->
+                            session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 제외
+                    .formLogin(AbstractHttpConfigurer::disable).logout(AbstractHttpConfigurer::disable) // formLogin은 Session방식이라서 JWT와 충돌
+
+                .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/api-test").permitAll()
                     .requestMatchers("/focus-log/save").permitAll()
                     .requestMatchers("/focus-log/fetch").permitAll()
@@ -28,30 +47,34 @@ public class SecurityConfig {
                     .requestMatchers("/focus-time/today/fetch").permitAll()
                     .requestMatchers("/focus-time/list/fetch").permitAll()
                     .requestMatchers("/user/join/**").permitAll()
-                    .anyRequest().authenticated()
-            );
+                    .requestMatchers("/user/login").permitAll()
+                    .anyRequest().authenticated())
 
-        http
-            .formLogin(login -> login
-                    .loginProcessingUrl("/login")
-                    .usernameParameter("username")
-                    .passwordParameter("password")
-                    .successHandler((request, response, authentication) -> {
-                        // 로그인 성공 시 JSON 응답 반환
-                        response.setContentType("application/json");
-                        response.setCharacterEncoding("UTF-8");
-                        response.getWriter().write("{\"status\": \"success\", \"message\": \"로그인 성공!\"}");
-                    })
-                    .failureHandler((request, response, exception) -> {
-                        // 로그인 실패 시 JSON 응답 반환
-                        response.setContentType("application/json");
-                        response.setCharacterEncoding("UTF-8");
-                        response.getWriter().write("{\"status\": \"failure\", \"message\": \"로그인 실패ㅠ\"}");
-                    })
-                    // TODO: 로그아웃 구현
-                    // TODO: JWT 구현
-                    .permitAll());
+                .exceptionHandling(ex -> ex
+                    .accessDeniedHandler(jwtAccessDeniedHandler)
+                    .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                    );
 
+//        http
+//            .formLogin(login -> login
+//                    .loginProcessingUrl("/login")
+//                    .usernameParameter("username")
+//                    .passwordParameter("password")
+//                    .successHandler((request, response, authentication) -> {
+//                        // 로그인 성공 시 JSON 응답 반환
+//                        response.setContentType("application/json");
+//                        response.setCharacterEncoding("UTF-8");
+//                        response.getWriter().write("{\"status\": \"success\", \"message\": \"로그인 성공!\"}");
+//                    })
+//                    .failureHandler((request, response, exception) -> {
+//                        // 로그인 실패 시 JSON 응답 반환
+//                        response.setContentType("application/json");
+//                        response.setCharacterEncoding("UTF-8");
+//                        response.getWriter().write("{\"status\": \"failure\", \"message\": \"로그인 실패ㅠ\"}");
+//                    })
+//                    .permitAll());
+
+        http.addFilterBefore(new JwtFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 

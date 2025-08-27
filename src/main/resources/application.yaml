@@ -24,3 +24,9 @@ server:
 # JWT ??
 jwt:
   secret: ${JASYPT_ENCRYPT_JWT}
+
+# log
+logging:
+  level:
+    org:
+      springframework: info
