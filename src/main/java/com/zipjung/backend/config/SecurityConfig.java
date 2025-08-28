@@ -29,6 +29,11 @@ public class SecurityConfig {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
+    @Bean // 비밀번호 암호화해주는 bean
+    public PasswordEncoder getPasswordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -46,14 +51,17 @@ public class SecurityConfig {
                     .requestMatchers("/focus-time/save").permitAll()
                     .requestMatchers("/focus-time/today/fetch").permitAll()
                     .requestMatchers("/focus-time/list/fetch").permitAll()
-                    .requestMatchers("/user/join/**").permitAll()
-                    .requestMatchers("/user/login").permitAll()
+                    .requestMatchers("/user/login", "/user/join/**").permitAll()
                     .anyRequest().authenticated())
 
                 .exceptionHandling(ex -> ex
                     .accessDeniedHandler(jwtAccessDeniedHandler)
                     .authenticationEntryPoint(jwtAuthenticationEntryPoint)
-                    );
+                    )
+
+                .addFilterBefore(new JwtFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
 
 //        http
 //            .formLogin(login -> login
@@ -73,13 +81,5 @@ public class SecurityConfig {
 //                        response.getWriter().write("{\"status\": \"failure\", \"message\": \"로그인 실패ㅠ\"}");
 //                    })
 //                    .permitAll());
-
-        http.addFilterBefore(new JwtFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
-        return http.build();
-    }
-
-    @Bean // 비밀번호 암호화해주는 bean
-    public PasswordEncoder getPasswordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 }

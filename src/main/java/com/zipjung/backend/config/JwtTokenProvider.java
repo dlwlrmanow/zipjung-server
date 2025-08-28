@@ -32,22 +32,19 @@ public class JwtTokenProvider {
 
     private static final String GRANT_TYPE = "Bearer";
 
-    @Value("${jwt.access-token.expire-time}") // 1000 * 60 * 60 * 24 = 1일
-    private long ACCESS_TOKEN_EXPIRE_TIME;
+    private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60; // 1분
+    private static final long REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24 * 3; // 3일
 
-    @Value("${jwt.refresh-token.expire-time}") // 1000 * 60 * 60 * 24 * 3 = 3일
-    private long REFRESH_TOKEN_EXPIRE_TIME;
-
-    public JwtTokenProvider(@Value("${JASYPT_ENCRYPT_JWT}") String secretKey,
+    public JwtTokenProvider(@Value("${JASYPT_ENCRYPTOR_PASSWORD}") String key,
                             UserDetailsService userDetailsService,
                             RedisDao redisDao) {
-        byte[] keyBytes = Base64.getEncoder().encode(secretKey.getBytes());
+        byte[] keyBytes = Base64.getEncoder().encode(key.getBytes());
         this.key = Keys.hmacShaKeyFor(keyBytes);
         this.userDetailsService = userDetailsService;
         this.redisDao = redisDao;
     }
 
-    public JwtToken GenerateToken(Authentication authentication) {
+    public JwtToken generateToken(Authentication authentication) {
         // payload (=claims)의 권한을 저장하는 부분
         String authorities = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.joining(","));
         long now = (new Date()).getTime();

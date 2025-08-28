@@ -17,22 +17,17 @@ public class JwtFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
 
     @Override
-    public void doFilterInternal (HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
+    public void doFilterInternal (HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
         // 이미 발금된 토큰을 검증하는 filter
         String accessToken = resolveToken(request);
-//        String accessToken = resolveToken((HttpServletRequest) request);
 
-        if (accessToken != null) {
-            if (!jwtTokenProvider.validateToken(accessToken)) {
-                // 유효하지 않은 토큰
-                throw new InvaildTokenException("유효하지 않은 accessToken");
-                // DONE: 유효하지 않은 토큰에 대한 handler
-            }
+        // 존재하ㅗㄱ 유효한 토큰인 경우만
+        if (accessToken != null && jwtTokenProvider.validateToken(accessToken)) {
             Authentication authentication = jwtTokenProvider.getAuthentication(accessToken); // 토큰에 있는 정보 꺼내기
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
 
-        chain.doFilter(request, response);
+        filterChain.doFilter(request, response);
     }
 
     // request header에서 token 가져오기

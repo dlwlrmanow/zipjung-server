@@ -15,18 +15,22 @@ spring:
         format_sql: true
   data:
     redis:
-      host: localhost
-      port: 6379
+      host: redis-15066.c340.ap-northeast-2-1.ec2.redns.redis-cloud.com:15066
+      port: 15066
 
 server:
   port: 8080
 
-# JWT ??
+# JWT
 jwt:
-  secret: ${JASYPT_ENCRYPT_JWT}
+  secret: ENC(47BYm0Bi79/0rn5GMVgq5m1jBLQmoaHNvNsukvixC/POlFGjDuxebV5c2x1zaAR81ndxbTfxaBM=)
 
 # log
 logging:
   level:
     org:
       springframework: info
+
+jasypt:
+  encryptor:
+    password: ${JASYPT_ENCRYPTOR_PASSWORD}
