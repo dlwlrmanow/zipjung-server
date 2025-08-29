@@ -21,9 +21,6 @@ public class AuthController {
     private final JwtTokenProvider jwtTokenProvider;
 
     @PostMapping("/login")
-    // 폼로그인 방식이 아니라서
-//    public ResponseEntity<?> login(String username, String password) {
-    //  방식을 사용할 수 없음
     public ResponseEntity<?> login(@RequestBody LoginRequestDto loginRequestDto) {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequestDto.getUsername(), loginRequestDto.getPassword()));
 

@@ -63,6 +63,7 @@ public class JwtTokenProvider {
 
         return JwtToken.builder()
                 .grantType(GRANT_TYPE)
+                .username(username)
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();

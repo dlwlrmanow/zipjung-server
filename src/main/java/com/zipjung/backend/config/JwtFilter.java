@@ -1,6 +1,5 @@
 package com.zipjung.backend.config;
 
-import com.zipjung.backend.exception.InvaildTokenException;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -18,6 +17,13 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Override
     public void doFilterInternal (HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
+        // 로그인, 회원가입 같이 아직 토큰 발급되지 않아 검증 필요없는 경로는 제외시키기
+        String path = request.getRequestURI();
+        if(path.startsWith("/user/login") || path.startsWith("/user/register")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         // 이미 발금된 토큰을 검증하는 filter
         String accessToken = resolveToken(request);
 

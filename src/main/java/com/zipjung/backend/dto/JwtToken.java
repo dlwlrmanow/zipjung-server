@@ -9,6 +9,7 @@ import lombok.Data;
 @Data
 public class JwtToken { // 클라이언트와 주고받기 때문에 DTO
     private String grantType; // 인증 방식
+    private String username;
     private String accessToken;
     private String refreshToken;
 }
