@@ -23,6 +23,7 @@ public class FocusLogService {
 
     @Transactional
     public void saveFocusLog(FocusLogDto focusLogDto) {
+        // TODO: member_id 추가
         // 1. post.id 만들기
         Post post = new Post(focusLogDto.getTitle(), focusLogDto.getContent(), focusLogDto.getServiceId());
         postRepository.save(post);

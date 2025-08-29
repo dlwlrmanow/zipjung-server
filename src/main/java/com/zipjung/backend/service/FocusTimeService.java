@@ -16,7 +16,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class FocusTimeService {
     private final FocusTimeRepository focusTimeRepository;
-
+    // TODO: member_id 추가
     @Transactional
     public Long saveFocusTime(FocusTime focusTime) {
         focusTimeRepository.save(focusTime);
