@@ -23,7 +23,7 @@ server:
 
 # JWT
 jwt:
-  secret: ENC(47BYm0Bi79/0rn5GMVgq5m1jBLQmoaHNvNsukvixC/POlFGjDuxebV5c2x1zaAR81ndxbTfxaBM=)
+  secret: ENC(QGoA9QKXgJfdIDeuPQxez6Z/gH8XD9oF4iDoGCfBps57nme8TGKj6x2yuZiOv25GGI0TI/ixWgQxvJqWjimWaDBHYagto6gcICWlRWpAxd51yU9sdNaElizqRgS0DhvUiKqtC3dv8II=)
 
 # log
 logging:

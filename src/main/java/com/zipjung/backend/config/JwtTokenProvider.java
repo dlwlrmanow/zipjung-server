@@ -28,21 +28,26 @@ import java.util.stream.Collectors;
 public class JwtTokenProvider {
     private final Key key;
     private final UserDetailsService userDetailsService;
-    private final RedisDao redisDao; // RefreshToken 담기 위해
 
     private static final String GRANT_TYPE = "Bearer";
 
     private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 30; // 30분
     private static final long REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24 * 3; // 3일
 
-    public JwtTokenProvider(@Value("${JASYPT_ENCRYPTOR_PASSWORD}") String key,
-                            UserDetailsService userDetailsService,
-                            RedisDao redisDao) {
-        byte[] keyBytes = Base64.getEncoder().encode(key.getBytes());
-        this.key = Keys.hmacShaKeyFor(keyBytes);
-        this.userDetailsService = userDetailsService;
-        this.redisDao = redisDao;
-    }
+//    public JwtTokenProvider(@Value("${JASYPT_ENCRYPTOR_PASSWORD}") String key,
+//                            UserDetailsService userDetailsService,
+//                            RedisDao redisDao) {
+//        byte[] keyBytes = Base64.getEncoder().encode(key.getBytes());
+//        this.key = Keys.hmacShaKeyFor(keyBytes);
+//        this.userDetailsService = userDetailsService;
+//        this.redisDao = redisDao;
+//    }
+public JwtTokenProvider(@Value("${JASYPT_ENCRYPTOR_PASSWORD}") String key,
+                        UserDetailsService userDetailsService) {
+    byte[] keyBytes = Base64.getEncoder().encode(key.getBytes());
+    this.key = Keys.hmacShaKeyFor(keyBytes);
+    this.userDetailsService = userDetailsService;
+}
 
     public JwtToken generateToken(Authentication authentication) {
         // payload (=claims)의 권한을 저장하는 부분
@@ -59,7 +64,7 @@ public class JwtTokenProvider {
         String refreshToken = generateRefreshToken(username, refreshTokenExpire);
 
         // 위에서 생성한 refresh token을 redis에 담기
-        redisDao.setValues(username, refreshToken, Duration.ofMillis(REFRESH_TOKEN_EXPIRE_TIME));
+//        redisDao.setValues(username, refreshToken, Duration.ofMillis(REFRESH_TOKEN_EXPIRE_TIME));
 
         return JwtToken.builder()
                 .grantType(GRANT_TYPE)
@@ -140,41 +145,41 @@ public class JwtTokenProvider {
 
 
     // refresh Token 검증
-    public boolean validateRefreshToken(String token) {
-        if (!validateToken(token)) return false;
+//    public boolean validateRefreshToken(String token) {
+//        if (!validateToken(token)) return false;
+//
+//        try {
+//            String username = getUserNameFromToken(token);
+//            String redisToken = (String) redisDao.getValues(username);
+//            return token.equals(redisToken);
+//        } catch (Exception e) {
+//            log.info("RefreshToken Validation Failed", e);
+//            return false;
+//        }
+//    }
 
-        try {
-            String username = getUserNameFromToken(token);
-            String redisToken = (String) redisDao.getValues(username);
-            return token.equals(redisToken);
-        } catch (Exception e) {
-            log.info("RefreshToken Validation Failed", e);
-            return false;
-        }
-    }
-
-    public String getUserNameFromToken(String token) {
-        try {
-            Claims claims = Jwts.parserBuilder()
-                    .setSigningKey(key)
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody();
-
-            // username
-            return claims.getSubject();
-        } catch (ExpiredJwtException e) {
-            // 토큰이 만료되어도 클레임 내용을 가져올 수 있음
-            return e.getClaims().getSubject();
-        }
-    }
+//    public String getUserNameFromToken(String token) {
+//        try {
+//            Claims claims = Jwts.parserBuilder()
+//                    .setSigningKey(key)
+//                    .build()
+//                    .parseClaimsJws(token)
+//                    .getBody();
+//
+//            // username
+//            return claims.getSubject();
+//        } catch (ExpiredJwtException e) {
+//            // 토큰이 만료되어도 클레임 내용을 가져올 수 있음
+//            return e.getClaims().getSubject();
+//        }
+//    }
 
     // 사용자가 로그아웃하는 경우 refresh token 삭제
-    public void deleteRefreshToken(String username) {
-        if (username == null || username.trim().isEmpty()) {
-            throw new IllegalArgumentException("Username cannot be null or empty");
-        }
-
-        redisDao.deleteValues(username);
-    }
+//    public void deleteRefreshToken(String username) {
+//        if (username == null || username.trim().isEmpty()) {
+//            throw new IllegalArgumentException("Username cannot be null or empty");
+//        }
+//
+//        redisDao.deleteValues(username);
+//    }
 }
