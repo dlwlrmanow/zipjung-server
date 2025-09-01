@@ -6,6 +6,7 @@ import com.zipjung.backend.entity.FocusLog;
 import com.zipjung.backend.entity.Post;
 import com.zipjung.backend.repository.FocusLogRepository;
 import com.zipjung.backend.repository.FocusTimeRepository;
+import com.zipjung.backend.repository.MemberRepository;
 import com.zipjung.backend.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,11 +21,15 @@ public class FocusLogService {
     private final FocusLogRepository focusLogRepository;
     private final PostRepository postRepository;
     private final FocusTimeRepository focusTimeRepository;
+    private final MemberRepository memberRepository;
 
     @Transactional
     public void saveFocusLog(FocusLogDto focusLogDto) {
-        // TODO: member_id 추가
+        // TODO: postDtoRequest 추가하기
+        // 0. username -> user_id 변환 필요
+        Long userId = memberRepository.findByUsername(focusLogDto.getUsername());
         // 1. post.id 만들기
+        // TODO: post에 member_id 추가
         Post post = new Post(focusLogDto.getTitle(), focusLogDto.getContent(), focusLogDto.getServiceId());
         postRepository.save(post);
         // 2. post.id 가져오기

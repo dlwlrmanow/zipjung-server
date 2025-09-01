@@ -24,6 +24,9 @@ public class Post extends BaseEntity {
     @Column(name = "is_deleted")
     private Boolean isDeleted = false;
 
+    @Column(name = "member_id")
+    private Long memberId;
+
     public Post(String title, String content, Long serviceId) {
         this.title = title;
         this.content = content;

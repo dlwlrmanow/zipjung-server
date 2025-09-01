@@ -6,6 +6,7 @@ import java.util.List;
 
 @Data
 public class FocusLogDto {
+    private String username;
     private List<Long> focusTimeId;
     private String title;
     private String content;
