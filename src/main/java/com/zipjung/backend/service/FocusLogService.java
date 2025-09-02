@@ -25,12 +25,16 @@ public class FocusLogService {
 
     @Transactional
     public void saveFocusLog(FocusLogDto focusLogDto) {
-        // TODO: postDtoRequest 추가하기
         // 0. username -> user_id 변환 필요
         Long userId = memberRepository.findByUsername(focusLogDto.getUsername());
         // 1. post.id 만들기
         // TODO: post에 member_id 추가
-        Post post = new Post(focusLogDto.getTitle(), focusLogDto.getContent(), focusLogDto.getServiceId());
+        Post post = Post.builder()
+                .title(focusLogDto.getTitle())
+                .content(focusLogDto.getContent())
+                .serviceId(focusLogDto.getServiceId())
+                .memberId(userId)
+                .build();
         postRepository.save(post);
         // 2. post.id 가져오기
         Long postId = post.getId();

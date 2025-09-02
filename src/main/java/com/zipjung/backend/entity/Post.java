@@ -3,13 +3,12 @@ package com.zipjung.backend.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Getter
-@Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 @Table(name = "post")
 public class Post extends BaseEntity {
     @Column
@@ -27,11 +26,12 @@ public class Post extends BaseEntity {
     @Column(name = "member_id")
     private Long memberId;
 
-    public Post(String title, String content, Long serviceId) {
+    @Builder
+    public Post(String title, String content, Long serviceId, Long memberId) {
         this.title = title;
         this.content = content;
         this.serviceId = serviceId;
-//        this.isDeleted = false;
+        this.memberId = memberId;
+        this.isDeleted = false;
     }
-    public Post() {}
 }
