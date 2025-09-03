@@ -7,6 +7,8 @@ import java.time.LocalDateTime;
 
 @Getter
 public class FocusLogForListDto {
+    // TODO: username 추가
+    private String username;
     private Long postId;
     // 리스트에 표면적으로 보일 내용
     private Long focusLogId;

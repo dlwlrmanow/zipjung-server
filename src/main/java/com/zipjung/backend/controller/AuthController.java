@@ -1,6 +1,6 @@
 package com.zipjung.backend.controller;
 
-import com.zipjung.backend.config.JwtTokenProvider;
+import com.zipjung.backend.security.JwtTokenProvider;
 import com.zipjung.backend.dto.JwtToken;
 import com.zipjung.backend.dto.LoginRequestDto;
 import lombok.RequiredArgsConstructor;

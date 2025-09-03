@@ -21,4 +21,5 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     boolean existsByUsername(String username);
 
     Long findByUsername(String username); // jwt에 담긴 username -> user_id
+
 }

@@ -1,7 +1,7 @@
-package com.zipjung.backend.config;
+package com.zipjung.backend.security;
 
 import com.zipjung.backend.dto.JwtToken;
-import com.zipjung.backend.repository.RedisDao;
+import com.zipjung.backend.service.CustomUserDetailsService;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +16,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
@@ -55,6 +54,11 @@ public JwtTokenProvider(@Value("${JASYPT_ENCRYPTOR_PASSWORD}") String key,
         long now = (new Date()).getTime();
         String username = authentication.getName();
 
+        // memberId 추가
+        CustomUserDetails userDetails = (CustomUserDetails)authentication.getPrincipal();
+        Long memberId = userDetails.getMemberId();
+
+
         // AccessToken
         Date accessTokenExpires = new Date(now + ACCESS_TOKEN_EXPIRE_TIME);
         String accessToken = generateAccessToken(username, authorities, accessTokenExpires);
@@ -66,8 +70,11 @@ public JwtTokenProvider(@Value("${JASYPT_ENCRYPTOR_PASSWORD}") String key,
         // 위에서 생성한 refresh token을 redis에 담기
 //        redisDao.setValues(username, refreshToken, Duration.ofMillis(REFRESH_TOKEN_EXPIRE_TIME));
 
+
+        // 클라이언트가 받는 부분
         return JwtToken.builder()
                 .grantType(GRANT_TYPE)
+                .memberId(memberId)
                 .username(username)
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
@@ -77,7 +84,7 @@ public JwtTokenProvider(@Value("${JASYPT_ENCRYPTOR_PASSWORD}") String key,
     // accessToken의 payload + signature
     private String generateAccessToken(String username, String authorities, Date expireTime) {
         return Jwts.builder()
-                .setSubject(username) // uasername
+                .setSubject(username) // TODO: 토큰 발급시 username이 아니라 member_id 발급하도록 변경
                 .claim("authorities", authorities) // 권한 정보
                 .setExpiration(expireTime) // 만료시간
                 .signWith(SignatureAlgorithm.HS512, key) // 키와 알고리즘 서명

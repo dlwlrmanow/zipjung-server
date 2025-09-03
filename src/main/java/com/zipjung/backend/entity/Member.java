@@ -16,6 +16,7 @@ public class Member extends BaseEntity {
     private String password;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Role role;
 
     @Column(name = "is_withdrawn")

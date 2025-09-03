@@ -1,4 +1,4 @@
-package com.zipjung.backend.config;
+package com.zipjung.backend.security;
 
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;

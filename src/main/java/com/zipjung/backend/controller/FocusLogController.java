@@ -21,7 +21,7 @@ public class FocusLogController {
 
     @PostMapping("/save")
     public ResponseEntity<Void> saveFocusLog(@RequestBody FocusLogDto focusLogDto) {
-        // TODO: username으로부터 user_id 추가해서 저장
+        // DONE: username으로부터 user_id 추가해서 저장
         focusLogService.saveFocusLog(focusLogDto);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }

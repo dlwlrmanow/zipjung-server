@@ -1,5 +1,9 @@
 package com.zipjung.backend.config;
 
+import com.zipjung.backend.security.JwtAccessDeniedHandler;
+import com.zipjung.backend.security.JwtAuthenticationEntryPoint;
+import com.zipjung.backend.security.JwtFilter;
+import com.zipjung.backend.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
