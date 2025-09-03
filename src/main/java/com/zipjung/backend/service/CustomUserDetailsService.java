@@ -25,7 +25,7 @@ public class CustomUserDetailsService implements UserDetailsService {
             throw new UsernameNotFoundException("no user: " + username);
         }
 
-        Long memberId = memberRepository.findByUsername(username); // username으로 memberId 찾아서 넣기
+        Long memberId = memberRepository.findIdByUsername(username); // username으로 memberId 찾아서 넣기
 //        Role role = member.getRole();
 //        if(role == null) {
 //            throw new IllegalStateException(username + "/" + memberId + "의 user에 대해서 role이 null");

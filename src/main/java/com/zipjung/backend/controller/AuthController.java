@@ -34,6 +34,7 @@ public class AuthController {
         } catch (UsernameNotFoundException e) { // 없는 사용자
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND); // 404
         } catch (Exception e) { // 서버 오류
+            e.printStackTrace();
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
     }

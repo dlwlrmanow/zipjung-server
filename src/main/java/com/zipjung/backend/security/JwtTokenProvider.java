@@ -84,7 +84,7 @@ public JwtTokenProvider(@Value("${JASYPT_ENCRYPTOR_PASSWORD}") String key,
     // accessToken의 payload + signature
     private String generateAccessToken(String username, String authorities, Date expireTime) {
         return Jwts.builder()
-                .setSubject(username) // TODO: 토큰 발급시 username이 아니라 member_id 발급하도록 변경
+                .setSubject(username) // DONE: 토큰 발급시 username이 아니라 member_id 발급하도록 변경
                 .claim("authorities", authorities) // 권한 정보
                 .setExpiration(expireTime) // 만료시간
                 .signWith(SignatureAlgorithm.HS512, key) // 키와 알고리즘 서명

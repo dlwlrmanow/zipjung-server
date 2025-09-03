@@ -20,6 +20,10 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     boolean existsByUsername(String username);
 
-    Long findByUsername(String username); // jwt에 담긴 username -> user_id
-
+//    Long findByUsername(String username); // jwt에 담긴 username -> user_id
+    @Query("""
+            SELECT m.id FROM Member m
+            WHERE m.username = :username
+            """)
+    Long findIdByUsername(@Param("username") String username);
 }
