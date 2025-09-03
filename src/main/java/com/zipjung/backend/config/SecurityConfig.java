@@ -52,7 +52,7 @@ public class SecurityConfig {
                     .requestMatchers("/focus-log/fetch").permitAll()
                     .requestMatchers("/focus-log/delete/**").permitAll()
                     .requestMatchers("/focus-time/fetch/**").permitAll()
-                    .requestMatchers("/focus-time/save").permitAll()
+//                    .requestMatchers("/focus-time/save").permitAll()
                     .requestMatchers("/focus-time/today/fetch").permitAll()
                     .requestMatchers("/focus-time/list/fetch").permitAll()
                     .requestMatchers("/user/login", "/user/join/**").permitAll()
