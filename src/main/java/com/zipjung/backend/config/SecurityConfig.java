@@ -48,7 +48,7 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/api-test").permitAll()
-                    .requestMatchers("/focus-log/save").permitAll()
+//                    .requestMatchers("/focus-log/save").permitAll()
                     .requestMatchers("/focus-log/fetch").permitAll()
                     .requestMatchers("/focus-log/delete/**").permitAll()
                     .requestMatchers("/focus-time/fetch/**").permitAll()

@@ -10,6 +10,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface FocusTimeRepository extends JpaRepository<FocusTime, Long> {
+//    @Modifying
+//    @Query(value = "INSERT INTO FocusTime(focusedTime, startFocusTime, memberId) VALUES (:focusedTime, :startFocusTime, :memberId)")
+//    void saveWithMemberID(@Param("focusedTime") LocalDateTime focusedTime, @Param("startFocusTime") String startFocusTime, @Param("memberId") Long memberId);
+
     @Modifying
     @Query("UPDATE FocusTime f SET f.focusLogId = :focusLogId WHERE f.id = :focusTimeId")
     int updateFocusLogId(@Param("focusLogId") Long focusLogId, @Param("focusTimeId")Long focusTimeId);

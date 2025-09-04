@@ -15,6 +15,8 @@ import java.io.IOException;
 public class JwtFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
 
+    // request header에서 token 가져오기
+
     @Override
     public void doFilterInternal (HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
         // 로그인, 회원가입 같이 아직 토큰 발급되지 않아 검증 필요없는 경로는 제외시키기
@@ -24,19 +26,18 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
-        // 이미 발금된 토큰을 검증하는 filter
+        // 이미 발급된 토큰을 검증하는 filter
         String accessToken = resolveToken(request);
 
-        // 존재하ㅗㄱ 유효한 토큰인 경우만
+        // 존재하고 유효한 토큰인 경우만
         if (accessToken != null && jwtTokenProvider.validateToken(accessToken)) {
             Authentication authentication = jwtTokenProvider.getAuthentication(accessToken); // 토큰에 있는 정보 꺼내기
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
+        // TODO: 만료된 토큰처리
 
         filterChain.doFilter(request, response);
     }
-
-    // request header에서 token 가져오기
     public String resolveToken (HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
 

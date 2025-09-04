@@ -3,12 +3,13 @@ package com.zipjung.backend.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Entity
 @Table(name = "focus_time")
-@Builder
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class FocusTime extends BaseEntity {
@@ -23,4 +24,7 @@ public class FocusTime extends BaseEntity {
 
     @Column(name = "is_deleted")
     private Boolean isDeleted = false;
+
+    @Column(name = "member_id")
+    private Long memberId;
 }

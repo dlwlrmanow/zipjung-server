@@ -1,11 +1,15 @@
 package com.zipjung.backend.controller;
 
+import com.zipjung.backend.dto.FocusTimeRequestDto;
 import com.zipjung.backend.dto.Result;
 import com.zipjung.backend.entity.FocusTime;
+import com.zipjung.backend.exception.FocusTimeException;
+import com.zipjung.backend.security.CustomUserDetails;
 import com.zipjung.backend.service.FocusTimeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,13 +18,20 @@ import java.util.List;
 @RequestMapping("/focus-time")
 @RequiredArgsConstructor
 public class FocusTimeController {
+
     private final FocusTimeService focusTimeService;
 
     @PostMapping("/save")
-    public ResponseEntity<Long> saveFocusTime(@RequestBody FocusTime focusTime) {
-        Long savedId = focusTimeService.saveFocusTime(focusTime);
-        // TODO: 생성된 focusTime id 클라이언트에 던져줘야함!
-        return new ResponseEntity<>(savedId, HttpStatus.CREATED);
+    public ResponseEntity<?> saveFocusTime(@RequestBody FocusTimeRequestDto focusTimeRequestDto, @AuthenticationPrincipal CustomUserDetails user) {
+        Long memberId = user.getMemberId();
+        try {
+            Long savedId = focusTimeService.saveFocusTime(focusTimeRequestDto, memberId);
+            return new ResponseEntity<>(savedId, HttpStatus.CREATED);
+        } catch (FocusTimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (Exception e) { // 분류되지 않은 알 수 없는 오류
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     // 최근 일주일의 집중 시간 리스트 뽑기

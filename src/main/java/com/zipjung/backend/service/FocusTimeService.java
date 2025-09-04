@@ -1,6 +1,8 @@
 package com.zipjung.backend.service;
 
+import com.zipjung.backend.dto.FocusTimeRequestDto;
 import com.zipjung.backend.entity.FocusTime;
+import com.zipjung.backend.exception.FocusTimeException;
 import com.zipjung.backend.repository.FocusTimeRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -15,18 +17,22 @@ import java.util.Objects;
 @Service
 @RequiredArgsConstructor
 public class FocusTimeService {
-    private final FocusTimeRepository focusTimeRepository;
-    // TODO: member_id 추가
-    @Transactional
-    public Long saveFocusTime(FocusTime focusTime) {
-        focusTimeRepository.save(focusTime);
 
-        // 저장된 focusTime_id return
-        if (focusTime.getId() == null) {
-            System.out.println("focus time id is null: 생성안됨!!");
+    private final FocusTimeRepository focusTimeRepository;
+
+    @Transactional
+    public Long saveFocusTime(FocusTimeRequestDto focusTimeRequestDto, Long memberId) {
+        FocusTime focusTime = new FocusTime();
+        focusTime.setFocusedTime(focusTimeRequestDto.getFocusedTime());
+        focusTime.setStartFocusTime(focusTimeRequestDto.getStartFocusTime());
+        focusTime.setMemberId(memberId);
+        FocusTime saved = focusTimeRepository.save(focusTime);
+
+        if(saved.getId() == null) {
+            throw new FocusTimeException("FocusTime save failed");
         }
 
-        return focusTime.getId();
+        return saved.getId();
     }
 
     @Transactional(readOnly = true)
