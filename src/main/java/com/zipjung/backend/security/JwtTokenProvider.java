@@ -1,6 +1,7 @@
 package com.zipjung.backend.security;
 
 import com.zipjung.backend.dto.JwtToken;
+import com.zipjung.backend.dto.RefreshTokenResponseDto;
 import com.zipjung.backend.service.CustomUserDetailsService;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -16,6 +17,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
@@ -41,12 +43,11 @@ public class JwtTokenProvider {
 //        this.userDetailsService = userDetailsService;
 //        this.redisDao = redisDao;
 //    }
-public JwtTokenProvider(@Value("${JASYPT_ENCRYPTOR_PASSWORD}") String key,
-                        UserDetailsService userDetailsService) {
-    byte[] keyBytes = Base64.getEncoder().encode(key.getBytes());
-    this.key = Keys.hmacShaKeyFor(keyBytes);
-    this.userDetailsService = userDetailsService;
-}
+    public JwtTokenProvider(@Value("${JASYPT_ENCRYPTOR_PASSWORD}") String key, UserDetailsService userDetailsService) {
+        byte[] keyBytes = Base64.getEncoder().encode(key.getBytes());
+        this.key = Keys.hmacShaKeyFor(keyBytes);
+        this.userDetailsService = userDetailsService;
+    }
 
     public JwtToken generateToken(Authentication authentication) {
         // payload (=claims)의 권한을 저장하는 부분
@@ -150,6 +151,21 @@ public JwtTokenProvider(@Value("${JASYPT_ENCRYPTOR_PASSWORD}") String key,
         return false;
     }
 
+    public RefreshTokenResponseDto renewRefreshToken(String username) {
+        // DONE: refresh token만 재발급
+        long now = (new Date()).getTime();
+        Date refreshTokenExpireDate = new Date(now + REFRESH_TOKEN_EXPIRE_TIME);
+        String refreshTokenExpire = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss'Z'").format(refreshTokenExpireDate);
+
+        String refreshToken = generateRefreshToken(username, refreshTokenExpireDate);
+
+        // DONE: jwtToken 기존 DTO 사용하기 보다는 새로운 refresh token renew용 DTO 추가하기
+        return RefreshTokenResponseDto.builder()
+                .refreshToken(refreshToken)
+                .refreshTokenExpire(refreshTokenExpire)
+                .build();
+    }
+
 
     // refresh Token 검증
 //    public boolean validateRefreshToken(String token) {
@@ -181,7 +197,7 @@ public JwtTokenProvider(@Value("${JASYPT_ENCRYPTOR_PASSWORD}") String key,
 //        }
 //    }
 
-    // 사용자가 로그아웃하는 경우 refresh token 삭제
+//     사용자가 로그아웃하는 경우 refresh token 삭제
 //    public void deleteRefreshToken(String username) {
 //        if (username == null || username.trim().isEmpty()) {
 //            throw new IllegalArgumentException("Username cannot be null or empty");

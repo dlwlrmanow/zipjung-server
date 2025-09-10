@@ -1,5 +1,7 @@
 package com.zipjung.backend.controller;
 
+import com.zipjung.backend.dto.RefreshTokenResponseDto;
+import com.zipjung.backend.security.CustomUserDetails;
 import com.zipjung.backend.security.JwtTokenProvider;
 import com.zipjung.backend.dto.JwtToken;
 import com.zipjung.backend.dto.LoginRequestDto;
@@ -10,6 +12,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthenticationManager authenticationManager;
@@ -28,7 +31,7 @@ public class AuthController {
         try {
             Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequestDto.getUsername(), loginRequestDto.getPassword()));
             JwtToken token = jwtTokenProvider.generateToken(authentication);
-            return ResponseEntity.ok(token);
+            return ResponseEntity.ok(token); // 클라이언트에 200
         } catch (BadCredentialsException e) { // 비밀번호 틀림
             return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED); // 401
         } catch (UsernameNotFoundException e) { // 없는 사용자
@@ -37,5 +40,11 @@ public class AuthController {
             e.printStackTrace();
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); // 500
         }
+    }
+
+    @PostMapping("/renew/refresh")
+    public ResponseEntity<RefreshTokenResponseDto> renewRefreshToken(@AuthenticationPrincipal CustomUserDetails user) {
+        RefreshTokenResponseDto newRefreshToken = jwtTokenProvider.renewRefreshToken(user.getUsername());
+        return new ResponseEntity<>(newRefreshToken, HttpStatus.OK);
     }
 }

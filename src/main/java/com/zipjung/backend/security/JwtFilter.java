@@ -34,7 +34,9 @@ public class JwtFilter extends OncePerRequestFilter {
             Authentication authentication = jwtTokenProvider.getAuthentication(accessToken); // 토큰에 있는 정보 꺼내기
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
-        // TODO: 만료된 토큰처리
+
+        // 존재는 하지만 유효하지 않은 토큰
+        // TODO: refresh token 보내서 유효한 refresh token이면 access token 재발급하도록
 
         filterChain.doFilter(request, response);
     }
@@ -47,4 +49,5 @@ public class JwtFilter extends OncePerRequestFilter {
 
         return null;
     }
+
 }
