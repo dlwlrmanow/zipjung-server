@@ -1,6 +1,5 @@
 package com.zipjung.backend.security;
 
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.AuthenticationException;
@@ -12,8 +11,9 @@ import java.io.IOException;
 @Component
 public class JwtAuthenticationEntryPoint  implements AuthenticationEntryPoint {
     @Override
-    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
-        // 사용자 정보 자체가 없음
+    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
         response.sendError(HttpServletResponse.SC_UNAUTHORIZED); // 401
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write("{\"error\": \"Invailed or expired token\"}");
     }
 }

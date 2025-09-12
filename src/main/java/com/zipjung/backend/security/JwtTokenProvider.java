@@ -2,7 +2,6 @@ package com.zipjung.backend.security;
 
 import com.zipjung.backend.dto.JwtToken;
 import com.zipjung.backend.dto.RefreshTokenResponseDto;
-import com.zipjung.backend.service.CustomUserDetailsService;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
@@ -178,22 +177,6 @@ public class JwtTokenProvider {
 //        } catch (Exception e) {
 //            log.info("RefreshToken Validation Failed", e);
 //            return false;
-//        }
-//    }
-
-//    public String getUserNameFromToken(String token) {
-//        try {
-//            Claims claims = Jwts.parserBuilder()
-//                    .setSigningKey(key)
-//                    .build()
-//                    .parseClaimsJws(token)
-//                    .getBody();
-//
-//            // username
-//            return claims.getSubject();
-//        } catch (ExpiredJwtException e) {
-//            // 토큰이 만료되어도 클레임 내용을 가져올 수 있음
-//            return e.getClaims().getSubject();
 //        }
 //    }
 

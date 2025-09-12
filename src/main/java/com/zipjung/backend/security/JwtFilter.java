@@ -4,6 +4,7 @@ import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
@@ -33,10 +34,13 @@ public class JwtFilter extends OncePerRequestFilter {
         if (accessToken != null && jwtTokenProvider.validateToken(accessToken)) {
             Authentication authentication = jwtTokenProvider.getAuthentication(accessToken); // 토큰에 있는 정보 꺼내기
             SecurityContextHolder.getContext().setAuthentication(authentication);
+            return;
         }
 
         // 존재는 하지만 유효하지 않은 토큰
-        // TODO: refresh token 보내서 유효한 refresh token이면 access token 재발급하도록
+        if(accessToken != null && !jwtTokenProvider.validateToken(accessToken)) {
+            throw new BadCredentialsException("Invalid access token");
+        }
 
         filterChain.doFilter(request, response);
     }
