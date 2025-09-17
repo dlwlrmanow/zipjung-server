@@ -2,6 +2,7 @@ package com.zipjung.backend.security;
 
 import com.zipjung.backend.dto.JwtToken;
 import com.zipjung.backend.dto.RefreshTokenResponseDto;
+import com.zipjung.backend.repository.RedisDao;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
@@ -28,24 +30,20 @@ import java.util.stream.Collectors;
 public class JwtTokenProvider {
     private final Key key;
     private final UserDetailsService userDetailsService;
+    private final RedisDao redisDao;
 
     private static final String GRANT_TYPE = "Bearer";
 
     private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 30; // 30분
     private static final long REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24 * 3; // 3일
 
-//    public JwtTokenProvider(@Value("${JASYPT_ENCRYPTOR_PASSWORD}") String key,
-//                            UserDetailsService userDetailsService,
-//                            RedisDao redisDao) {
-//        byte[] keyBytes = Base64.getEncoder().encode(key.getBytes());
-//        this.key = Keys.hmacShaKeyFor(keyBytes);
-//        this.userDetailsService = userDetailsService;
-//        this.redisDao = redisDao;
-//    }
-    public JwtTokenProvider(@Value("${JASYPT_ENCRYPTOR_PASSWORD}") String key, UserDetailsService userDetailsService) {
+    public JwtTokenProvider(@Value("${JASYPT_ENCRYPTOR_PASSWORD}") String key,
+                            UserDetailsService userDetailsService,
+                            RedisDao redisDao) {
         byte[] keyBytes = Base64.getEncoder().encode(key.getBytes());
         this.key = Keys.hmacShaKeyFor(keyBytes);
         this.userDetailsService = userDetailsService;
+        this.redisDao = redisDao;
     }
 
     public JwtToken generateToken(Authentication authentication) {
@@ -67,8 +65,9 @@ public class JwtTokenProvider {
         Date refreshTokenExpire = new Date(now + REFRESH_TOKEN_EXPIRE_TIME);
         String refreshToken = generateRefreshToken(username, refreshTokenExpire);
 
+        // access token을 생성하면서
         // 위에서 생성한 refresh token을 redis에 담기
-//        redisDao.setValues(username, refreshToken, Duration.ofMillis(REFRESH_TOKEN_EXPIRE_TIME));
+        redisDao.setValues(username, refreshToken, Duration.ofMillis(REFRESH_TOKEN_EXPIRE_TIME));
 
 
         // 클라이언트가 받는 부분

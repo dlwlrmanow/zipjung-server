@@ -15,8 +15,8 @@ spring:
         format_sql: true
   data:
     redis:
-      host: redis-15066.c340.ap-northeast-2-1.ec2.redns.redis-cloud.com:15066
-      port: 15066
+      host:
+      port: 6379
 
 server:
   port: 8080

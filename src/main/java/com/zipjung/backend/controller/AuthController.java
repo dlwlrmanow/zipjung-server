@@ -47,4 +47,6 @@ public class AuthController {
         RefreshTokenResponseDto newRefreshToken = jwtTokenProvider.renewRefreshToken(user.getUsername());
         return new ResponseEntity<>(newRefreshToken, HttpStatus.OK);
     }
+
+    // TODO: POST MApping /validate/refresh - refresh token 검증
 }
