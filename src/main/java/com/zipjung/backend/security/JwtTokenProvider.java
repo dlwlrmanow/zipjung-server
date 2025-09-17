@@ -149,13 +149,21 @@ public class JwtTokenProvider {
         return false;
     }
 
+    // 로그인하는 경우 refresh token 연장해주기
     public RefreshTokenResponseDto renewRefreshToken(String username) {
         // DONE: refresh token만 재발급
+        // DONE: refresh token 재발급하면서 redis에 새로 저장하기
         long now = (new Date()).getTime();
         Date refreshTokenExpireDate = new Date(now + REFRESH_TOKEN_EXPIRE_TIME);
         String refreshTokenExpire = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss'Z'").format(refreshTokenExpireDate);
 
         String refreshToken = generateRefreshToken(username, refreshTokenExpireDate);
+
+        // 기존에 redis에 있던 refresh token 삭제
+        redisDao.deleteValues(username);
+
+        // redis에 새로운 refresh token 담기
+        redisDao.setValues(username, refreshToken, Duration.ofMillis(REFRESH_TOKEN_EXPIRE_TIME));
 
         // DONE: jwtToken 기존 DTO 사용하기 보다는 새로운 refresh token renew용 DTO 추가하기
         return RefreshTokenResponseDto.builder()
@@ -166,25 +174,38 @@ public class JwtTokenProvider {
 
 
     // refresh Token 검증
-//    public boolean validateRefreshToken(String token) {
-//        if (!validateToken(token)) return false;
-//
-//        try {
-//            String username = getUserNameFromToken(token);
-//            String redisToken = (String) redisDao.getValues(username);
-//            return token.equals(redisToken);
-//        } catch (Exception e) {
-//            log.info("RefreshToken Validation Failed", e);
-//            return false;
-//        }
-//    }
+    public boolean validateRefreshToken(String token) {
+        if (!validateToken(token)) return false;
+
+        try {
+            String username = getUserNameFromToken(token);
+            String redisToken = (String) redisDao.getValues(username);
+            return token.equals(redisToken);
+        } catch (Exception e) {
+            log.info("RefreshToken Validation Failed", e);
+            return false;
+        }
+    }
 
 //     사용자가 로그아웃하는 경우 refresh token 삭제
-//    public void deleteRefreshToken(String username) {
-//        if (username == null || username.trim().isEmpty()) {
-//            throw new IllegalArgumentException("Username cannot be null or empty");
-//        }
-//
-//        redisDao.deleteValues(username);
-//    }
+    public void deleteRefreshToken(String username) {
+        if (username == null || username.trim().isEmpty()) {
+            throw new IllegalArgumentException("Username cannot be null or empty");
+        }
+
+        redisDao.deleteValues(username);
+    }
+
+    public String getUserNameFromToken(String token) {
+        try{
+            Claims claims = Jwts.parserBuilder() // refresh token을 발급할 때 username 함께 담아줬음
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+            return claims.getSubject(); // = username
+        } catch (ExpiredJwtException e) {
+            return e.getClaims().getSubject(); // 만료된 토큰 username 반환
+        }
+    }
 }
