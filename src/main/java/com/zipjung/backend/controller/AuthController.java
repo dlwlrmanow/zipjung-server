@@ -39,13 +39,7 @@ public class AuthController {
         }
     }
 
-//    @PostMapping("/renew/refresh")
-//    public ResponseEntity<RefreshTokenResponseDto> renewRefreshToken(@AuthenticationPrincipal CustomUserDetails user) {
-//        RefreshTokenResponseDto newRefreshToken = jwtTokenProvider.renewRefreshToken(user.getUsername());
-//        return new ResponseEntity<>(newRefreshToken, HttpStatus.OK);
-//    }
-
-    // access token은 유효, refresh token은
+    // access token은 유효, refresh token은 연장
     @PostMapping("/validate/refresh")
     public ResponseEntity<?> validateRefreshToken(@AuthenticationPrincipal CustomUserDetails user, @RequestHeader("Authorization") String refreshTokenHeader) {
         String refreshToken = refreshTokenHeader.replace("Bearer ", ""); // token만 파싱

@@ -49,13 +49,13 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/api-test").permitAll()
 //                    .requestMatchers("/focus-log/save").permitAll()
-                    .requestMatchers("/focus-log/fetch").permitAll()
-                    .requestMatchers("/focus-log/delete/**").permitAll()
-                    .requestMatchers("/focus-time/fetch/**").permitAll()
+//                    .requestMatchers("/focus-log/fetch").permitAll()
+//                    .requestMatchers("/focus-log/delete/**").permitAll()
+//                    .requestMatchers("/focus-time/fetch/**").permitAll()
 //                    .requestMatchers("/focus-time/save").permitAll()
-                    .requestMatchers("/focus-time/today/fetch").permitAll()
-                    .requestMatchers("/focus-time/list/fetch").permitAll()
-                    .requestMatchers("/auth/login", "/auth/join/**").permitAll()
+//                    .requestMatchers("/focus-time/today/fetch").permitAll()
+//                    .requestMatchers("/focus-time/list/fetch").permitAll()
+//                    .requestMatchers("/auth/login", "/auth/join/**").permitAll()
                     .anyRequest().authenticated())
 
                 .exceptionHandling(ex -> ex
@@ -66,24 +66,5 @@ public class SecurityConfig {
                 .addFilterBefore(new JwtFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
-
-//        http
-//            .formLogin(login -> login
-//                    .loginProcessingUrl("/login")
-//                    .usernameParameter("username")
-//                    .passwordParameter("password")
-//                    .successHandler((request, response, authentication) -> {
-//                        // 로그인 성공 시 JSON 응답 반환
-//                        response.setContentType("application/json");
-//                        response.setCharacterEncoding("UTF-8");
-//                        response.getWriter().write("{\"status\": \"success\", \"message\": \"로그인 성공!\"}");
-//                    })
-//                    .failureHandler((request, response, exception) -> {
-//                        // 로그인 실패 시 JSON 응답 반환
-//                        response.setContentType("application/json");
-//                        response.setCharacterEncoding("UTF-8");
-//                        response.getWriter().write("{\"status\": \"failure\", \"message\": \"로그인 실패ㅠ\"}");
-//                    })
-//                    .permitAll());
     }
 }

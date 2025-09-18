@@ -150,17 +150,14 @@ public class JwtTokenProvider {
 
     // 로그인하는 경우 refresh token 연장해주기
     public RefreshTokenResponseDto renewRefreshToken(Long memberId, String username) {
-        // DONE: refresh token만 재발급
-        // DONE: refresh token 재발급하면서 redis에 새로 저장하기
         long now = (new Date()).getTime();
 
         Date refreshTokenExpire = new Date(now + REFRESH_TOKEN_EXPIRE_TIME);
         String refreshToken = generateRefreshToken(username, refreshTokenExpire);
 
-        // 기존에 redis에 있던 refresh token 삭제
+        // 기존에 redis에 있던 refresh token 삭제하고 새로운 refresh token 담기
+        // TODO: try-catch로 예외던지기
         redisDao.deleteValues(username);
-
-        // redis에 새로운 refresh token 담기
         redisDao.setValues(username, refreshToken, Duration.ofMillis(REFRESH_TOKEN_EXPIRE_TIME));
 
         // DONE: jwtToken 기존 DTO 사용하기 보다는 새로운 refresh token renew용 DTO 추가하기
