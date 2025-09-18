@@ -42,6 +42,7 @@ public class AuthController {
     // access token은 유효, refresh token은 연장
     @PostMapping("/validate/refresh")
     public ResponseEntity<?> validateRefreshToken(@AuthenticationPrincipal CustomUserDetails user, @RequestHeader("Authorization") String refreshTokenHeader) {
+        // TODO: refresh token을 header가 아니라 body에 받는 형식으로 변경
         String refreshToken = refreshTokenHeader.replace("Bearer ", ""); // token만 파싱
 
         boolean valid = jwtTokenProvider.validateRefreshToken(refreshToken);

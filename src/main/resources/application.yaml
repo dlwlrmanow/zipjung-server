@@ -15,7 +15,7 @@ spring:
         format_sql: true
   data:
     redis:
-      host:
+      host: localhost # no auth여도 localhost는 포함시켜줘야함
       port: 6379
 
 server:

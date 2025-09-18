@@ -172,9 +172,9 @@ public class JwtTokenProvider {
 
     // refresh Token 검증
     public boolean validateRefreshToken(String token) {
-        if (!validateToken(token)) return false;
+        if (!validateToken(token)) return false; // 유효기간 확인
 
-        try {
+        try { // redis에 있는 refresh token과 일치한지 확인
             String username = getUserNameFromToken(token);
             String redisToken = (String) redisDao.getValues(username);
             return token.equals(redisToken);
