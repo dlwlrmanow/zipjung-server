@@ -17,7 +17,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
-import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Base64;
@@ -150,14 +149,13 @@ public class JwtTokenProvider {
     }
 
     // 로그인하는 경우 refresh token 연장해주기
-    public RefreshTokenResponseDto renewRefreshToken(String username) {
+    public RefreshTokenResponseDto renewRefreshToken(Long memberId, String username) {
         // DONE: refresh token만 재발급
         // DONE: refresh token 재발급하면서 redis에 새로 저장하기
         long now = (new Date()).getTime();
-        Date refreshTokenExpireDate = new Date(now + REFRESH_TOKEN_EXPIRE_TIME);
-        String refreshTokenExpire = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss'Z'").format(refreshTokenExpireDate);
 
-        String refreshToken = generateRefreshToken(username, refreshTokenExpireDate);
+        Date refreshTokenExpire = new Date(now + REFRESH_TOKEN_EXPIRE_TIME);
+        String refreshToken = generateRefreshToken(username, refreshTokenExpire);
 
         // 기존에 redis에 있던 refresh token 삭제
         redisDao.deleteValues(username);
@@ -167,8 +165,10 @@ public class JwtTokenProvider {
 
         // DONE: jwtToken 기존 DTO 사용하기 보다는 새로운 refresh token renew용 DTO 추가하기
         return RefreshTokenResponseDto.builder()
+                .grantType(GRANT_TYPE)
+                .memberId(memberId)
+                .username(username)
                 .refreshToken(refreshToken)
-                .refreshTokenExpire(refreshTokenExpire)
                 .build();
     }
 

@@ -39,18 +39,25 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/renew/refresh")
-    public ResponseEntity<RefreshTokenResponseDto> renewRefreshToken(@AuthenticationPrincipal CustomUserDetails user) {
-        RefreshTokenResponseDto newRefreshToken = jwtTokenProvider.renewRefreshToken(user.getUsername());
-        return new ResponseEntity<>(newRefreshToken, HttpStatus.OK);
-    }
+//    @PostMapping("/renew/refresh")
+//    public ResponseEntity<RefreshTokenResponseDto> renewRefreshToken(@AuthenticationPrincipal CustomUserDetails user) {
+//        RefreshTokenResponseDto newRefreshToken = jwtTokenProvider.renewRefreshToken(user.getUsername());
+//        return new ResponseEntity<>(newRefreshToken, HttpStatus.OK);
+//    }
 
-    // TODO: POST MApping /validate/refresh - refresh token 검증
+    // access token은 유효, refresh token은
     @PostMapping("/validate/refresh")
     public ResponseEntity<?> validateRefreshToken(@AuthenticationPrincipal CustomUserDetails user, @RequestHeader("Authorization") String refreshTokenHeader) {
         String refreshToken = refreshTokenHeader.replace("Bearer ", ""); // token만 파싱
+
         boolean valid = jwtTokenProvider.validateRefreshToken(refreshToken);
 
-        return new ResponseEntity<>(valid, HttpStatus.OK);
+        if (valid) {
+            // refresh token 검증 후 로그인 연장을 위한 refresh token 재발급
+            RefreshTokenResponseDto refreshTokenDto = jwtTokenProvider.renewRefreshToken(user.getMemberId(), user.getUsername());
+            return ResponseEntity.ok(refreshTokenDto);
+        }
+
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 }
