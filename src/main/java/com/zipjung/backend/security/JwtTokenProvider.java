@@ -162,9 +162,9 @@ public class JwtTokenProvider {
 
         // DONE: jwtToken 기존 DTO 사용하기 보다는 새로운 refresh token renew용 DTO 추가하기
         return RefreshTokenResponseDto.builder()
-                .grantType(GRANT_TYPE)
+//                .grantType(GRANT_TYPE)
                 .memberId(memberId)
-                .username(username)
+//                .username(username)
                 .refreshToken(refreshToken)
                 .build();
     }
