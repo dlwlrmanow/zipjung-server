@@ -1,7 +1,7 @@
 package com.zipjung.backend.security;
 
 import com.zipjung.backend.dto.JwtToken;
-import com.zipjung.backend.dto.RefreshTokenResponseDto;
+import com.zipjung.backend.dto.RefreshTokenDto;
 import com.zipjung.backend.repository.RedisDao;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -111,6 +111,7 @@ public class JwtTokenProvider {
                 .map(SimpleGrantedAuthority::new)
                 .toList();
         // spring security가 사용하는 유저 객체로 변환해주고
+        // userDeatils의 username에 memberId가 들어감
         UserDetails userDetails = new User(claims.getSubject(), "", authorities);
         // 결과적으로 Authentication을 리턴 => security filter chian에서 인증도니 사용자로 처리할 수 있게끔 해줌
         return new UsernamePasswordAuthenticationToken(userDetails, "", authorities);
@@ -148,8 +149,7 @@ public class JwtTokenProvider {
         return false;
     }
 
-    // 로그인하는 경우 refresh token 연장해주기
-    public RefreshTokenResponseDto renewRefreshToken(Long memberId, String username) {
+    public RefreshTokenDto reissueRefreshToken(String username) {
         long now = (new Date()).getTime();
 
         Date refreshTokenExpire = new Date(now + REFRESH_TOKEN_EXPIRE_TIME);
@@ -161,10 +161,8 @@ public class JwtTokenProvider {
         redisDao.setValues(username, refreshToken, Duration.ofMillis(REFRESH_TOKEN_EXPIRE_TIME));
 
         // DONE: jwtToken 기존 DTO 사용하기 보다는 새로운 refresh token renew용 DTO 추가하기
-        return RefreshTokenResponseDto.builder()
-//                .grantType(GRANT_TYPE)
-                .memberId(memberId)
-//                .username(username)
+        return RefreshTokenDto.builder()
+                .username(username)
                 .refreshToken(refreshToken)
                 .build();
     }
@@ -204,5 +202,20 @@ public class JwtTokenProvider {
         } catch (ExpiredJwtException e) {
             return e.getClaims().getSubject(); // 만료된 토큰 username 반환
         }
+    }
+
+    public JwtToken reissueToken(String refreshToken) {
+        // UserDeatils로 Authentication 객체 생성
+        String username = getUserNameFromToken(refreshToken);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
+        // 새로 생상하면서 기존 redis에 저장한 refresh token 삭제
+        if(redisDao.existsKey(username)) {
+            redisDao.deleteValues(username);
+        }
+
+        JwtToken jwtToken = generateToken(authentication);
+        return jwtToken;
     }
 }

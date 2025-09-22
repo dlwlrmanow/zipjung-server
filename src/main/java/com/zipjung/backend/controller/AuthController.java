@@ -1,10 +1,11 @@
 package com.zipjung.backend.controller;
 
-import com.zipjung.backend.dto.RefreshTokenResponseDto;
+import com.zipjung.backend.dto.RefreshTokenDto;
 import com.zipjung.backend.security.CustomUserDetails;
 import com.zipjung.backend.security.JwtTokenProvider;
 import com.zipjung.backend.dto.JwtToken;
 import com.zipjung.backend.dto.LoginRequestDto;
+import com.zipjung.backend.service.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
+    private final CustomUserDetailsService customUserDetailsService;
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequestDto loginRequestDto) {
@@ -41,18 +44,33 @@ public class AuthController {
 
     // access token은 유효, refresh token은 연장
     @PostMapping("/validate/refresh")
-    public ResponseEntity<?> validateRefreshToken(@AuthenticationPrincipal CustomUserDetails user, @RequestHeader("Authorization") String refreshTokenHeader) {
-        // TODO: refresh token을 header가 아니라 body에 받는 형식으로 변경
-        String refreshToken = refreshTokenHeader.replace("Bearer ", ""); // token만 파싱
+    public ResponseEntity<?> validateRefreshToken(@RequestBody RefreshTokenDto refreshTokenDto) {
+        String refreshToken = refreshTokenDto.getRefreshToken();
 
-        boolean valid = jwtTokenProvider.validateRefreshToken(refreshToken);
+        boolean isValid = jwtTokenProvider.validateRefreshToken(refreshToken);
 
-        if (valid) {
-            // refresh token 검증 후 로그인 연장을 위한 refresh token 재발급
-            RefreshTokenResponseDto refreshTokenDto = jwtTokenProvider.renewRefreshToken(user.getMemberId(), user.getUsername());
-            return ResponseEntity.ok(refreshTokenDto);
+        if (isValid) {
+            // refresh token 재발급
+            RefreshTokenDto newRefreshToken = jwtTokenProvider.reissueRefreshToken(refreshTokenDto.getUsername());
+            return ResponseEntity.ok(newRefreshToken);
         }
+        // 검증 실패시
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
 
+    @PostMapping("/reissue/access")
+    public ResponseEntity<?> reissueAccess(@RequestBody RefreshTokenDto refreshTokenDto) {
+        // refresh token 검증
+        String refreshToken = refreshTokenDto.getRefreshToken();
+
+        boolean isValid = jwtTokenProvider.validateRefreshToken(refreshToken);
+
+        if (isValid) {
+            // refresh token이 유효하다면
+            // JWT token 전체 재발급
+            JwtToken newJwtToken = jwtTokenProvider.reissueToken(refreshToken);
+            return ResponseEntity.ok(newJwtToken);
+        }
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 }

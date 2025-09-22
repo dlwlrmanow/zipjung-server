@@ -34,4 +34,11 @@ public class RedisDao {
     public void deleteValues(String key) {
         redisTemplate.delete(key);
     }
+
+    public boolean existsKey(String key) {
+        Boolean exists = redisTemplate.hasKey(key);
+        // null이어도 NullPointException 안터지고 그냥 false만 반환!
+        // 그냥 무조건 true / false만 반환
+        return exists.TRUE.equals(exists);
+    }
 }
