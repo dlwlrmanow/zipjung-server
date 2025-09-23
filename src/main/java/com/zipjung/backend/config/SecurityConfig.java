@@ -55,7 +55,7 @@ public class SecurityConfig {
 //                    .requestMatchers("/focus-time/save").permitAll()
 //                    .requestMatchers("/focus-time/today/fetch").permitAll()
 //                    .requestMatchers("/focus-time/list/fetch").permitAll()
-//                    .requestMatchers("/auth/login", "/auth/join/**").permitAll()
+                    .requestMatchers("/auth/login", "/auth/join/**").permitAll()
                     .anyRequest().authenticated())
 
                 .exceptionHandling(ex -> ex
