@@ -182,7 +182,7 @@ public class JwtTokenProvider {
         }
     }
 
-//     사용자가 로그아웃하는 경우 refresh token 삭제
+    // 사용자가 로그아웃하는 경우 refresh token 삭제
     public void deleteRefreshToken(String username) {
         if (username == null || username.trim().isEmpty()) {
             throw new IllegalArgumentException("Username cannot be null or empty");

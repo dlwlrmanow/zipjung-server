@@ -63,9 +63,25 @@ public class AuthController {
         if (isValid) {
             // refresh token이 유효하다면
             // JWT token 전체 재발급
+            System.out.println("isValid refreshToken");
             JwtToken newJwtToken = jwtTokenProvider.reissueToken(refreshToken);
             return ResponseEntity.ok(newJwtToken);
         }
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@RequestBody RefreshTokenDto refreshTokenDto) {
+        // redis에서 삭제하기 위해서 검증 먼저
+        String refreshToken = refreshTokenDto.getRefreshToken();
+        boolean isValid = jwtTokenProvider.validateRefreshToken(refreshToken);
+
+        if(!isValid) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        String username = jwtTokenProvider.getUserNameFromToken(refreshToken);
+        jwtTokenProvider.deleteRefreshToken(username);
+
+        return ResponseEntity.ok().build();
     }
 }
