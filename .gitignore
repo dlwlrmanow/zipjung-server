@@ -20,7 +20,10 @@ bin/
 !**/src/test/**/bin/
 
 ### IntelliJ IDEA ###
-.idea
+.idea/*
+!.idea/misc.xml       # 프로젝트 SDK 정보 포함
+!.idea/modules.xml    # 모듈 정보
+!.idea/vcs.xml  # git
 *.iws
 *.iml
 *.ipr
