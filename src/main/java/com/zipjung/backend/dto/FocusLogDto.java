@@ -8,6 +8,7 @@ import java.util.List;
 public class FocusLogDto {
     private String username;
     private List<Long> focusTimeId;
+    private int memberId;
     private String title;
     private String content;
     private int rating;

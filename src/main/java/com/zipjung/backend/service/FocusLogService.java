@@ -24,7 +24,7 @@ public class FocusLogService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public void saveFocusLog(FocusLogDto focusLogDto, Long memberId) {
+    public int saveFocusLog(FocusLogDto focusLogDto, Long memberId) {
         // 1. post.id 만들기
         Post post = Post.builder()
                 .title(focusLogDto.getTitle())
@@ -43,7 +43,11 @@ public class FocusLogService {
         Long focusLogId = focusLog.getId();
         for(Long focusTimeId : focusLogDto.getFocusTimeId()) { // focus_time_id가 리스트 형태로 들어옴
             int count = focusTimeRepository.updateFocusLogId(focusLogId, focusTimeId);
-            if (count != 0) System.out.println("update success: " + count);
+            if (count != 0) {
+                System.out.println("update success: " + count);
+                return count;
+            }
+
         }
     }
 

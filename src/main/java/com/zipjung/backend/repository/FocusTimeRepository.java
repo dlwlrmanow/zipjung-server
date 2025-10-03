@@ -16,6 +16,7 @@ public interface FocusTimeRepository extends JpaRepository<FocusTime, Long> {
 
     @Modifying
     @Query("UPDATE FocusTime f SET f.focusLogId = :focusLogId WHERE f.id = :focusTimeId")
+    // TODO: update한 postId를 return하도록 수정
     int updateFocusLogId(@Param("focusLogId") Long focusLogId, @Param("focusTimeId")Long focusTimeId);
 
     // 사용자 집중 시간 리스트에서 최근 일주일 집중시간 + 시간에 대한 기록 가져오기
