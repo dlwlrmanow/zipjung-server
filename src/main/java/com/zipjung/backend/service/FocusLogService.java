@@ -49,6 +49,7 @@ public class FocusLogService {
             }
 
         }
+        return -1; // TODO: 탈 일 없긴 함
     }
 
     @Transactional(readOnly = true)
