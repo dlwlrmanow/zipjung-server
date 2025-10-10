@@ -11,7 +11,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
@@ -58,7 +57,7 @@ public class JwtTokenProvider {
 
         // AccessToken
         Date accessTokenExpires = new Date(now + ACCESS_TOKEN_EXPIRE_TIME);
-        String accessToken = generateAccessToken(username, authorities, accessTokenExpires);
+        String accessToken = generateAccessToken(memberId, username, authorities, accessTokenExpires);
 
         // RefreshToken
         Date refreshTokenExpire = new Date(now + REFRESH_TOKEN_EXPIRE_TIME);
@@ -80,9 +79,10 @@ public class JwtTokenProvider {
 
     }
     // accessToken의 payload + signature
-    private String generateAccessToken(String username, String authorities, Date expireTime) {
+    private String generateAccessToken(Long memberId, String username, String authorities, Date expireTime) {
         return Jwts.builder()
                 .setSubject(username) // DONE: 토큰 발급시 username이 아니라 member_id 발급하도록 변경
+                .claim("memberId", memberId) // authentication에서 사용
                 .claim("authorities", authorities) // 권한 정보
                 .setExpiration(expireTime) // 만료시간
                 .signWith(SignatureAlgorithm.HS512, key) // 키와 알고리즘 서명
@@ -110,10 +110,13 @@ public class JwtTokenProvider {
         Collection<? extends GrantedAuthority> authorities = Arrays.stream(claims.get("authorities").toString().split(","))
                 .map(SimpleGrantedAuthority::new)
                 .toList();
-        // spring security가 사용하는 유저 객체로 변환해주고
-        // userDeatils의 username에 memberId가 들어감
-        UserDetails userDetails = new User(claims.getSubject(), "", authorities);
+
+        Long memberId = claims.get("memberId", Long.class);
+        if (memberId == null) throw new RuntimeException("token에 memberId가 존재하지 않습니다");
+
+        // spring security가 사용하는 유저 객체로 변환
         // 결과적으로 Authentication을 리턴 => security filter chian에서 인증도니 사용자로 처리할 수 있게끔 해줌
+        CustomUserDetails userDetails = new CustomUserDetails(memberId, claims.getSubject(), "", authorities);
         return new UsernamePasswordAuthenticationToken(userDetails, "", authorities);
     }
 

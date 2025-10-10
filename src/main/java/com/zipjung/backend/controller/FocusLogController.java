@@ -25,8 +25,8 @@ public class FocusLogController {
 
     @PostMapping("/save")
     public ResponseEntity<Integer> saveFocusLog(@RequestBody FocusLogDto focusLogDto, @AuthenticationPrincipal CustomUserDetails user) {
-        // DOWE: memberId를 저장하도록 변경 -> @AuthenticationPrincipal CustomUserDetails username로 memberId 찾아오기
         Long memberId = user.getMemberId();
+        System.out.println("[/focus-log/save] memberId: " + memberId);
         int successCount = focusLogService.saveFocusLog(focusLogDto, memberId);
         return new ResponseEntity<>(successCount, HttpStatus.CREATED);
     }
