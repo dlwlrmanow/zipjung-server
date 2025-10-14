@@ -53,9 +53,7 @@ public class FocusLogService {
     }
 
     @Transactional(readOnly = true)
-    public List<FocusLogForListDto> getFocusLogs() {
-        // DONE: is_deleted = 0인 리스트만 뽑기
-        // TODO: 해당하는 userId만 뽑기
-        return focusLogRepository.getFocusLogList();
+    public List<FocusLogForListDto> getFocusLogList(Long memberId) {
+        return focusLogRepository.getFocusLogList(memberId);
     }
 }
