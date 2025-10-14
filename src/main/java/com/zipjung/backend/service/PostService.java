@@ -18,10 +18,11 @@ public class PostService {
     private final FocusLogRepository focusLogRepository;
 
     @Transactional
-    public void deletePost(Long postId) {
+    public void deletePost(Long memberId, Long postId) {
+        // TODO: memberId로 먼저 본인인지 확인 한 뒤 post id로 삭제
 //        Post post = postRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("Post not found + postId: " + postId));
         // TODO: 해당 postId의 focusTime.focus_log_id -> null
 //        post.setIsDeleted(true);
-        postCustomRepository.deletePost(postId);
+        postCustomRepository.deletePost(memberId, postId);
     }
 }

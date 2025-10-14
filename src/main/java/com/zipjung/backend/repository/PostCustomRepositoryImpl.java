@@ -3,6 +3,7 @@ package com.zipjung.backend.repository;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.zipjung.backend.entity.QFocusLog;
 import com.zipjung.backend.entity.QFocusTime;
+import com.zipjung.backend.entity.QMember;
 import com.zipjung.backend.entity.QPost;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -15,7 +16,7 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
     // DONE: post_id로 해당되는 데이터를 찾아서 is_deleted = true
     // DONE: focusTime에서 focus_log_id -> null로 변경해주기
     @Override
-    public void deletePost(Long postId) {
+    public void deletePost(Long memberId, Long postId) {
         QPost post = QPost.post;
         QFocusTime focusTime = QFocusTime.focusTime;
         QFocusLog focusLog = QFocusLog.focusLog;
@@ -23,7 +24,7 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
         jpaQueryFactory
                 .update(post)
                 .set(post.isDeleted, true)
-                .where(post.id.eq(postId))
+                .where(post.id.eq(postId), post.memberId.eq(memberId)) // memberId도 동일한지 확인
                 .execute();
         jpaQueryFactory
                 .update(focusLog)

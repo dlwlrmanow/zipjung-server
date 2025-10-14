@@ -4,5 +4,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PostCustomRepository {
-    void deletePost(Long postId);
+    void deletePost(Long memberId, Long postId);
 }

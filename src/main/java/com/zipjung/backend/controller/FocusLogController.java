@@ -43,9 +43,10 @@ public class FocusLogController {
         return ResponseEntity.ok().body(new Result<>(lists, lists.size()));
     }
 
-    @PatchMapping("/delete/{postId}")
-    public ResponseEntity<Void> deletePost(@PathVariable Long postId) {
-        postService.deletePost(postId);
+    @DeleteMapping("/delete/{postId}")
+    public ResponseEntity<Void> deletePost(@AuthenticationPrincipal CustomUserDetails user, @PathVariable Long postId) {
+        Long memberId = user.getMemberId();
+        postService.deletePost(memberId, postId);
         return ResponseEntity.noContent().build(); // 성공시 204
     }
 }
