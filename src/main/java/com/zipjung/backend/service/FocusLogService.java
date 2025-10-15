@@ -54,6 +54,7 @@ public class FocusLogService {
 
     @Transactional(readOnly = true)
     public List<FocusLogForListDto> getFocusLogList(Long memberId) {
+        // TODO: postId, focusLogId가 is_deleted true인거 제외하고 가져오기
         return focusLogRepository.getFocusLogList(memberId);
     }
 }

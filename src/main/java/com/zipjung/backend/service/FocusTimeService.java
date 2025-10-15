@@ -36,9 +36,9 @@ public class FocusTimeService {
     }
 
     @Transactional(readOnly = true)
-    public List<FocusTime> fetchRecentFocusTime() {
+    public List<FocusTime> fetchRecentFocusTime(Long memberId) {
         LocalDateTime oneWeekAgo = LocalDateTime.now().minusDays(7);
-        List<FocusTime> focusTimes = focusTimeRepository.getRecentWeekFocusTimes(oneWeekAgo);
+        List<FocusTime> focusTimes = focusTimeRepository.getRecentWeekFocusTimes(oneWeekAgo, memberId);
 
         if(focusTimes.size() == 0) {
             System.out.println("List<FocusTime> = null");

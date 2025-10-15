@@ -31,10 +31,9 @@ public class FocusLogController {
         return new ResponseEntity<>(successCount, HttpStatus.CREATED);
     }
 
-    @GetMapping("/fetc/list")
+    @GetMapping("/list/fetch")
     // TODO: JUnit으로 test
     public ResponseEntity<Result<List<FocusLogForListDto>>> fetchFocusLogs(@AuthenticationPrincipal CustomUserDetails user) {
-        // TODO: authentication 추가
         Long memberId = user.getMemberId();
         List<FocusLogForListDto> lists = focusLogService.getFocusLogList(memberId);
         if (lists.isEmpty()) {
