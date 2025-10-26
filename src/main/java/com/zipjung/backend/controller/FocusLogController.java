@@ -41,7 +41,6 @@ public class FocusLogController {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT); // 204
         }
         int successCount = lists.size();
-        System.out.println("///////////////////////////[/focus-log/fetch] successCount: " + successCount + "///////////////////////////");
         return ResponseEntity.ok().body(new Result<>(lists, lists.size()));
     }
 
