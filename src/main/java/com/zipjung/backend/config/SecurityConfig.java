@@ -17,6 +17,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -39,15 +45,31 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        configuration.setAllowedOrigins(List.of("http://localhost:5500", "http://127.0.0.1:5500", "http://localhost:8080"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+
+        return source;
+    }
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http, CorsConfigurationSource corsConfigurationSource) throws Exception {
         http
-            .csrf(csrf -> csrf.disable())
-                    .sessionManagement(session ->
-                            session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 제외
-                    .formLogin(AbstractHttpConfigurer::disable).logout(AbstractHttpConfigurer::disable) // formLogin은 Session방식이라서 JWT와 충돌
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 제외
+                .formLogin(AbstractHttpConfigurer::disable).logout(AbstractHttpConfigurer::disable) // formLogin은 Session방식이라서 JWT와 충돌
 
                 .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/api-test").permitAll()
+                        .requestMatchers("/api-test").permitAll()
 //                    .requestMatchers("/focus-log/save").permitAll()
 //                    .requestMatchers("/focus-log/fetch").permitAll()
 //                    .requestMatchers("/focus-log/delete/**").permitAll()
@@ -55,13 +77,13 @@ public class SecurityConfig {
 //                    .requestMatchers("/focus-time/save").permitAll()
 //                    .requestMatchers("/focus-time/today/fetch").permitAll()
 //                    .requestMatchers("/focus-time/list/fetch").permitAll()
-                    .requestMatchers("/auth/login", "/auth/join/**", "/auth/validate", "auth/reissue/access", "/auth/logout").permitAll()
-                    .anyRequest().authenticated())
+                        .requestMatchers("/auth/login", "/auth/join/**", "/auth/validate", "auth/reissue/access", "/auth/logout").permitAll()
+                        .anyRequest().authenticated())
 
                 .exceptionHandling(ex -> ex
-                    .accessDeniedHandler(jwtAccessDeniedHandler)
-                    .authenticationEntryPoint(jwtAuthenticationEntryPoint)
-                    )
+                        .accessDeniedHandler(jwtAccessDeniedHandler)
+                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                )
 
                 .addFilterBefore(new JwtFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
 
