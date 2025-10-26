@@ -44,6 +44,8 @@ public class FocusTimeService {
             System.out.println("List<FocusTime> = null");
             return null;
         }
+        System.out.println("[FocusTimeService]");
+        System.out.println(focusTimes.size());
 
         return focusTimes;
     }

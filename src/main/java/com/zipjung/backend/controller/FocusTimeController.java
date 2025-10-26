@@ -40,6 +40,7 @@ public class FocusTimeController {
     // focus_log_id가 한번 할당되어서 뜨지 않았음
     @GetMapping("/list/fetch")
     public ResponseEntity<Result<List<FocusTime>>> fetchFocusTimes(@AuthenticationPrincipal CustomUserDetails user) {
+        System.out.println("[/focus-time/list/fetch] controller는 탐");
         Long memberId = user.getMemberId();
 
         List<FocusTime> focusTimeList = focusTimeService.fetchRecentFocusTime(memberId);

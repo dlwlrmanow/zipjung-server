@@ -32,13 +32,16 @@ public class FocusLogController {
     }
 
     @GetMapping("/list/fetch")
-    // TODO: JUnit으로 test
     public ResponseEntity<Result<List<FocusLogForListDto>>> fetchFocusLogs(@AuthenticationPrincipal CustomUserDetails user) {
         Long memberId = user.getMemberId();
+
+        System.out.println("[/focus-log/fetch] memberId: " + memberId);
         List<FocusLogForListDto> lists = focusLogService.getFocusLogList(memberId);
         if (lists.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT); // 204
         }
+        int successCount = lists.size();
+        System.out.println("///////////////////////////[/focus-log/fetch] successCount: " + successCount + "///////////////////////////");
         return ResponseEntity.ok().body(new Result<>(lists, lists.size()));
     }
 
