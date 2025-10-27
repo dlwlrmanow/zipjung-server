@@ -20,7 +20,13 @@ public class JwtFilter extends OncePerRequestFilter {
     public void doFilterInternal (HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
         // 로그인, 회원가입 같이 아직 토큰 발급되지 않아 검증 필요없는 경로는 제외시키기
         String path = request.getRequestURI();
-        if(path.startsWith("/auth/login") || path.startsWith("/auth/join") || path.startsWith("/api-test")) {
+        if(path.startsWith("/auth/login/**") || path.startsWith("/auth/join") || path.startsWith("/api-test")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        // preflight 요청시 거절당하는 거 방지
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             filterChain.doFilter(request, response);
             return;
         }
