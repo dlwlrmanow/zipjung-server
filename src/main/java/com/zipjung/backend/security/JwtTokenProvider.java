@@ -8,6 +8,8 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -103,9 +105,9 @@ public class JwtTokenProvider {
     public Authentication getAuthentication(String accessToken) {
         // claims: JWT token payload -> 자바 객체로 표현한 것
         // 기본적으로 라이브러리 사용시 claims는 Map<String, Object> 형태
-        Claims claims = parseClaims(accessToken); // access token에서 사용자 데이터 추출
+        Claims claims = parseClaims(accessToken); // access token에서 사용자 데이터 추출, 서명/만료시간도 검증
 
-        if (claims.get("authorities") == null) throw new RuntimeException("권한 정보가 없는 토큰입니다."); // claims에 담긴 정보와 권한이 일치하는 지 확인
+        if (claims.get("authorities") == null) throw new BadCredentialsException("권한 정보가 없는 토큰입니다."); // claims에 담긴 정보와 권한이 일치하는 지 확인
 
         // 권한 문자열 "ROLE_USER" -> [SimpleGrantedAuthority("ROLE_USER")]: GrantedAutority로 변환
         Collection<? extends GrantedAuthority> authorities = Arrays.stream(claims.get("authorities").toString().split(","))
@@ -113,7 +115,7 @@ public class JwtTokenProvider {
                 .toList();
 
         Long memberId = claims.get("memberId", Long.class);
-        if (memberId == null) throw new RuntimeException("token에 memberId가 존재하지 않습니다");
+        if (memberId == null) throw new InsufficientAuthenticationException("token에 memberId가 존재하지 않습니다");
 
         // spring security가 사용하는 유저 객체로 변환
         // 결과적으로 Authentication을 리턴 => security filter chian에서 인증도니 사용자로 처리할 수 있게끔 해줌

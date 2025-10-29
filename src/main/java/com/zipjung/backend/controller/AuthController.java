@@ -5,7 +5,6 @@ import com.zipjung.backend.dto.RefreshTokenDto;
 import com.zipjung.backend.security.JwtTokenProvider;
 import com.zipjung.backend.dto.JwtToken;
 import com.zipjung.backend.dto.LoginRequestDto;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -83,7 +82,35 @@ public class AuthController {
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
-    @PostMapping("/validate/token/web")
+    @PostMapping("/validate/web/access")
+    public ResponseEntity<?> validateAccessForWeb(@RequestHeader("Authorization") String accessToken, @CookieValue("refreshToken") String refreshToken, HttpServletResponse response) {
+        try {
+            // access token 유효하지 않은 경우 exception 던짐
+            jwtTokenProvider.getAuthentication(accessToken);
+
+            // sliding session
+            JwtToken newJwtToken = jwtTokenProvider.reissueToken(refreshToken);
+
+            ResponseCookie cookie = ResponseCookie.from("refreshToken", newJwtToken.getRefreshToken())
+                    .httpOnly(true)
+                    .secure(false) // TODO: 배포시에는 true로 변경!! https관련
+                    .path("/") //
+                    .maxAge(jwtTokenProvider.getRefreshTokenExpireTime() / 1000)
+                    .sameSite("Lax") // CSRF 방어
+                    .build();
+
+            response.setHeader("Set-Cookie", cookie.toString()); // 응답 헤더에 쿠키 추가
+
+            newJwtToken.setRefreshToken(null);
+
+            return ResponseEntity.ok(newJwtToken);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+
+    @PostMapping("/validate/web/refresh")
     public ResponseEntity<?> validateAccessTokenForWeb(@CookieValue("refreshToken") String refreshTokenValue, HttpServletResponse response) {
         boolean isValid = jwtTokenProvider.validateRefreshToken(refreshTokenValue);
 
