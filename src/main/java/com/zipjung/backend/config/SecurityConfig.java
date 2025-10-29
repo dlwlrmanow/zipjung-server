@@ -63,7 +63,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http, CorsConfigurationSource corsConfigurationSource) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
-                .csrf(csrf -> csrf.disable())
+                .csrf(csrf -> csrf.disable()) // 배포시 보호 기능 활성화
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 제외
                 .formLogin(AbstractHttpConfigurer::disable).logout(AbstractHttpConfigurer::disable) // formLogin은 Session방식이라서 JWT와 충돌

@@ -49,34 +49,22 @@ public class AuthController {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequestDto.getUsername(), loginRequestDto.getPassword()));
         // jwt 토큰 생성
         JwtToken token = jwtTokenProvider.generateToken(authentication);
+
         // refresh toekn은 httpOnly 설정
         String refreshToken = token.getRefreshToken();
 
         ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
                 .httpOnly(true)
-                .secure(false) // 이게 https만 허용
-                .path("/reissue/refresh") // refresh toekn 갱신 경로
+                .secure(false) // TODO: 배포시에는 true로 변경!! https관련
+                .path("/") //
                 .maxAge(jwtTokenProvider.getRefreshTokenExpireTime() / 1000)
                 .sameSite("Lax") // CSRF 방어
                 .build();
 
         response.setHeader("Set-Cookie", cookie.toString()); // 응답 헤더에 쿠키 추가
 
-        token.setRefreshToken(null); // 클라이언트에 다시 응답할 때는 refresh token을 제외하고 보냄ㄴ
+        token.setRefreshToken(null); // 클라이언트에 다시 응답할 때는 refresh token을 제외
         return ResponseEntity.ok(token);
-
-//        try {
-//            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequestDto.getUsername(), loginRequestDto.getPassword()));
-//            JwtToken token = jwtTokenProvider.generateToken(authentication);
-//            return ResponseEntity.ok(token); // 클라이언트에 200
-//        } catch (BadCredentialsException e) { // 비밀번호 오류 혹은 권한 오류
-//            return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED); // 401
-//        } catch (UsernameNotFoundException e) { // 없는 사용자
-//            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND); // 404
-//        } catch (Exception e) { // 서버 오류
-//            e.printStackTrace();
-//            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); // 500
-//        }
     }
 
     // access token은 유효, refresh token은 연장
@@ -92,6 +80,33 @@ public class AuthController {
             return ResponseEntity.ok(newRefreshToken);
         }
         // 검증 실패시
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
+
+    @PostMapping("/validate/token/web")
+    public ResponseEntity<?> validateAccessTokenForWeb(@CookieValue("refreshToken") String refreshTokenValue, HttpServletResponse response) {
+        boolean isValid = jwtTokenProvider.validateRefreshToken(refreshTokenValue);
+
+        if (isValid) {
+            System.out.println("[/validate/token/web] valid refreshToken");
+
+            // 전체 Token reissue
+            JwtToken newJwtToken = jwtTokenProvider.reissueToken(refreshTokenValue);
+            // TODO: 메서드 분리하기
+            ResponseCookie cookie = ResponseCookie.from("refreshToken", newJwtToken.getRefreshToken())
+                    .httpOnly(true)
+                    .secure(false) // TODO: 배포시에는 true로 변경!! https관련
+                    .path("/") //
+                    .maxAge(jwtTokenProvider.getRefreshTokenExpireTime() / 1000)
+                    .sameSite("Lax") // CSRF 방어
+                    .build();
+
+            response.setHeader("Set-Cookie", cookie.toString()); // 응답 헤더에 쿠키 추가
+
+            newJwtToken.setRefreshToken(null);
+            return ResponseEntity.ok(newJwtToken);
+        }
+        // refresh token 만료
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
