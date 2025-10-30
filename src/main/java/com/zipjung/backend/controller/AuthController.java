@@ -115,7 +115,7 @@ public class AuthController {
         boolean isValid = jwtTokenProvider.validateRefreshToken(refreshTokenValue);
 
         if (isValid) {
-            System.out.println("[/validate/token/web] valid refreshToken");
+            System.out.println("[/validate/token/web] validate refreshToken");
 
             // 전체 Token reissue
             JwtToken newJwtToken = jwtTokenProvider.reissueToken(refreshTokenValue);
@@ -131,6 +131,7 @@ public class AuthController {
             response.setHeader("Set-Cookie", cookie.toString()); // 응답 헤더에 쿠키 추가
 
             newJwtToken.setRefreshToken(null);
+            System.out.println("[/validate/token/web] 토큰 생성 완!");
             return ResponseEntity.ok(newJwtToken);
         }
         // refresh token 만료
@@ -163,6 +164,33 @@ public class AuthController {
         if(!isValid) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+        String username = jwtTokenProvider.getUserNameFromToken(refreshToken);
+        jwtTokenProvider.deleteRefreshToken(username);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/logout/web")
+    public ResponseEntity<?> logout(@CookieValue("refreshToken") String refreshToken, HttpServletResponse response) {
+        // 서버 redis에 담긴 refreshToken과 검증
+        boolean isValid = jwtTokenProvider.validateRefreshToken(refreshToken);
+
+        if(!isValid) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        // 재사용할 수 없도록 cookie에서 만료시간 0으로 다시 보내줌
+        ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
+                .httpOnly(true)
+                .secure(false) // TODO: 배포시에는 true로 변경!! https관련
+                .path("/") //
+                .maxAge(0)
+                .sameSite("Lax") // CSRF 방어
+                .build();
+
+        response.setHeader("Set-Cookie", cookie.toString()); // 응답 헤더에 쿠키 추가
+
+        // redis에서 삭제
         String username = jwtTokenProvider.getUserNameFromToken(refreshToken);
         jwtTokenProvider.deleteRefreshToken(username);
 
