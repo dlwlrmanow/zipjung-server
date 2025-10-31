@@ -41,7 +41,7 @@ public class FocusLogController {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT); // 204
         }
         int successCount = lists.size();
-        return ResponseEntity.ok().body(new Result<>(lists, lists.size()));
+        return ResponseEntity.ok().body(new Result<>(lists, successCount));
     }
 
     @DeleteMapping("/delete/{postId}")

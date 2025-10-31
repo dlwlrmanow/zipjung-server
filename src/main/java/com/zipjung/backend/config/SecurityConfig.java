@@ -79,6 +79,7 @@ public class SecurityConfig {
 //                    .requestMatchers("/focus-time/list/fetch").permitAll()
                         // 허용할 매핑
                         .requestMatchers("/auth/login/**", "/auth/join/**", "/auth/validate", "/auth/validate/web/**", "auth/reissue/access", "/auth/logout/**").permitAll()
+                        .requestMatchers("/notification/subscribe/**").permitAll()
                         .anyRequest().authenticated())
 
                 .exceptionHandling(ex -> ex
