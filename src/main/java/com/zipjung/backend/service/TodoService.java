@@ -44,6 +44,11 @@ public class TodoService {
         todoRepository.saveAll(todos);
 
         // TODO: SSE 알림을 위해서 notification에 데이터 적재
+        notificationService.saveTodoNotification(memberId, todoRequests);
+    }
 
+    public int countNotDone(Long memberId) {
+        int count = (int) todoRepository.countByNotDone(memberId);
+        return count;
     }
 }

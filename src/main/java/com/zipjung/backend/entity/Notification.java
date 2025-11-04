@@ -10,6 +10,7 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Getter
+@Setter
 public class Notification extends BaseEntity{
     @Column(name = "title")
     private String title;
@@ -22,6 +23,9 @@ public class Notification extends BaseEntity{
 
     @Column(name = "to_id")
     private Long toId;
+
+    @Column(name = "url")
+    private String url;
 
     @Column(name = "is_read")
     private Boolean isRead;

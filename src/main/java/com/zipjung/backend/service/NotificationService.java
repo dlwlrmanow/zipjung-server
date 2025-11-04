@@ -1,6 +1,5 @@
 package com.zipjung.backend.service;
 
-import com.zipjung.backend.dto.NotificationDto;
 import com.zipjung.backend.dto.TodoRequest;
 import com.zipjung.backend.entity.Notification;
 import com.zipjung.backend.exception.SseEventException;
@@ -13,12 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import static com.zipjung.backend.entity.QNotification.notification;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +23,7 @@ public class NotificationService {
     private final EmitterRepository emitterRepository;
     private final NotificationRepository notificationRepository;
     private final TodoRepository todoRepository;
+    private final TodoService todoService;
 
     public SseEmitter createEmitter(Long memberId) {
         SseEmitter emitter = new SseEmitter(DEFAULT_TIMEOUT);
@@ -62,6 +57,13 @@ public class NotificationService {
     }
 
     public SseEmitter subscribe(Long memberId) {
+        // 존재하는 emitter가 있는지 확인
+        SseEmitter existing = emitterRepository.getById(memberId);
+        if(existing != null) {
+            // 있으면 그거 사용
+            return existing;
+        }
+
         SseEmitter emitter = createEmitter(memberId);
         try {
             emitter.send("connected!"); // 503 막기 위해서 dummy 보내기
@@ -71,19 +73,19 @@ public class NotificationService {
         return emitter;
     }
 
-    // DB에 저장
-    @Transactional
-    public void saveEvent(NotificationDto notificationDto, Long fromId) {
-        // DB 저장
-        Notification notification = Notification.builder()
-                .title(notificationDto.getTitle())
-                .message(notificationDto.getMessage())
-                .fromId(fromId)
-                .toId(notificationDto.getToId())
-                .build();
-
-        notificationRepository.save(notification);
-    }
+//    // DB에 저장
+//    @Transactional
+//    public void saveEvent(NotificationDto notificationDto, Long fromId) {
+//        // DB 저장
+//        Notification notification = Notification.builder()
+//                .title(notificationDto.getTitle())
+//                .message(notificationDto.getMessage())
+//                .fromId(fromId)
+//                .toId(notificationDto.getToId())
+//                .build();
+//
+//        notificationRepository.save(notification);
+//    }
 
 //    // 로그인시 reminder를 클라이언트에 send
 //    public void sendTodos(Long memberId, SseEmitter emitter) {
@@ -100,7 +102,14 @@ public class NotificationService {
 //        // TODO: saveEvent -> notification DB에 저장
 //    }
 
-    public void saveTodoNotification(SseEmitter emitter, Long memberId, List<TodoRequest> todoRequests) {
+    @Transactional
+    public void saveTodoNotification(Long memberId, List<TodoRequest> todoRequests) {
+        SseEmitter emitter = emitterRepository.getById(memberId);
+
+        if(emitter == null) {
+
+        }
+
         // 저장된 todos count notification에 저장
         Notification todoCountMsg = Notification.builder()
                 .title("Todo Saved!")
@@ -113,8 +122,18 @@ public class NotificationService {
         notificationRepository.save(todoCountMsg);
 
         // 실시간 전송
-        sendEvent(emitter, memberId, todoCountMsg);
+        try {
+            sendEvent(emitter, memberId, todoCountMsg);
+
+            // sse 성공
+            // is_read = true로 update
+            todoCountMsg.setIsRead(true);
+            notificationRepository.save(todoCountMsg);
+        } catch (Exception e) {
+            System.out.println("[NotificationService] saveTodoNotification: " + e.getMessage());
+        }
     }
 
-    // 로그인 된 경우 todos sse 알림
+    public void initReminderAlert(Long memberId) {
+    }
 }
