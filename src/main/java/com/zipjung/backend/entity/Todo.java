@@ -11,11 +11,11 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Todo extends BaseEntity{
-    @Column(name = "member_id")
-    private Long memberId;
-
     @Column(name = "task")
     private String task;
+
+    @Column(name = "post_id")
+    private Long postId;
 
     @Column(name = "is_done")
     private boolean isDone;

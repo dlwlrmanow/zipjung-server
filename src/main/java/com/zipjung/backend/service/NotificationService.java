@@ -1,20 +1,26 @@
 package com.zipjung.backend.service;
 
 import com.zipjung.backend.dto.NotificationDto;
+import com.zipjung.backend.dto.TodoRequest;
 import com.zipjung.backend.entity.Notification;
-import com.zipjung.backend.entity.Todo;
 import com.zipjung.backend.exception.SseEventException;
 import com.zipjung.backend.repository.EmitterRepository;
 import com.zipjung.backend.repository.NotificationRepository;
 import com.zipjung.backend.repository.TodoRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import static com.zipjung.backend.entity.QNotification.notification;
+
+@Service
 @RequiredArgsConstructor
 public class NotificationService {
     // 타임아웃
@@ -37,10 +43,13 @@ public class NotificationService {
         return emitter;
     }
 
-    public void sendEvent(SseEmitter emitter, Long sendId, String eventTitle, Object data) {
+    public void sendEvent(SseEmitter emitter, Long sendId, Notification notification) {
         if(emitter != null) {
             try {
-                emitter.send(SseEmitter.event().id(String.valueOf(sendId)).name(eventTitle).data(data));
+                String eventTitle = notification.getTitle();
+                String message = notification.getMessage();
+
+                emitter.send(SseEmitter.event().id(String.valueOf(sendId)).name(eventTitle).data(message));
             } catch (IOException e) {
                 // 전송 중 오류 발생시 emitter 삭제
                 emitterRepository.deleteById(sendId);
@@ -55,7 +64,7 @@ public class NotificationService {
     public SseEmitter subscribe(Long memberId) {
         SseEmitter emitter = createEmitter(memberId);
         try {
-            sendEvent(emitter, memberId,"subscribed", null);
+            emitter.send("connected!"); // 503 막기 위해서 dummy 보내기
         } catch (Exception e) {
             System.out.println("[NotificationService] subscribe: " + e.getMessage());
         }
@@ -76,17 +85,36 @@ public class NotificationService {
         notificationRepository.save(notification);
     }
 
-    // 로그인시 reminder를 클라이언트에 send
-    public void sendTodos(Long memberId, SseEmitter emitter) {
-        LocalDateTime oneWeek = LocalDateTime.now().minusDays(7);
-        // repository로부터 데이터 가져오고
-        List<Todo> todos = todoRepository.getRecentWeekTodo(oneWeek, memberId);
-        // sendEvent로 todolist 보내기
-        try {
-            sendEvent(emitter, memberId, "reminder", todos);
-        } catch (Exception e) {
-            System.out.println("[[NotificationService] sendTodos: " + e.getMessage());
-        }
-        // TODO: saveEvent -> notification DB에 저장
+//    // 로그인시 reminder를 클라이언트에 send
+//    public void sendTodos(Long memberId, SseEmitter emitter) {
+//        // TODO: todosService에서 List가져오고 여기에서는 sse로 보내주는 걸로 변경
+//        LocalDateTime oneWeek = LocalDateTime.now().minusDays(7);
+//        // repository로부터 데이터 가져오고
+//        List<Todo> todos = todoRepository.getRecentWeekTodo(oneWeek, memberId);
+//        // sendEvent로 todolist 보내기
+//        try {
+//            sendEvent(emitter, memberId, "reminder", todos);
+//        } catch (Exception e) {
+//            System.out.println("[[NotificationService] sendTodos: " + e.getMessage());
+//        }
+//        // TODO: saveEvent -> notification DB에 저장
+//    }
+
+    public void saveTodoNotification(SseEmitter emitter, Long memberId, List<TodoRequest> todoRequests) {
+        // 저장된 todos count notification에 저장
+        Notification todoCountMsg = Notification.builder()
+                .title("Todo Saved!")
+                .message("새로운 Todo " + todoRequests.size() + "개 저장되었어요!")
+                .fromId(memberId)
+                .toId(memberId)
+                .isRead(false)
+                .build();
+
+        notificationRepository.save(todoCountMsg);
+
+        // 실시간 전송
+        sendEvent(emitter, memberId, todoCountMsg);
     }
+
+    // 로그인 된 경우 todos sse 알림
 }

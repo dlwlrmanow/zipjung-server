@@ -6,5 +6,5 @@
 //@Getter
 //@Setter
 //public class TodoResponse {
-//    private
+//    private String task;
 //}

@@ -21,7 +21,6 @@ public class FocusLogService {
     private final FocusLogRepository focusLogRepository;
     private final PostRepository postRepository;
     private final FocusTimeRepository focusTimeRepository;
-    private final MemberRepository memberRepository;
 
     @Transactional
     public int saveFocusLog(FocusLogDto focusLogDto, Long memberId) {
@@ -29,7 +28,7 @@ public class FocusLogService {
         Post post = Post.builder()
                 .title(focusLogDto.getTitle())
                 .content(focusLogDto.getContent())
-                .serviceId(focusLogDto.getServiceId())
+                .serviceId(1L) // DONE: service_id 생성 후 변경
                 .memberId(memberId)
                 .build();
         postRepository.save(post);
