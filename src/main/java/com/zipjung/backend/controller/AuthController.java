@@ -1,8 +1,6 @@
 package com.zipjung.backend.controller;
 
-import com.fasterxml.jackson.core.TreeCodec;
 import com.zipjung.backend.dto.RefreshTokenDto;
-import com.zipjung.backend.repository.NotificationRepository;
 import com.zipjung.backend.security.JwtTokenProvider;
 import com.zipjung.backend.dto.JwtToken;
 import com.zipjung.backend.dto.LoginRequestDto;
@@ -25,7 +23,6 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
-    private final NotificationService notificationService;
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequestDto loginRequestDto)  {
@@ -122,7 +119,7 @@ public class AuthController {
         boolean isValid = jwtTokenProvider.validateRefreshToken(refreshTokenValue);
 
         if (isValid) {
-            System.out.println("[/validate/token/web] validate refreshToken");
+            System.out.println("[/validate/web/refresh] validate refreshToken");
 
             // 전체 Token reissue
             JwtToken newJwtToken = jwtTokenProvider.reissueToken(refreshTokenValue);
@@ -138,7 +135,7 @@ public class AuthController {
             response.setHeader("Set-Cookie", cookie.toString()); // 응답 헤더에 쿠키 추가
 
             newJwtToken.setRefreshToken(null);
-            System.out.println("[/validate/token/web] 토큰 생성 완!");
+            System.out.println("[/validate/web/refresh] 토큰 생성 완!");
             return ResponseEntity.ok(newJwtToken);
         }
         // refresh token 만료
@@ -179,6 +176,7 @@ public class AuthController {
 
     @PostMapping("/logout/web")
     public ResponseEntity<?> logout(@CookieValue("refreshToken") String refreshToken, HttpServletResponse response) {
+        System.out.println("[/logout/web] start");
         // 서버 redis에 담긴 refreshToken과 검증
         boolean isValid = jwtTokenProvider.validateRefreshToken(refreshToken);
 

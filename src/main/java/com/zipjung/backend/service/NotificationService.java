@@ -5,7 +5,6 @@ import com.zipjung.backend.entity.Notification;
 import com.zipjung.backend.exception.SseEventException;
 import com.zipjung.backend.repository.EmitterRepository;
 import com.zipjung.backend.repository.NotificationRepository;
-import com.zipjung.backend.repository.TodoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,8 +21,6 @@ public class NotificationService {
     // 생성자 주입
     private final EmitterRepository emitterRepository;
     private final NotificationRepository notificationRepository;
-    private final TodoRepository todoRepository;
-    private final TodoService todoService;
 
     public SseEmitter createEmitter(Long memberId) {
         SseEmitter emitter = new SseEmitter(DEFAULT_TIMEOUT);
@@ -73,34 +70,6 @@ public class NotificationService {
         return emitter;
     }
 
-//    // DB에 저장
-//    @Transactional
-//    public void saveEvent(NotificationDto notificationDto, Long fromId) {
-//        // DB 저장
-//        Notification notification = Notification.builder()
-//                .title(notificationDto.getTitle())
-//                .message(notificationDto.getMessage())
-//                .fromId(fromId)
-//                .toId(notificationDto.getToId())
-//                .build();
-//
-//        notificationRepository.save(notification);
-//    }
-
-//    // 로그인시 reminder를 클라이언트에 send
-//    public void sendTodos(Long memberId, SseEmitter emitter) {
-//        // TODO: todosService에서 List가져오고 여기에서는 sse로 보내주는 걸로 변경
-//        LocalDateTime oneWeek = LocalDateTime.now().minusDays(7);
-//        // repository로부터 데이터 가져오고
-//        List<Todo> todos = todoRepository.getRecentWeekTodo(oneWeek, memberId);
-//        // sendEvent로 todolist 보내기
-//        try {
-//            sendEvent(emitter, memberId, "reminder", todos);
-//        } catch (Exception e) {
-//            System.out.println("[[NotificationService] sendTodos: " + e.getMessage());
-//        }
-//        // TODO: saveEvent -> notification DB에 저장
-//    }
 
     @Transactional
     public void saveTodoNotification(Long memberId, List<TodoRequest> todoRequests) {
@@ -134,6 +103,4 @@ public class NotificationService {
         }
     }
 
-    public void initReminderAlert(Long memberId) {
-    }
 }
