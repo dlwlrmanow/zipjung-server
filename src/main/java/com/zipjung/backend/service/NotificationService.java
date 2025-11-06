@@ -1,7 +1,9 @@
 package com.zipjung.backend.service;
 
+import com.zipjung.backend.dto.NotificationResponse;
 import com.zipjung.backend.dto.TodoRequest;
 import com.zipjung.backend.entity.Notification;
+import com.zipjung.backend.entity.NotificationType;
 import com.zipjung.backend.exception.SseEventException;
 import com.zipjung.backend.repository.EmitterRepository;
 import com.zipjung.backend.repository.NotificationRepository;
@@ -35,16 +37,22 @@ public class NotificationService {
         return emitter;
     }
 
-    public void sendEvent(SseEmitter emitter, Long sendId, Notification notification) {
+    public void sendEvent(SseEmitter emitter, Long toId, Long memberId, Notification notification) {
         if(emitter != null) {
             try {
-                String eventTitle = notification.getTitle();
-                String message = notification.getMessage();
+                // notificationDto
+                NotificationResponse notificationResponse = NotificationResponse.builder()
+                        .notificationType(notification.getNotificationType()) // 그냥 enum으로 내려줘서 클라이언트에서 상수로 처리
+                        .title(notification.getTitle())
+                        .message(notification.getMessage())
+                        .toId(toId)
+                        .memberId(memberId)
+                        .build();
 
-                emitter.send(SseEmitter.event().id(String.valueOf(sendId)).name(eventTitle).data(message));
+                emitter.send(SseEmitter.event().id(String.valueOf(memberId)).data(notificationResponse));
             } catch (IOException e) {
                 // 전송 중 오류 발생시 emitter 삭제
-                emitterRepository.deleteById(sendId);
+                emitterRepository.deleteById(memberId);
                 // emitter 종료
                 emitter.completeWithError(e);
                 throw new SseEventException("SSE sendEvent 중 오류 발생");
@@ -75,12 +83,14 @@ public class NotificationService {
     public void saveTodoNotification(Long memberId, List<TodoRequest> todoRequests) {
         SseEmitter emitter = emitterRepository.getById(memberId);
 
-        if(emitter == null) {
-
-        }
+        // TODO: emitter를 찾을 수 없는 경우!
+//        if(emitter == null) {
+//
+//        }
 
         // 저장된 todos count notification에 저장
         Notification todoCountMsg = Notification.builder()
+                .notificationType(NotificationType.NEW_TODO)
                 .title("Todo Saved!")
                 .message("새로운 Todo " + todoRequests.size() + "개 저장되었어요!")
                 .fromId(memberId)
@@ -92,7 +102,7 @@ public class NotificationService {
 
         // 실시간 전송
         try {
-            sendEvent(emitter, memberId, todoCountMsg);
+            sendEvent(emitter, memberId, memberId, todoCountMsg);
 
             // sse 성공
             // is_read = true로 update

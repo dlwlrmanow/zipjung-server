@@ -33,7 +33,8 @@ public class Notification extends BaseEntity{
     private Boolean isRead;
 
     @Builder
-    public Notification(String title, String message, Long fromId, Long toId, boolean isRead) {
+    public Notification(NotificationType notificationType, String title, String message, Long fromId, Long toId, boolean isRead) {
+        this.notificationType = notificationType;
         this.title = title;
         this.message = message;
         this.fromId = fromId;

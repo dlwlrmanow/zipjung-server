@@ -43,7 +43,7 @@ public class TodoService {
                 .toList();
         todoRepository.saveAll(todos);
 
-        // TODO: SSE 알림을 위해서 notification에 데이터 적재
+        // 저장 성공 여부를 SSE 전송 + notification 테이블에 알림 저장
         notificationService.saveTodoNotification(memberId, todoRequests);
     }
 
