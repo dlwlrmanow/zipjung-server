@@ -1,8 +1,6 @@
 package com.zipjung.backend.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
@@ -12,6 +10,10 @@ import lombok.*;
 @Getter
 @Setter
 public class Notification extends BaseEntity{
+    @Enumerated(EnumType.STRING)
+    @Column(name = "notification_type", nullable = false)
+    private NotificationType notificationType;
+
     @Column(name = "title")
     private String title;
 
