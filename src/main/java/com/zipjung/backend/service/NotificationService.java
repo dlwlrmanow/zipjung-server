@@ -64,6 +64,7 @@ public class NotificationService {
     public SseEmitter subscribe(Long memberId) {
         // 존재하는 emitter가 있는지 확인
         SseEmitter existing = emitterRepository.getById(memberId);
+
         if(existing != null) {
             // 있으면 그거 사용
             return existing;
@@ -75,6 +76,7 @@ public class NotificationService {
         } catch (Exception e) {
             System.out.println("[NotificationService] subscribe: " + e.getMessage());
         }
+        System.out.println("[NotificationService] subscribe: " + memberId);
         return emitter;
     }
 

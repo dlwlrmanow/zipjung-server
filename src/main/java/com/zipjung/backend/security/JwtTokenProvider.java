@@ -35,7 +35,7 @@ public class JwtTokenProvider {
 
     private static final String GRANT_TYPE = "Bearer";
 
-    private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 10; // 30분 -> 10분으로 변경
+    private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 5; // 30분 -> 5분으로 변경
     private static final long REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24 * 3; // 3일
 
     public JwtTokenProvider(@Value("${JASYPT_ENCRYPTOR_PASSWORD}") String key,
