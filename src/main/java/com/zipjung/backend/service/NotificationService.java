@@ -1,13 +1,18 @@
 package com.zipjung.backend.service;
 
+import com.zipjung.backend.dto.JwtToken;
 import com.zipjung.backend.dto.NotificationResponse;
 import com.zipjung.backend.dto.TodoRequest;
 import com.zipjung.backend.entity.Notification;
 import com.zipjung.backend.entity.NotificationType;
+import com.zipjung.backend.exception.InvaildTokenException;
 import com.zipjung.backend.exception.SseEventException;
 import com.zipjung.backend.repository.EmitterRepository;
 import com.zipjung.backend.repository.NotificationRepository;
+import com.zipjung.backend.security.CustomUserDetails;
+import com.zipjung.backend.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -23,6 +28,7 @@ public class NotificationService {
     // 생성자 주입
     private final EmitterRepository emitterRepository;
     private final NotificationRepository notificationRepository;
+    private final JwtTokenProvider jwtTokenProvider;
 
     public SseEmitter createEmitter(Long memberId) {
         SseEmitter emitter = new SseEmitter(DEFAULT_TIMEOUT);
@@ -61,21 +67,43 @@ public class NotificationService {
         throw new SseEventException("emitter가 존재하지 않음");
     }
 
-    public SseEmitter subscribe(Long memberId) {
+    public SseEmitter subscribe(String refreshToken) {
+        // TODO: 이미 생성한 emitter가 존재하는지 확인 먼저 해야할 듯!
+        // 이제 emitter 구독 준비 완료
         // 존재하는 emitter가 있는지 확인
-        SseEmitter existing = emitterRepository.getById(memberId);
+//        SseEmitter existing = emitterRepository.getById(memberId);
+//
+//        if(existing != null) {
+//            // 있으면 그거 사용
+//            return existing;
+//        }
 
-        if(existing != null) {
-            // 있으면 그거 사용
-            return existing;
+
+        // refresh token 유효성 검사
+        if (!jwtTokenProvider.validateToken(refreshToken)) {
+            // controller에서 catch
+            throw new InvaildTokenException("[NotificationService] 유효하지 않은 token");
         }
 
+        // access token만!! 재발급
+        // 1분짜리 SSE용 token
+        JwtToken token = jwtTokenProvider.reissueAccessTokenForSse(refreshToken);
+        // 재발급 받은 access token으로 인증/인가
+        Authentication authentication = jwtTokenProvider.getAuthentication(token.getAccessToken());
+
+        // 컴파일 타임에는 Object로 담김 -> 캐스팅 필요
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Long memberId = userDetails.getMemberId();
+
+
+        // 이제 emitter 생성 및 구독
         SseEmitter emitter = createEmitter(memberId);
         try {
             emitter.send("connected!"); // 503 막기 위해서 dummy 보내기
         } catch (Exception e) {
             System.out.println("[NotificationService] subscribe: " + e.getMessage());
         }
+
         System.out.println("[NotificationService] subscribe: " + memberId);
         return emitter;
     }

@@ -37,6 +37,7 @@ public class JwtTokenProvider {
 
     private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 5; // 30분 -> 5분으로 변경
     private static final long REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24 * 3; // 3일
+    private static final long SSE_ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 1; // 1분
 
     public JwtTokenProvider(@Value("${JASYPT_ENCRYPTOR_PASSWORD}") String key,
                             UserDetailsService userDetailsService,
@@ -213,6 +214,7 @@ public class JwtTokenProvider {
     public JwtToken reissueToken(String refreshToken) {
         // UserDeatils로 Authentication 객체 생성
         String username = getUserNameFromToken(refreshToken);
+        // TODO: CustomUserDetails 사용??
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
         Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
@@ -227,5 +229,29 @@ public class JwtTokenProvider {
 
     public Long getRefreshTokenExpireTime() {
         return REFRESH_TOKEN_EXPIRE_TIME;
+    }
+
+    public JwtToken reissueAccessTokenForSse(String refreshToken) {
+        String username = getUserNameFromToken(refreshToken);
+        CustomUserDetails userDetails = (CustomUserDetails) userDetailsService.loadUserByUsername(username);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
+        String authorities = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.joining(","));
+        long now = (new Date()).getTime();
+
+        // memberId 추가
+        Long memberId = userDetails.getMemberId();
+
+        // AccessToken
+        Date accessTokenExpires = new Date(now + SSE_ACCESS_TOKEN_EXPIRE_TIME);
+        String accessToken = generateAccessToken(memberId, username, authorities, accessTokenExpires);
+
+        return JwtToken.builder()
+                .grantType(GRANT_TYPE)
+                .memberId(memberId)
+                .username(username)
+                .accessToken(accessToken)
+                .refreshToken(null)
+                .build();
     }
 }
