@@ -1,9 +1,11 @@
 package com.zipjung.backend.controller;
 
 import com.zipjung.backend.dto.RefreshTokenDto;
+import com.zipjung.backend.exception.InvaildTokenException;
 import com.zipjung.backend.security.JwtTokenProvider;
 import com.zipjung.backend.dto.JwtToken;
 import com.zipjung.backend.dto.LoginRequestDto;
+import com.zipjung.backend.service.AuthService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthenticationManager authenticationManager;
+    private final AuthService authService;
     private final JwtTokenProvider jwtTokenProvider;
 
     @PostMapping("/login")
@@ -200,4 +203,20 @@ public class AuthController {
 
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/reissue/access/sse")
+    public ResponseEntity<JwtToken> reissueAccessTokenForSse(@CookieValue("refreshToken") String refreshToken, HttpServletResponse response) {
+        // header로 받은 refresh token으로 유효성 검증 후 token 재발급
+        try {
+            JwtToken token = authService.getNewAccessToken(refreshToken);
+
+            return ResponseEntity.ok(token);
+        } catch (InvaildTokenException e) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
 }
