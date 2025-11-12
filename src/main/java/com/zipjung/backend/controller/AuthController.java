@@ -205,7 +205,7 @@ public class AuthController {
     }
 
     @PostMapping("/reissue/access/sse")
-    public ResponseEntity<JwtToken> reissueAccessTokenForSse(@CookieValue("refreshToken") String refreshToken, HttpServletResponse response) {
+    public ResponseEntity<JwtToken> reissueAccessTokenForSse(@CookieValue("refreshToken") String refreshToken) {
         // header로 받은 refresh token으로 유효성 검증 후 token 재발급
         try {
             JwtToken token = authService.getNewAccessToken(refreshToken);

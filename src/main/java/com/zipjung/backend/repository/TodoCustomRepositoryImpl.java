@@ -30,7 +30,6 @@ public class TodoCustomRepositoryImpl implements TodoCustomRepository {
                                 .and(todo.isDone.eq(false))
                 )
                 .fetchCount();
-//                .fetchOne();
 
         return count;
     }

@@ -8,7 +8,7 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Getter
-@Setter
+@Builder
 public class Notification extends BaseEntity{
     @Enumerated(EnumType.STRING)
     @Column(name = "notification_type", nullable = false)
@@ -32,13 +32,8 @@ public class Notification extends BaseEntity{
     @Column(name = "is_read")
     private Boolean isRead;
 
-    @Builder
-    public Notification(NotificationType notificationType, String title, String message, Long fromId, Long toId, boolean isRead) {
-        this.notificationType = notificationType;
-        this.title = title;
-        this.message = message;
-        this.fromId = fromId;
-        this.toId = toId;
-        this.isRead = isRead; // 사용자한테 발송되었는지 여부
+    // setter 없애고 읽음으로 처리하는 메서드 생성
+    public void markAsRead() {
+        this.isRead = true;
     }
 }

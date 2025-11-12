@@ -39,7 +39,7 @@ public class NotificationService {
         return emitter;
     }
 
-    public void sendEvent(SseEmitter emitter, Long toId, Long memberId, Notification notification) {
+    public void sendEvent(SseEmitter emitter, Long memberId, Notification notification) {
         if(emitter != null) {
             try {
                 // notificationDto
@@ -47,8 +47,8 @@ public class NotificationService {
                         .notificationType(notification.getNotificationType()) // 그냥 enum으로 내려줘서 클라이언트에서 상수로 처리
                         .title(notification.getTitle())
                         .message(notification.getMessage())
-                        .toId(toId)
-                        .memberId(memberId)
+                        .toId(notification.getToId())
+                        .memberId(notification.getFromId())
                         .build();
 
                 emitter.send(SseEmitter.event().id(String.valueOf(memberId)).data(notificationResponse));
@@ -100,15 +100,14 @@ public class NotificationService {
 
         // 실시간 전송
         try {
-            sendEvent(emitter, memberId, memberId, todoCountMsg);
+            sendEvent(emitter, memberId, todoCountMsg);
 
             // sse 성공
             // is_read = true로 update
-            todoCountMsg.setIsRead(true);
+            todoCountMsg.markAsRead();
             notificationRepository.save(todoCountMsg);
         } catch (Exception e) {
             System.out.println("[NotificationService] saveTodoNotification: " + e.getMessage());
         }
     }
-
 }

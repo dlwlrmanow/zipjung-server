@@ -79,7 +79,6 @@ public class SecurityConfig {
 //                    .requestMatchers("/focus-time/list/fetch").permitAll()
                         // 허용할 매핑
                         .requestMatchers("/auth/login/**", "/auth/join/**", "/auth/validate", "/auth/validate/web/**", "auth/reissue/access", "/auth/logout/**").permitAll()
-                        .requestMatchers("/notification/subscribe").permitAll() // TODO: 테스트 끝나고 삭제
                         .requestMatchers("/todo/save").permitAll()
                         .anyRequest().authenticated())
 
