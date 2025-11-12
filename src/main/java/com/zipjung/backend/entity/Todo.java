@@ -3,13 +3,14 @@ package com.zipjung.backend.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Table(name = "todo")
 @Getter
-@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Todo extends BaseEntity{
     @Column(name = "task")
     private String task;
@@ -19,4 +20,8 @@ public class Todo extends BaseEntity{
 
     @Column(name = "is_done")
     private boolean isDone;
+
+    public void markAsDone() {
+        this.isDone = true;
+    }
 }

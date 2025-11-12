@@ -26,11 +26,10 @@ public class TodoService {
 
 
     @Transactional
-    public void saveTodos(List<TodoRequest> todoRequests, Long memberId) {
+    public void saveTodos(TodoRequest todoRequest, Long memberId) {
         // 1. post 생성
         Post post = Post.builder()
                 .title("Todo")
-                .content(null)
                 .serviceId(2L)
                 .memberId(memberId)
                 .build();
@@ -38,22 +37,31 @@ public class TodoService {
 
         // 2. post_id 가져오기
         Long postId = post.getId();
+
         // 3. todos 저장
-        List<Todo> todos = todoRequests.stream()
-                .map(todoRequest -> {
-                    Todo todo = new Todo();
-                    todo.setPostId(postId);
-                    todo.setTask(todoRequest.getTask());
-                    todo.setDone(false);
-                    return todo;
-                })
-                .toList();
-        todoRepository.saveAll(todos);
+        Todo todos = Todo.builder()
+                .task(todoRequest.getTask())
+                .postId(postId)
+                .isDone(false)
+                .build();
+        todoRepository.save(todos);
+
+        // notification에 저장
+        Notification todoNotification = Notification.builder()
+                .notificationType(NotificationType.NEW_TODO)
+                .title("Todo Saved!")
+                .message("새로운 Todo " + post.getTitle() + "가 추가되었어요.")
+                .fromId(memberId)
+                .toId(memberId)
+                .isRead(false)
+                .build();
+        notificationRepository.save(todoNotification);
 
         // 저장 성공 여부를 SSE 전송 + notification 테이블에 알림 저장
-        notificationService.saveTodoNotification(memberId, todoRequests);
+        notificationService.sendEvent(memberId, todoNotification);
     }
 
+    @Transactional
     public void initReminderCount(Long memberId, SseEmitter emitter) {
         // 1. 남은 할 일 갯수 count
         // 최근 일주일 동안의 하지 않은 할 일 count
@@ -73,7 +81,7 @@ public class TodoService {
         notificationRepository.save(reminderNotification);
 
         // 4. SSE 알림 보내기
-        notificationService.sendEvent(emitter, memberId, reminderNotification);
+        notificationService.sendEvent(memberId, reminderNotification);
 
     }
 }

@@ -18,8 +18,7 @@ public class TodoController {
     private final TodoService todoService;
 
     @PostMapping("/save")
-    public ResponseEntity<?> SaveTodoList(@AuthenticationPrincipal CustomUserDetails user, @RequestBody List<TodoRequest> todos) {
-        // TODO: todo 테이블에 데이터 적재 후 -> notification 테이블에도 데이터 적재
+    public ResponseEntity<?> SaveTodoList(@AuthenticationPrincipal CustomUserDetails user, @RequestBody TodoRequest todos) {
         Long memberId = user.getMemberId();
 
         todoService.saveTodos(todos, memberId);
@@ -27,7 +26,5 @@ public class TodoController {
     }
 
     // TODO: delete 추가
-//    @DeleteMapping("/delete/{id}")
-//    public Re
 
 }

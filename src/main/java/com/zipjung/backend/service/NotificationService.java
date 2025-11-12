@@ -39,7 +39,9 @@ public class NotificationService {
         return emitter;
     }
 
-    public void sendEvent(SseEmitter emitter, Long memberId, Notification notification) {
+        public void sendEvent(Long memberId, Notification notification) {
+        SseEmitter emitter = emitterRepository.getById(memberId);
+
         if(emitter != null) {
             try {
                 // notificationDto
@@ -74,40 +76,5 @@ public class NotificationService {
 
         System.out.println("[NotificationService] subscribe: " + memberId);
         return emitter;
-    }
-
-
-    @Transactional
-    public void saveTodoNotification(Long memberId, List<TodoRequest> todoRequests) {
-        SseEmitter emitter = emitterRepository.getById(memberId);
-
-        // TODO: emitter를 찾을 수 없는 경우!
-//        if(emitter == null) {
-//
-//        }
-
-        // 저장된 todos count notification에 저장
-        Notification todoCountMsg = Notification.builder()
-                .notificationType(NotificationType.NEW_TODO)
-                .title("Todo Saved!")
-                .message("새로운 Todo " + todoRequests.size() + "개 저장되었어요!")
-                .fromId(memberId)
-                .toId(memberId)
-                .isRead(false)
-                .build();
-
-        notificationRepository.save(todoCountMsg);
-
-        // 실시간 전송
-        try {
-            sendEvent(emitter, memberId, todoCountMsg);
-
-            // sse 성공
-            // is_read = true로 update
-            todoCountMsg.markAsRead();
-            notificationRepository.save(todoCountMsg);
-        } catch (Exception e) {
-            System.out.println("[NotificationService] saveTodoNotification: " + e.getMessage());
-        }
     }
 }

@@ -10,6 +10,7 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Table(name = "post")
+@Builder
 public class Post extends BaseEntity {
     @Column
     private String title;
@@ -21,17 +22,12 @@ public class Post extends BaseEntity {
     private Long serviceId;
 
     @Column(name = "is_deleted")
-    private Boolean isDeleted = false;
+    private Boolean isDeleted;
 
     @Column(name = "member_id")
     private Long memberId;
 
-    @Builder
-    public Post(String title, String content, Long serviceId, Long memberId) {
-        this.title = title;
-        this.content = content;
-        this.serviceId = serviceId;
-        this.memberId = memberId;
-        this.isDeleted = false;
+    public void markAsDelete() {
+        this.isDeleted = true;
     }
 }
