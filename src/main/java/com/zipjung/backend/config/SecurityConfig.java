@@ -17,6 +17,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -80,6 +81,7 @@ public class SecurityConfig {
                         // 허용할 매핑
                         .requestMatchers("/auth/login/**", "/auth/join/**", "/auth/validate", "/auth/validate/web/**", "auth/reissue/access", "/auth/logout/**").permitAll()
                         .requestMatchers("/todo/save").permitAll()
+//                        .requestMatchers("/notification/subscribe/**").permitAll()
                         .anyRequest().authenticated())
 
                 .exceptionHandling(ex -> ex
@@ -87,7 +89,8 @@ public class SecurityConfig {
                         .authenticationEntryPoint(jwtAuthenticationEntryPoint)
                 )
 
-                .addFilterBefore(new JwtFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JwtFilter(jwtTokenProvider), BasicAuthenticationFilter.class);
+//                .addFilterBefore(new JwtFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

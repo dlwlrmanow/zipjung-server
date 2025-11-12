@@ -32,7 +32,6 @@ public class AuthController {
             Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequestDto.getUsername(), loginRequestDto.getPassword()));
             JwtToken token = jwtTokenProvider.generateToken(authentication);
 
-
             return ResponseEntity.ok(token); // 클라이언트에 200
         } catch (BadCredentialsException e) { // 비밀번호 오류 혹은 권한 오류
             return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED); // 401
@@ -65,9 +64,6 @@ public class AuthController {
         response.setHeader("Set-Cookie", cookie.toString()); // 응답 헤더에 쿠키 추가
 
         token.setRefreshToken(null); // 클라이언트에 다시 응답할 때는 refresh token을 제외
-
-        // TODO: reminder 실시간 알림
-        // 오늘 해야할 일 ~개가 있습니다.
 
         return ResponseEntity.ok(token);
     }

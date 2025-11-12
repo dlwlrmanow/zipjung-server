@@ -1,20 +1,16 @@
 package com.zipjung.backend.service;
 
 import com.zipjung.backend.dto.NotificationResponse;
-import com.zipjung.backend.dto.TodoRequest;
 import com.zipjung.backend.entity.Notification;
-import com.zipjung.backend.entity.NotificationType;
 import com.zipjung.backend.exception.SseEventException;
 import com.zipjung.backend.repository.EmitterRepository;
 import com.zipjung.backend.repository.NotificationRepository;
 import com.zipjung.backend.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -23,8 +19,6 @@ public class NotificationService {
     private static final Long DEFAULT_TIMEOUT = 60L * 1000L * 60L;
     // 생성자 주입
     private final EmitterRepository emitterRepository;
-    private final NotificationRepository notificationRepository;
-    private final JwtTokenProvider jwtTokenProvider;
 
     public SseEmitter createEmitter(Long memberId) {
         SseEmitter emitter = new SseEmitter(DEFAULT_TIMEOUT);
@@ -39,7 +33,7 @@ public class NotificationService {
         return emitter;
     }
 
-        public void sendEvent(Long memberId, Notification notification) {
+    public void sendEvent(Long memberId, Notification notification) {
         SseEmitter emitter = emitterRepository.getById(memberId);
 
         if(emitter != null) {
@@ -62,6 +56,7 @@ public class NotificationService {
                 throw new SseEventException("SSE sendEvent 중 오류 발생");
             }
         }
+
         throw new SseEventException("emitter가 존재하지 않음");
     }
 
@@ -69,7 +64,11 @@ public class NotificationService {
         // 이제 emitter 생성 및 구독
         SseEmitter emitter = createEmitter(memberId);
         try {
-            emitter.send("connected!"); // 503 막기 위해서 dummy 보내기
+            emitter.send(SseEmitter.event()
+                    .name("dummy")
+                    .data("connected!")
+                    .id("")
+            ); // 503 막기 위해서 dummy 보내기
         } catch (Exception e) {
             System.out.println("[NotificationService] subscribe: " + e.getMessage());
         }
