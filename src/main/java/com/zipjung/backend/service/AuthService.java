@@ -17,7 +17,7 @@ public class AuthService {
         }
 
         // access token만 재발급
-        JwtToken token = jwtTokenProvider.reissueAccessTokenForSse(refreshToken);
+        JwtToken token = jwtTokenProvider.reissueAccessToken(refreshToken);
         return token;
     }
 

@@ -157,6 +157,20 @@ public class AuthController {
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
+    @PostMapping("/reissue/token/web")
+    public ResponseEntity<?> reissueAccess(@CookieValue("refreshToken") String refreshToken, HttpServletResponse response) {
+        // RT로 검증
+        boolean isValid = jwtTokenProvider.validateRefreshToken(refreshToken);
+
+        if(isValid) {
+            // AT만 재발급
+            JwtToken newAccessToken = jwtTokenProvider.reissueAccessToken(refreshToken);
+            return ResponseEntity.ok(newAccessToken);
+        }
+
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
+
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@RequestBody RefreshTokenDto refreshTokenDto) {
         // redis에서 삭제하기 위해서 검증 먼저
@@ -213,6 +227,4 @@ public class AuthController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-
 }

@@ -2,13 +2,11 @@ package com.zipjung.backend.controller;
 
 import com.zipjung.backend.security.CustomUserDetails;
 import com.zipjung.backend.service.NotificationService;
-import com.zipjung.backend.service.TodoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -17,7 +15,6 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 @RequiredArgsConstructor
 public class NotificationController {
     private final NotificationService notificationService;
-    private final TodoService todoService;
 
     @GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public ResponseEntity<SseEmitter> subscribe(@AuthenticationPrincipal CustomUserDetails user) {

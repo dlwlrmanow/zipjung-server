@@ -37,9 +37,10 @@ public class JwtFilter extends OncePerRequestFilter {
             Authentication authentication = jwtTokenProvider.getAuthentication(accessToken); // 토큰에 있는 정보 꺼내기
             SecurityContextHolder.getContext().setAuthentication(authentication);
             filterChain.doFilter(request, response); // 인증 정보를 가지고 다음 filter를 타야함
-            System.out.println("[JWT Filter] Access token validated]");
+            System.out.println("[JWT Filter] Access token validated");
             return;
         }
+
         filterChain.doFilter(request, response); // 인증이 없는 상태로 진행되다가 AuthenticationEntryPoint로 걸리게 된다.
     }
     public String resolveToken (HttpServletRequest request) {

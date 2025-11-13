@@ -19,12 +19,10 @@ public class TodoController {
 
     @PostMapping("/save")
     public ResponseEntity<?> SaveTodoList(@AuthenticationPrincipal CustomUserDetails user, @RequestBody TodoRequest todos) {
+        System.out.println("[TodoController] start");
         Long memberId = user.getMemberId();
 
         todoService.saveTodos(todos, memberId);
         return ResponseEntity.ok().build();
     }
-
-    // TODO: delete 추가
-
 }

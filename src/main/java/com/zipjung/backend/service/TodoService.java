@@ -58,7 +58,7 @@ public class TodoService {
         notificationRepository.save(todoNotification);
 
         // 저장 성공 여부를 SSE 전송 + notification 테이블에 알림 저장
-        notificationService.sendEvent(memberId, todoNotification);
+//        notificationService.sendEvent(memberId, todoNotification);
     }
 
     @Transactional
