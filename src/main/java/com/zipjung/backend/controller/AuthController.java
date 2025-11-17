@@ -158,7 +158,7 @@ public class AuthController {
     }
 
     @PostMapping("/reissue/token/web")
-    public ResponseEntity<?> reissueAccess(@CookieValue("refreshToken") String refreshToken, HttpServletResponse response) {
+    public ResponseEntity<?> reissueAccess(@CookieValue("refreshToken") String refreshToken) {
         // RT로 검증
         boolean isValid = jwtTokenProvider.validateRefreshToken(refreshToken);
 

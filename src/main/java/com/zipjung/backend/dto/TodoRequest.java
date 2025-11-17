@@ -6,7 +6,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class TodoRequest {
-    private Long postId;
+//    private Long postId;
     private String task;
     private final boolean isDone = false;
 }

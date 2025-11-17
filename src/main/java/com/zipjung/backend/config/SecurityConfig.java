@@ -71,16 +71,11 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable).logout(AbstractHttpConfigurer::disable) // formLogin은 Session방식이라서 JWT와 충돌
 
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api-test").permitAll()
-//                    .requestMatchers("/focus-log/save").permitAll()
-//                    .requestMatchers("/focus-log/fetch").permitAll()
-//                    .requestMatchers("/focus-log/delete/**").permitAll()
-//                    .requestMatchers("/focus-time/fetch/**").permitAll()
-//                    .requestMatchers("/focus-time/save").permitAll()
-//                    .requestMatchers("/focus-time/today/fetch").permitAll()
-//                    .requestMatchers("/focus-time/list/fetch").permitAll()
+//                        .requestMatchers("/api-test").permitAll()
                         // 허용할 매핑
-                        .requestMatchers("/auth/login/**", "/auth/join/**", "/auth/validate", "/auth/validate/web/**", "auth/reissue/access/**", "/auth/logout/**").permitAll()
+                        .requestMatchers("/auth/login/**", "/auth/join/**", "/auth/logout/**").permitAll() // 로그인 | 로그아웃 | 회원가입
+                        .requestMatchers("/auth/validate", "/auth/validate/web").permitAll() // token validate
+                        .requestMatchers("/auth/reissue/token/web").permitAll() // web에서 AT 재발급
                         .anyRequest().authenticated())
 
                 .exceptionHandling(ex -> ex

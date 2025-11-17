@@ -17,7 +17,13 @@ public class UserController {
 
     @PostMapping("/join")
     public ResponseEntity<String> join(@RequestBody JoinRequestDto joinRequestDto) {
-        memberService.registerMember(joinRequestDto);
+        try {
+            memberService.registerMember(joinRequestDto);
+        } catch (DuplicateEmailException e) {
+            return new ResponseEntity<>("EXIST_USER", HttpStatus.BAD_REQUEST);
+        } catch (DuplicateUsernameException e) {
+            return new ResponseEntity<>("DUPLICATE_USERNAME", HttpStatus.BAD_REQUEST);
+        }
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 

@@ -18,11 +18,11 @@ public class TodoController {
     private final TodoService todoService;
 
     @PostMapping("/save")
-    public ResponseEntity<?> SaveTodoList(@AuthenticationPrincipal CustomUserDetails user, @RequestBody TodoRequest todos) {
+    public ResponseEntity<?> SaveTodoList(@AuthenticationPrincipal CustomUserDetails user, @RequestBody TodoRequest todoRequest) {
         System.out.println("[TodoController] start");
         Long memberId = user.getMemberId();
 
-        todoService.saveTodos(todos, memberId);
+        todoService.saveTodos(todoRequest, memberId);
         return ResponseEntity.ok().build();
     }
 }
