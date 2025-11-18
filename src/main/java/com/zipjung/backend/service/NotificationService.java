@@ -4,10 +4,9 @@ import com.zipjung.backend.dto.NotificationResponse;
 import com.zipjung.backend.entity.Notification;
 import com.zipjung.backend.exception.SseEventException;
 import com.zipjung.backend.repository.EmitterRepository;
-import com.zipjung.backend.repository.NotificationRepository;
-import com.zipjung.backend.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
@@ -33,9 +32,8 @@ public class NotificationService {
         return emitter;
     }
 
-    public void sendEvent(Long memberId, Notification notification) {
-        SseEmitter emitter = emitterRepository.getById(memberId);
-
+    @Transactional
+    public void sendEvent(Long memberId, Notification notification, SseEmitter emitter) {
         if(emitter != null) {
             try {
                 // notificationDto
@@ -47,7 +45,14 @@ public class NotificationService {
                         .memberId(notification.getFromId())
                         .build();
 
-                emitter.send(SseEmitter.event().id(String.valueOf(memberId)).data(notificationResponse));
+                emitter.send(SseEmitter.event()
+                        .name("notification")
+                        .id(String.valueOf(memberId))
+                        .data(notificationResponse)
+                );
+
+                // 전송 성공 시 isRead = true 변경
+                notification.markAsRead();
             } catch (IOException e) {
                 // 전송 중 오류 발생시 emitter 삭제
                 emitterRepository.deleteById(memberId);
@@ -56,8 +61,6 @@ public class NotificationService {
                 throw new SseEventException("SSE sendEvent 중 오류 발생");
             }
         }
-
-        throw new SseEventException("emitter가 존재하지 않음");
     }
 
     public SseEmitter subscribe(Long memberId) {

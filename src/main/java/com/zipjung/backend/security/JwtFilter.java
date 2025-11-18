@@ -46,7 +46,6 @@ public class JwtFilter extends OncePerRequestFilter {
     public String resolveToken (HttpServletRequest request) {
         // 1. header에 담긴 token을 resolve
         String bearerToken = request.getHeader("Authorization");
-        System.out.println("[JWT Filter] Bearer token: " + bearerToken);
 
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer")) {
             return bearerToken.substring(7); // "Bearer "을 제외한 순수한 토큰 값만 리턴

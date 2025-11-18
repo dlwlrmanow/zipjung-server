@@ -1,7 +1,9 @@
 package com.zipjung.backend.controller;
 
+import com.zipjung.backend.exception.SseEventException;
 import com.zipjung.backend.security.CustomUserDetails;
 import com.zipjung.backend.service.NotificationService;
+import com.zipjung.backend.service.TodoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -15,6 +17,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 @RequiredArgsConstructor
 public class NotificationController {
     private final NotificationService notificationService;
+    private final TodoService todoService;
 
     @GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public ResponseEntity<SseEmitter> subscribe(@AuthenticationPrincipal CustomUserDetails user) {
@@ -26,14 +29,24 @@ public class NotificationController {
         if(memberId == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+
         try {
             SseEmitter emitter = notificationService.subscribe(memberId);
+
+            if(emitter == null) {
+                System.out.println("[SSE SUBSCRIBED] emitter is null");
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+            }
+
             System.out.println("[SSE SUBSCRIBED] success!!]:" + emitter);
 
-            // TODO: 구독이 성공적으로 연결되면, 바로 initReminder send
-//            todoService.initReminderCount(memberId, emitter);// 얘는 알아서 보내기에 호출만!!
+            // 구독 성공시 바로 보내기
+            todoService.initReminderCount(memberId, emitter);
 
             return new ResponseEntity<>(emitter, HttpStatus.OK); // 연결이 됐다는 건 클라이언트에 보내기
+        } catch (SseEventException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);

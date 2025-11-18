@@ -6,6 +6,8 @@ import com.zipjung.backend.entity.Notification;
 import com.zipjung.backend.entity.NotificationType;
 import com.zipjung.backend.entity.Post;
 import com.zipjung.backend.entity.Todo;
+import com.zipjung.backend.exception.SseEventException;
+import com.zipjung.backend.repository.EmitterRepository;
 import com.zipjung.backend.repository.NotificationRepository;
 import com.zipjung.backend.repository.PostRepository;
 import com.zipjung.backend.repository.TodoRepository;
@@ -23,6 +25,7 @@ public class TodoService {
     private final PostRepository postRepository;
     private final NotificationService notificationService;
     private final NotificationRepository notificationRepository;
+    private final EmitterRepository emitterRepository;
 
 
     @Transactional
@@ -51,22 +54,30 @@ public class TodoService {
         Notification todoNotification = Notification.builder()
                 .notificationType(NotificationType.NEW_TODO)
                 .title("Todo Saved!")
-                .message("새로운 Todo " + post.getTitle() + "가 추가되었어요.")
+                .message("새로운 Todo " + todos.getTask() + "가 추가되었어요.")
                 .fromId(memberId)
                 .toId(memberId)
                 .isRead(false)
                 .build();
         notificationRepository.save(todoNotification);
 
-        // 저장 성공 여부를 SSE 전송 + notification 테이블에 알림 저장
-//        notificationService.sendEvent(memberId, todoNotification);
+        // notification 저장 성공 후 바로 알림
+        SseEmitter emitter = emitterRepository.getById(memberId);
+        notificationService.sendEvent(memberId, todoNotification, emitter);
     }
 
-    @Transactional
     public void initReminderCount(Long memberId, SseEmitter emitter) {
+        if(emitter == null) {
+            throw new SseEventException("emitter is null");
+        }
         // 1. 남은 할 일 갯수 count
         // 최근 일주일 동안의 하지 않은 할 일 count
         int todoCount = (int) todoRepository.countByNotDone(memberId);
+
+        if(todoCount == 0) {
+            System.out.println("[TodoService initReminderCount] todos 0개");
+            return;
+        }
 
         // 2. notificaton 객체 생성
         Notification reminderNotification = Notification.builder()
@@ -82,7 +93,6 @@ public class TodoService {
         notificationRepository.save(reminderNotification);
 
         // 4. SSE 알림 보내기
-        notificationService.sendEvent(memberId, reminderNotification);
-
+        notificationService.sendEvent(memberId, reminderNotification, emitter);
     }
 }
