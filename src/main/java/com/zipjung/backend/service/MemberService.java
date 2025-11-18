@@ -25,6 +25,7 @@ public class MemberService {
     @Transactional
     public void registerMember(JoinRequestDto joinRequestDto) {
         // 존재하는 사용자 (중복 이메일 체크)
+        // TODO: 굳이 dto전체 비교X -> getEmail로 확인
         if(memberCustomRepository.areYouNew(joinRequestDto)) {
             throw new DuplicateEmailException("존재하는 사용자: " + joinRequestDto.getEmail());
         }

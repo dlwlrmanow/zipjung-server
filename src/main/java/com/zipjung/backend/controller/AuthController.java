@@ -45,8 +45,12 @@ public class AuthController {
 
     @PostMapping("/login/web")
     public ResponseEntity<?> loginForWeb(@RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response)  {
+        System.out.println("[/auth/login/web] login request: " + loginRequestDto.getUsername());
         // authentication 인증
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequestDto.getUsername(), loginRequestDto.getPassword()));
+        if(authentication.isAuthenticated()) {
+            System.out.println("[/auth/login/web] authenticated");
+        }
         // jwt 토큰 생성
         JwtToken token = jwtTokenProvider.generateToken(authentication);
 

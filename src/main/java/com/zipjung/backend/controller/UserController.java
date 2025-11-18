@@ -17,6 +17,7 @@ public class UserController {
 
     @PostMapping("/join")
     public ResponseEntity<String> join(@RequestBody JoinRequestDto joinRequestDto) {
+        System.out.println("[/user/join] join request: ]" + joinRequestDto.getUsername());
         try {
             memberService.registerMember(joinRequestDto);
         } catch (DuplicateEmailException e) {
