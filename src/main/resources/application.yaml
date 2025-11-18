@@ -17,6 +17,8 @@ spring:
     redis:
       host: localhost # no auth여도 localhost는 포함시켜줘야함
       port: 6379
+  jackson:
+    time-zone: UTC
 
 server:
   port: 8080

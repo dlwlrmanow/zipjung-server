@@ -31,6 +31,7 @@ public class TodoService {
         Post post = Post.builder()
                 .title("Todo")
                 .serviceId(2L)
+                .isDeleted(false)
                 .memberId(memberId)
                 .build();
         postRepository.save(post);
