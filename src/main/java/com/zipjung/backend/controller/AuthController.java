@@ -18,6 +18,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.TimeZone;
+
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -46,6 +48,7 @@ public class AuthController {
     @PostMapping("/login/web")
     public ResponseEntity<?> loginForWeb(@RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response)  {
         System.out.println("[/auth/login/web] login request: " + loginRequestDto.getUsername());
+        System.out.println("JVM Default TimeZone: " + TimeZone.getDefault().getID());
         // authentication 인증
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequestDto.getUsername(), loginRequestDto.getPassword()));
         if(authentication.isAuthenticated()) {
@@ -116,33 +119,35 @@ public class AuthController {
     }
 
 
-    @PostMapping("/validate/web/refresh")
-    public ResponseEntity<?> validateAccessTokenForWeb(@CookieValue("refreshToken") String refreshTokenValue, HttpServletResponse response) {
-        boolean isValid = jwtTokenProvider.validateRefreshToken(refreshTokenValue);
+//    @PostMapping("/validate/web/refresh")
+//    public ResponseEntity<?> validateAccessTokenForWeb(@CookieValue("refreshToken") String refreshTokenValue, HttpServletResponse response) {
+//        boolean isValidToken = jwtTokenProvider.validateToken(refreshTokenValue);
+//
+//        boolean isValidComparedRedis = jwtTokenProvider.validateRefreshToken(refreshTokenValue);
 
-        if (isValid) {
-            System.out.println("[/validate/web/refresh] validate refreshToken");
-
-            // 전체 Token reissue
-            JwtToken newJwtToken = jwtTokenProvider.reissueToken(refreshTokenValue);
-            // TODO: 메서드 분리하기
-            ResponseCookie cookie = ResponseCookie.from("refreshToken", newJwtToken.getRefreshToken())
-                    .httpOnly(true)
-                    .secure(false) // TODO: 배포시에는 true로 변경!! https관련
-                    .path("/") //
-                    .maxAge(jwtTokenProvider.getRefreshTokenExpireTime() / 1000)
-                    .sameSite("Lax") // CSRF 방어
-                    .build();
-
-            response.setHeader("Set-Cookie", cookie.toString()); // 응답 헤더에 쿠키 추가
-
-            newJwtToken.setRefreshToken(null);
-            System.out.println("[/validate/web/refresh] 토큰 생성 완!");
-            return ResponseEntity.ok(newJwtToken);
-        }
-        // refresh token 만료
-        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-    }
+//        if (isValidToken && isValidComparedRedis) {
+//            System.out.println("[/validate/web/refresh] validate refreshToken");
+//
+//            // 전체 Token reissue
+//            JwtToken newJwtToken = jwtTokenProvider.reissueToken(refreshTokenValue);
+//            // TODO: 메서드 분리하기
+//            ResponseCookie cookie = ResponseCookie.from("refreshToken", newJwtToken.getRefreshToken())
+//                    .httpOnly(true)
+//                    .secure(false) // TODO: 배포시에는 true로 변경!! https관련
+//                    .path("/") //
+//                    .maxAge(jwtTokenProvider.getRefreshTokenExpireTime() / 1000)
+//                    .sameSite("Lax") // CSRF 방어
+//                    .build();
+//
+//            response.setHeader("Set-Cookie", cookie.toString()); // 응답 헤더에 쿠키 추가
+//
+//            newJwtToken.setRefreshToken(null);
+//            System.out.println("[/validate/web/refresh] 토큰 생성 완!");
+//            return ResponseEntity.ok(newJwtToken);
+//        }
+//        // refresh token 만료
+//        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+//    }
 
     @PostMapping("/reissue/access")
     public ResponseEntity<?> reissueAccess(@RequestBody RefreshTokenDto refreshTokenDto) {
@@ -161,12 +166,14 @@ public class AuthController {
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
-    @PostMapping("/reissue/token/web")
+    @PostMapping("/reissue/access/web")
     public ResponseEntity<?> reissueAccess(@CookieValue("refreshToken") String refreshToken) {
         // RT로 검증
-        boolean isValid = jwtTokenProvider.validateRefreshToken(refreshToken);
+        boolean isValidToken = jwtTokenProvider.validateToken(refreshToken);
+        boolean isValidRedis = jwtTokenProvider.validateRefreshToken(refreshToken);
 
-        if(isValid) {
+        if(isValidToken && isValidRedis) {
+            System.out.println("[/reissue/access/web] isValid refreshToken");
             // AT만 재발급
             JwtToken newAccessToken = jwtTokenProvider.reissueAccessToken(refreshToken);
             return ResponseEntity.ok(newAccessToken);

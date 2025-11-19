@@ -63,6 +63,7 @@ public class TodoService {
 
         // notification 저장 성공 후 바로 알림
         SseEmitter emitter = emitterRepository.getById(memberId);
+
         notificationService.sendEvent(memberId, todoNotification, emitter);
     }
 

@@ -35,14 +35,14 @@ public class JwtTokenProvider {
 
     private static final String GRANT_TYPE = "Bearer";
 
-    private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 10; // 30분 -> 5분으로 변경
+    private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 2; // TODO: test로 2분으로 조정 -> 5분으로 수정할 것!!
     private static final long REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24 * 1; // 하루
 
-    public JwtTokenProvider(@Value("${JASYPT_ENCRYPTOR_PASSWORD}") String key,
+    public JwtTokenProvider(@Value(value = "${JASYPT_ENCRYPTOR_PASSWORD}") String secretKey,
                             UserDetailsService userDetailsService,
                             RedisDao redisDao) {
-        byte[] keyBytes = Base64.getEncoder().encode(key.getBytes());
-        this.key = Keys.hmacShaKeyFor(keyBytes);
+//        byte[] keyBytes = Base64.getEncoder().encode(key.getBytes());
+        this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
         this.userDetailsService = userDetailsService;
         this.redisDao = redisDao;
     }
