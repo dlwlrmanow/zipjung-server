@@ -1,9 +1,12 @@
 package com.zipjung.backend.controller;
 
-import com.zipjung.backend.dto.TodoRequest;
+import com.zipjung.backend.dto.TodoRequestDto;
+import com.zipjung.backend.dto.TodoResponseDto;
+import com.zipjung.backend.exception.SseEventException;
 import com.zipjung.backend.security.CustomUserDetails;
 import com.zipjung.backend.service.TodoService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -18,11 +21,24 @@ public class TodoController {
     private final TodoService todoService;
 
     @PostMapping("/save")
-    public ResponseEntity<?> SaveTodoList(@AuthenticationPrincipal CustomUserDetails user, @RequestBody TodoRequest todoRequest) {
+    public ResponseEntity<?> SaveTodoList(@AuthenticationPrincipal CustomUserDetails user, @RequestBody TodoRequestDto todoRequestDto) {
         System.out.println("[TodoController] start");
         Long memberId = user.getMemberId();
 
-        todoService.saveTodos(todoRequest, memberId);
+        try {
+            todoService.saveTodos(todoRequestDto, memberId);
+        } catch (SseEventException e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/fetch/list")
+    public ResponseEntity<List<TodoResponseDto>> GetTodos() {
+        System.out.println("[/fetch/list] start");
+//        Long memnberId = user.getMemberId();
+
+        List<TodoResponseDto> todos = todoService.getTodos(1L);
+        return new ResponseEntity<>(todos, HttpStatus.OK);
     }
 }

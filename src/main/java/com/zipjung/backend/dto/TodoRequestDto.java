@@ -5,7 +5,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class TodoRequest {
+public class TodoRequestDto {
     private String task;
     private final boolean isDone = false;
 }

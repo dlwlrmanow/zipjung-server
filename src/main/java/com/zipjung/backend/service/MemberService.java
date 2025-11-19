@@ -48,7 +48,6 @@ public class MemberService {
     }
 
     // TODO: email로 가입한 계정 찾기
-    // TODO: 예외처리 적용해보기
     @Transactional
     public String findUsernameByEmail(String email) {
         Optional<String> usernameOrNot = memberRepository.findByEmail(email);

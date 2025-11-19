@@ -36,7 +36,7 @@ public class JwtTokenProvider {
     private static final String GRANT_TYPE = "Bearer";
 
     private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 2; // TODO: test로 2분으로 조정 -> 5분으로 수정할 것!!
-    private static final long REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24 * 1; // 하루
+    private static final long REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24; // 하루
 
     public JwtTokenProvider(@Value(value = "${JASYPT_ENCRYPTOR_PASSWORD}") String secretKey,
                             UserDetailsService userDetailsService,
@@ -213,8 +213,9 @@ public class JwtTokenProvider {
     public JwtToken reissueToken(String refreshToken) {
         // UserDeatils로 Authentication 객체 생성
         String username = getUserNameFromToken(refreshToken);
-        // TODO: CustomUserDetails 사용??
-        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
+        // CustomUserDetails객체를 반환하도록 수정
+        CustomUserDetails userDetails = (CustomUserDetails) userDetailsService.loadUserByUsername(username);
         Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
         // 새로 생상하면서 기존 redis에 저장한 refresh token 삭제
@@ -222,8 +223,7 @@ public class JwtTokenProvider {
             redisDao.deleteValues(username);
         }
 
-        JwtToken jwtToken = generateToken(authentication);
-        return jwtToken;
+        return generateToken(authentication);
     }
 
     public Long getRefreshTokenExpireTime() {

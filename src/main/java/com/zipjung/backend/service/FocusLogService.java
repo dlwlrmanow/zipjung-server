@@ -17,13 +17,12 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class FocusLogService {
-    // DONE: 여기에서 하나의 @Transactional 로 묶어서 처리해야 데이터 꼬이지 않음
     private final FocusLogRepository focusLogRepository;
     private final PostRepository postRepository;
     private final FocusTimeRepository focusTimeRepository;
 
-    @Transactional
-    public int saveFocusLog(FocusLogDto focusLogDto, Long memberId) {
+    @Transactional // transactional로 순서 꼬이지 않고 비동기적으로 처리하도록
+    public boolean saveFocusLog(FocusLogDto focusLogDto, Long memberId) {
         // 1. post.id 만들기
         Post post = Post.builder()
                 .title(focusLogDto.getTitle())
@@ -32,23 +31,27 @@ public class FocusLogService {
                 .memberId(memberId)
                 .build();
         postRepository.save(post);
+
         // 2. post.id 가져오기
         Long postId = post.getId();
         System.out.println("postId: " + postId);
+
         // 3. focus_log.id 만들기
         FocusLog focusLog = new FocusLog(postId, focusLogDto.getRating());
         focusLogRepository.save(focusLog);
+
         // 4. 해당하는 focus_time에 focus_log.id update
         Long focusLogId = focusLog.getId();
+
         for(Long focusTimeId : focusLogDto.getFocusTimeId()) { // focus_time_id가 리스트 형태로 들어옴
             int count = focusTimeRepository.updateFocusLogId(focusLogId, focusTimeId);
             if (count != 0) {
                 System.out.println("update success: " + count);
-                return count;
+                return true;
             }
 
         }
-        return -1; // TODO: 탈 일 없긴 함
+        return false;
     }
 
     @Transactional(readOnly = true)

@@ -1,7 +1,7 @@
 package com.zipjung.backend.service;
 
-import com.zipjung.backend.dto.NotificationResponse;
-import com.zipjung.backend.dto.TodoRequest;
+import com.zipjung.backend.dto.TodoRequestDto;
+import com.zipjung.backend.dto.TodoResponseDto;
 import com.zipjung.backend.entity.Notification;
 import com.zipjung.backend.entity.NotificationType;
 import com.zipjung.backend.entity.Post;
@@ -29,7 +29,7 @@ public class TodoService {
 
 
     @Transactional
-    public void saveTodos(TodoRequest todoRequest, Long memberId) {
+    public void saveTodos(TodoRequestDto todoRequestDto, Long memberId) {
         // 1. post 생성
         Post post = Post.builder()
                 .title("Todo")
@@ -44,7 +44,7 @@ public class TodoService {
 
         // 3. todos 저장
         Todo todos = Todo.builder()
-                .task(todoRequest.getTask())
+                .task(todoRequestDto.getTask())
                 .postId(postId)
                 .isDone(false)
                 .build();
@@ -53,8 +53,8 @@ public class TodoService {
         // notification에 저장
         Notification todoNotification = Notification.builder()
                 .notificationType(NotificationType.NEW_TODO)
-                .title("Todo Saved!")
-                .message("새로운 Todo " + todos.getTask() + "가 추가되었어요.")
+                .title("new TODO ")
+                .message("새로운 Todo [" + todos.getTask() + "] 추가되었어요.")
                 .fromId(memberId)
                 .toId(memberId)
                 .isRead(false)
@@ -95,5 +95,9 @@ public class TodoService {
 
         // 4. SSE 알림 보내기
         notificationService.sendEvent(memberId, reminderNotification, emitter);
+    }
+
+    public List<TodoResponseDto> getTodos(Long memberId) {
+        return todoRepository.getTodos(memberId);
     }
 }

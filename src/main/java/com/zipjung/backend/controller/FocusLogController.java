@@ -27,8 +27,12 @@ public class FocusLogController {
     public ResponseEntity<Integer> saveFocusLog(@RequestBody FocusLogDto focusLogDto, @AuthenticationPrincipal CustomUserDetails user) {
         Long memberId = user.getMemberId();
         System.out.println("[/focus-log/save] memberId: " + memberId);
-        int successCount = focusLogService.saveFocusLog(focusLogDto, memberId);
-        return new ResponseEntity<>(successCount, HttpStatus.CREATED);
+        // focusLog 저장 실패
+        if (!focusLogService.saveFocusLog(focusLogDto, memberId)){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @GetMapping("/list/fetch")
