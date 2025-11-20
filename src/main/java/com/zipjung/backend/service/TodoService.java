@@ -1,5 +1,6 @@
 package com.zipjung.backend.service;
 
+import com.zipjung.backend.dto.Result;
 import com.zipjung.backend.dto.TodoRequestDto;
 import com.zipjung.backend.dto.TodoResponseDto;
 import com.zipjung.backend.entity.Notification;
@@ -73,9 +74,11 @@ public class TodoService {
         }
         // 1. 남은 할 일 갯수 count
         // 최근 일주일 동안의 하지 않은 할 일 count
-        int todoCount = (int) todoRepository.countByNotDone(memberId);
+        // int로 변환 21억개 이상의 데이터면 데이터가 손실 될 수도
+        int todoCount = todoRepository.countByNotDone(memberId).intValue();
 
-        if(todoCount == 0) {
+        // todos 0인경우 알림 적재 X
+        if(todoCount == 0L) {
             System.out.println("[TodoService initReminderCount] todos 0개");
             return;
         }
@@ -97,7 +100,12 @@ public class TodoService {
         notificationService.sendEvent(memberId, reminderNotification, emitter);
     }
 
-    public List<TodoResponseDto> getTodos(Long memberId) {
-        return todoRepository.getTodos(memberId);
+    public Result<List<TodoResponseDto>> getTodosAndCount (Long memberId) {
+        List<TodoResponseDto> todos = todoRepository.getTodos(memberId);
+        int todosCount = todoRepository.countListTodo(memberId).intValue();
+
+        return new Result<>(todos, todosCount);
     }
+
+    // TODO: 로그아웃할 때 오늘은 n개의 할일을 마무리 했어요! - sse
 }

@@ -1,5 +1,6 @@
 package com.zipjung.backend.controller;
 
+import com.zipjung.backend.dto.Result;
 import com.zipjung.backend.dto.TodoRequestDto;
 import com.zipjung.backend.dto.TodoResponseDto;
 import com.zipjung.backend.exception.SseEventException;
@@ -34,11 +35,11 @@ public class TodoController {
     }
 
     @GetMapping("/fetch/list")
-    public ResponseEntity<List<TodoResponseDto>> GetTodos() {
+    public ResponseEntity<Result<List<TodoResponseDto>>> GetTodos(@AuthenticationPrincipal CustomUserDetails user) {
         System.out.println("[/fetch/list] start");
-//        Long memnberId = user.getMemberId();
+        Long memnberId = user.getMemberId();
 
-        List<TodoResponseDto> todos = todoService.getTodos(1L);
-        return new ResponseEntity<>(todos, HttpStatus.OK);
+        Result<List<TodoResponseDto>> todosResult = todoService.getTodosAndCount(memnberId);
+        return new ResponseEntity<>(todosResult, HttpStatus.OK);
     }
 }

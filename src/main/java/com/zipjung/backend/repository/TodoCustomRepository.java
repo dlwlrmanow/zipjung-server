@@ -5,7 +5,9 @@ import com.zipjung.backend.dto.TodoResponseDto;
 import java.util.List;
 
 public interface TodoCustomRepository {
-    long countByNotDone(Long memberId);
+    Long countByNotDone(Long memberId);
 
     List<TodoResponseDto> getTodos(Long memberId);
+
+    Long countListTodo(Long memberId);
 }

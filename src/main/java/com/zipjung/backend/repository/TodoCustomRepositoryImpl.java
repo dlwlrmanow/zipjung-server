@@ -17,14 +17,14 @@ public class TodoCustomRepositoryImpl implements TodoCustomRepository {
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public long countByNotDone(Long memberId) {
+    public Long countByNotDone(Long memberId) {
         LocalDateTime oneWeek = LocalDateTime.now().minusWeeks(1);
 
         QPost post = QPost.post;
         QTodo todo = QTodo.todo;
 
-        long count = jpaQueryFactory
-                .select(todo.task.count())
+        Long count = jpaQueryFactory
+                .select(todo.task.count()) // count()함수는 집계결과가 null인 경우 0을 반환
                 .from(todo)
                 .leftJoin(post).on(todo.postId.eq(post.id))
                 .where(
@@ -32,7 +32,7 @@ public class TodoCustomRepositoryImpl implements TodoCustomRepository {
                                 .and(post.createdAt.eq(oneWeek))
                                 .and(todo.isDone.eq(false))
                 )
-                .fetchCount();
+                .fetchOne(); // 단일 결과 조회시
 
         return count;
     }
@@ -56,6 +56,24 @@ public class TodoCustomRepositoryImpl implements TodoCustomRepository {
                 )
                 .fetch();
         return todos;
+    }
+
+    @Override
+    public Long countListTodo(Long memberId) {
+        QPost post = QPost.post;
+        QTodo todo = QTodo.todo;
+
+        Long count = jpaQueryFactory
+                .select(todo.count())
+                .from(todo)
+                .leftJoin(post).on(todo.postId.eq(post.id))
+                .where(
+                        post.memberId.eq(memberId)
+                                .and(todo.isDone.eq(false))
+                )
+                .fetchOne();
+
+        return count;
     }
 
 }
