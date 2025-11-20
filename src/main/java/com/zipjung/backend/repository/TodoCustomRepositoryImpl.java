@@ -64,7 +64,7 @@ public class TodoCustomRepositoryImpl implements TodoCustomRepository {
         QTodo todo = QTodo.todo;
 
         Long count = jpaQueryFactory
-                .select(todo.count())
+                .select(todo.count()) // count는 무조건 0 -> null X
                 .from(todo)
                 .leftJoin(post).on(todo.postId.eq(post.id))
                 .where(

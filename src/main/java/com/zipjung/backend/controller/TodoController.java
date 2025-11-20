@@ -14,6 +14,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/todo")
@@ -28,11 +29,13 @@ public class TodoController {
         Long memberId = user.getMemberId();
 
         try {
-            todoService.saveTodos(todoRequestDto, memberId);
+            Long todoId = todoService.saveTodos(todoRequestDto, memberId);
+
+            // 성공적으로 저장된 경우 todo_id 반환
+            return new ResponseEntity<>(Map.of("id", todoId), HttpStatus.OK);
         } catch (SseEventException e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/fetch/list")

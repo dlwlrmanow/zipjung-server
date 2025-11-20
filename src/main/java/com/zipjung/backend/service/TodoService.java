@@ -31,7 +31,7 @@ public class TodoService {
 
 
     @Transactional
-    public void saveTodos(TodoRequestDto todoRequestDto, Long memberId) {
+    public Long saveTodos(TodoRequestDto todoRequestDto, Long memberId) {
         // 1. post 생성
         Post post = Post.builder()
                 .title("Todo")
@@ -52,6 +52,10 @@ public class TodoService {
                 .build();
         todoRepository.save(todos);
 
+        Long todoId = todos.getId();
+        System.out.println("[TodoService] saveTodos 방금 저장된 todo_id: " + todoId);
+
+
         // notification에 저장
         Notification todoNotification = Notification.builder()
                 .notificationType(NotificationType.NEW_TODO)
@@ -67,6 +71,8 @@ public class TodoService {
         SseEmitter emitter = emitterRepository.getById(memberId);
 
         notificationService.sendEvent(memberId, todoNotification, emitter);
+
+        return todoId;
     }
 
     // 로그인시에 바로 오늘 할 일 갯수 띄우기
@@ -103,6 +109,7 @@ public class TodoService {
     }
 
     public Result<List<TodoResponseDto>> getTodosAndCount (Long memberId) {
+        System.out.println("[TodoService] getTodosAndCount: start");
         List<TodoResponseDto> todos = todoRepository.getTodos(memberId);
         int todosCount = todoRepository.countListTodo(memberId).intValue();
 
