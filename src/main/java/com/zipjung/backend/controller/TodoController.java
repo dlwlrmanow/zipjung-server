@@ -4,6 +4,7 @@ import com.zipjung.backend.dto.Result;
 import com.zipjung.backend.dto.TodoRequestDto;
 import com.zipjung.backend.dto.TodoResponseDto;
 import com.zipjung.backend.exception.SseEventException;
+import com.zipjung.backend.exception.TodoDBException;
 import com.zipjung.backend.security.CustomUserDetails;
 import com.zipjung.backend.service.TodoService;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,7 @@ public class TodoController {
     private final TodoService todoService;
 
     @PostMapping("/save")
-    public ResponseEntity<?> SaveTodoList(@AuthenticationPrincipal CustomUserDetails user, @RequestBody TodoRequestDto todoRequestDto) {
+    public ResponseEntity<?> saveTodos(@AuthenticationPrincipal CustomUserDetails user, @RequestBody TodoRequestDto todoRequestDto) {
         System.out.println("[TodoController] start");
         Long memberId = user.getMemberId();
 
@@ -35,11 +36,25 @@ public class TodoController {
     }
 
     @GetMapping("/fetch/list")
-    public ResponseEntity<Result<List<TodoResponseDto>>> GetTodos(@AuthenticationPrincipal CustomUserDetails user) {
+    public ResponseEntity<Result<List<TodoResponseDto>>> getTodosAndCount(@AuthenticationPrincipal CustomUserDetails user) {
         System.out.println("[/fetch/list] start");
-        Long memnberId = user.getMemberId();
+        Long memberId = user.getMemberId();
 
-        Result<List<TodoResponseDto>> todosResult = todoService.getTodosAndCount(memnberId);
+        Result<List<TodoResponseDto>> todosResult = todoService.getTodosAndCount(memberId);
         return new ResponseEntity<>(todosResult, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> deleteTodo(@AuthenticationPrincipal CustomUserDetails user, @PathVariable(value = "id") Long id) {
+        System.out.println("[/delete/{id}] start]");
+        Long memberId = user.getMemberId();
+
+        try {
+            todoService.deleteTodo(memberId, id);
+        } catch (TodoDBException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+
+        return ResponseEntity.noContent().build();
     }
 }

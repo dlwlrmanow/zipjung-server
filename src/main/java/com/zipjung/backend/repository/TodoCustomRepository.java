@@ -10,4 +10,6 @@ public interface TodoCustomRepository {
     List<TodoResponseDto> getTodos(Long memberId);
 
     Long countListTodo(Long memberId);
+
+    boolean deleteTodo(Long memberId, Long postId);
 }

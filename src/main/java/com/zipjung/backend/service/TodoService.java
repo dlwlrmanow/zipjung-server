@@ -8,6 +8,7 @@ import com.zipjung.backend.entity.NotificationType;
 import com.zipjung.backend.entity.Post;
 import com.zipjung.backend.entity.Todo;
 import com.zipjung.backend.exception.SseEventException;
+import com.zipjung.backend.exception.TodoDBException;
 import com.zipjung.backend.repository.EmitterRepository;
 import com.zipjung.backend.repository.NotificationRepository;
 import com.zipjung.backend.repository.PostRepository;
@@ -68,6 +69,7 @@ public class TodoService {
         notificationService.sendEvent(memberId, todoNotification, emitter);
     }
 
+    // 로그인시에 바로 오늘 할 일 갯수 띄우기
     public void initReminderCount(Long memberId, SseEmitter emitter) {
         if(emitter == null) {
             throw new SseEventException("emitter is null");
@@ -105,6 +107,12 @@ public class TodoService {
         int todosCount = todoRepository.countListTodo(memberId).intValue();
 
         return new Result<>(todos, todosCount);
+    }
+
+    public void deleteTodo (Long memberId, Long todoId) {
+        if(!todoRepository.deleteTodo(memberId, todoId)) {
+            throw new TodoDBException("[deleteTodo] 중 오류 발생");
+        }
     }
 
     // TODO: 로그아웃할 때 오늘은 n개의 할일을 마무리 했어요! - sse

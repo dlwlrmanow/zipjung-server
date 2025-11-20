@@ -76,7 +76,6 @@ public class SecurityConfig {
                         .requestMatchers("/auth/login/**", "/auth/login/web", "/user/join", "/auth/logout/**").permitAll() // 로그인 | 로그아웃 | 회원가입
                         .requestMatchers("/auth/validate", "/auth/validate/web").permitAll() // token validate
                         .requestMatchers("/auth/reissue/access/web").permitAll() // web에서 AT 재발급
-                        .requestMatchers("/todo/fetch/list").permitAll() // web에서 AT 재발급
                         .anyRequest().authenticated())
 
                 .exceptionHandling(ex -> ex

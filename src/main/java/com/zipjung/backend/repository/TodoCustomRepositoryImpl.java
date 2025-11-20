@@ -76,4 +76,38 @@ public class TodoCustomRepositoryImpl implements TodoCustomRepository {
         return count;
     }
 
+    @Override
+    public boolean deleteTodo (Long memberId, Long todoId) {
+        QTodo todo = QTodo.todo;
+        QPost post = QPost.post;
+
+        // todo_id에 해당하는 postId 찾아오기
+        Long postId = jpaQueryFactory
+                .select(todo.postId)
+                .from(todo)
+                .where(todo.id.eq(todoId))
+                .fetchOne();
+
+        if(postId == null) {
+            System.out.println("[TodoCustomRepositoryImpl] postId == null");
+            return false;
+        }
+
+        long deleteCount = jpaQueryFactory
+                .update(post)
+                .set(post.isDeleted, true)
+                .where(
+                        post.id.eq(postId)
+                                .and(post.memberId.eq(memberId))
+                )
+                .execute(); // 항상 원시 타입(long): null X
+
+        if(deleteCount < 0) { // 오류
+            System.out.println("[TodoCustomRepositoryImpl] 삭제된 post가 없음!!");
+            return false;
+        }
+
+        return true;
+    }
+
 }
