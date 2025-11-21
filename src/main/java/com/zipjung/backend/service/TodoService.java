@@ -78,6 +78,7 @@ public class TodoService {
     // 로그인시에 바로 오늘 할 일 갯수 띄우기
     public void initReminderCount(Long memberId, SseEmitter emitter) {
         if(emitter == null) {
+            System.out.println("[/initReminderCount] emitter is null");
             throw new SseEventException("emitter is null");
         }
         // 1. 남은 할 일 갯수 count
@@ -116,8 +117,10 @@ public class TodoService {
         return new Result<>(todos, todosCount);
     }
 
+    @Transactional
     public void deleteTodo (Long memberId, Long todoId) {
-        if(!todoRepository.deleteTodo(memberId, todoId)) {
+        boolean delete = todoRepository.deleteTodo(memberId, todoId);
+        if(!delete) {
             throw new TodoDBException("[deleteTodo] 중 오류 발생");
         }
     }

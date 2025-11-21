@@ -53,6 +53,7 @@ public class TodoCustomRepositoryImpl implements TodoCustomRepository {
                 .where(
                         post.memberId.eq(memberId)
                                 .and(todo.isDone.eq(false))
+                                .and(post.isDeleted.eq(false)) // soft delete되지 않은 post만
                 )
                 .fetch();
         return todos;
@@ -102,7 +103,7 @@ public class TodoCustomRepositoryImpl implements TodoCustomRepository {
                 )
                 .execute(); // 항상 원시 타입(long): null X
 
-        if(deleteCount < 0) { // 오류
+        if(deleteCount == 0) { // 오류
             System.out.println("[TodoCustomRepositoryImpl] 삭제된 post가 없음!!");
             return false;
         }

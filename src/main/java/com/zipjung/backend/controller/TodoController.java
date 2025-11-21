@@ -25,7 +25,6 @@ public class TodoController {
 
     @PostMapping("/save")
     public ResponseEntity<?> saveTodos(@AuthenticationPrincipal CustomUserDetails user, @RequestBody TodoRequestDto todoRequestDto) {
-        System.out.println("[TodoController] start");
         Long memberId = user.getMemberId();
 
         try {
@@ -40,11 +39,15 @@ public class TodoController {
 
     @GetMapping("/fetch/list")
     public ResponseEntity<Result<List<TodoResponseDto>>> getTodosAndCount(@AuthenticationPrincipal CustomUserDetails user) {
-        System.out.println("[/fetch/list] start");
         Long memberId = user.getMemberId();
 
-        Result<List<TodoResponseDto>> todosResult = todoService.getTodosAndCount(memberId);
-        return new ResponseEntity<>(todosResult, HttpStatus.OK);
+        try {
+            Result<List<TodoResponseDto>> todosResult = todoService.getTodosAndCount(memberId);
+            return new ResponseEntity<>(todosResult, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @DeleteMapping("/delete/{id}")
@@ -55,15 +58,15 @@ public class TodoController {
         try {
             todoService.deleteTodo(memberId, id);
         } catch (TodoDBException e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.noContent().build(); // 에러에 안잡히면
     }
 
     @PatchMapping("/update/isdone/{todoId}")
     public ResponseEntity<?> updateIsDone(@AuthenticationPrincipal CustomUserDetails user, @PathVariable(value = "todoId") Long todoId) {
-        System.out.println("[/updateIsDone] start");
         Long memberId = user.getMemberId();
 
         try {
