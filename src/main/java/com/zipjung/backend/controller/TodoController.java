@@ -60,4 +60,18 @@ public class TodoController {
 
         return ResponseEntity.noContent().build();
     }
+
+    @PatchMapping("/update/isdone/{todoId}")
+    public ResponseEntity<?> updateIsDone(@AuthenticationPrincipal CustomUserDetails user, @PathVariable(value = "todoId") Long todoId) {
+        System.out.println("[/updateIsDone] start");
+        Long memberId = user.getMemberId();
+
+        try {
+            todoService.updateIsDone(memberId, todoId);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
 }

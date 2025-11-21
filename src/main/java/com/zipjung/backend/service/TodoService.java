@@ -122,5 +122,25 @@ public class TodoService {
         }
     }
 
-    // TODO: 로그아웃할 때 오늘은 n개의 할일을 마무리 했어요! - sse
+    @Transactional
+    public void updateIsDone(Long memberId, Long todoId) {
+        // id로 is done 으로 update
+        Todo todo = todoRepository.findById(todoId).orElseThrow(() -> new IllegalArgumentException("해당 id로 todo를 찾을 수 없습니다: " + todoId));
+        todo.markAsDone();
+
+        // notification 저장하기
+        Notification doneNotification = Notification.builder()
+                .notificationType(NotificationType.DONE_TODO)
+                .title("완료한 TODO")
+                .message("TODO: " + todo.getTask() + " 완료하였어요!")
+                .fromId(memberId)
+                .toId(memberId)
+                .isRead(false)
+                .build();
+        notificationRepository.save(doneNotification);
+
+        notificationService.sendEvent(memberId, doneNotification, emitterRepository.getById(memberId));
+    }
+
+    // TODO: 로그아웃할 때 오늘은 n개의 할일을 마무리 했어요! - sse todo_updatedAt으로
 }
