@@ -1,10 +1,13 @@
 package com.zipjung.backend.service;
 
 import com.zipjung.backend.dto.FocusTimeRequestDto;
+import com.zipjung.backend.dto.FocusTimeWithEndTimeResponse;
+import com.zipjung.backend.dto.Result;
 import com.zipjung.backend.entity.FocusTime;
 import com.zipjung.backend.exception.FocusTimeException;
 import com.zipjung.backend.repository.FocusTimeRepository;
 
+import com.zipjung.backend.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -71,5 +74,17 @@ public class FocusTimeService {
     @Transactional(readOnly = true)
     public FocusTime fetchFocusTimeById(Long id) {
         return focusTimeRepository.findById(id).orElse(null);
+    }
+
+    public Result<List<FocusTimeWithEndTimeResponse>> fetchTodayFocusTimesWithEndTime(Long memberId) {
+        // 오늘의 날짜 데이터
+        LocalDate today = LocalDate.now();
+
+        LocalDateTime startOfDay = today.atStartOfDay();
+        LocalDateTime endOfDay = today.plusDays(1).atStartOfDay();
+
+        List<FocusTimeWithEndTimeResponse> focusedTimeToday = focusTimeRepository.getTodayFocusTimesWithEndTime(startOfDay, endOfDay);
+
+        return new Result<>(focusedTimeToday, focusedTimeToday.size());
     }
 }

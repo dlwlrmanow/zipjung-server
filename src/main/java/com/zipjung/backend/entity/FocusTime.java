@@ -18,6 +18,9 @@ public class FocusTime extends BaseEntity {
     @Column(name = "start_focus_time")
     private String startFocusTime;
 
+    @Column(name = "end_focus_time")
+    private String endFocusTime;
+
     @Column(name = "focus_log_id")
     private Long focusLogId;
 
