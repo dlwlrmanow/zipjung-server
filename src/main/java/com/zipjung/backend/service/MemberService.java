@@ -55,6 +55,4 @@ public class MemberService {
         System.out.println(username);
         return username;
     }
-
-
 }

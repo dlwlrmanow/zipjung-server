@@ -77,4 +77,12 @@ public class TodoController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
+
+    @GetMapping("/reminder")
+    public ResponseEntity<?> reminder(@AuthenticationPrincipal CustomUserDetails user) {
+        Long memberId = user.getMemberId();
+
+        todoService.initReminderCount(memberId);
+        return ResponseEntity.noContent().build();
+    }
 }

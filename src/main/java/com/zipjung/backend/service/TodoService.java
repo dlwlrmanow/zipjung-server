@@ -76,11 +76,7 @@ public class TodoService {
     }
 
     // 로그인시에 바로 오늘 할 일 갯수 띄우기
-    public void initReminderCount(Long memberId, SseEmitter emitter) {
-        if(emitter == null) {
-            System.out.println("[/initReminderCount] emitter is null");
-            throw new SseEventException("emitter is null");
-        }
+    public void initReminderCount(Long memberId) {
         // 1. 남은 할 일 갯수 count
         // 최근 일주일 동안의 하지 않은 할 일 count
         // int로 변환 21억개 이상의 데이터면 데이터가 손실 될 수도
@@ -93,6 +89,7 @@ public class TodoService {
         }
 
         // 2. notificaton 객체 생성
+        // TODO: reminder의 경우 id를 추가해서 다른 todo_id의 경우에는 클라이언트에서 flag 비교 후 다시 보여주도록
         Notification reminderNotification = Notification.builder()
                 .notificationType(NotificationType.REMINDER)
                 .title("Reminder")
@@ -106,7 +103,7 @@ public class TodoService {
         notificationRepository.save(reminderNotification);
 
         // 4. SSE 알림 보내기
-        notificationService.sendEvent(memberId, reminderNotification, emitter);
+        notificationService.sendEvent(memberId, reminderNotification, emitterRepository.getById(memberId));
     }
 
     public Result<List<TodoResponseDto>> getTodosAndCount (Long memberId) {

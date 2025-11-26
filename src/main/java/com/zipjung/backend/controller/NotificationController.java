@@ -40,9 +40,8 @@ public class NotificationController {
 
             System.out.println("[SSE SUBSCRIBED] success!!]:" + emitter);
 
-            // 구독 성공시 바로 보내기
-            // TODO: 수정 필요 sse 알림 안 뜸
-            todoService.initReminderCount(memberId, emitter);
+            // 구독 성공시 바로 보내기 TODO: 여기서 연결하지 않고 클라이언트가 연결하도록 수정
+//            todoService.initReminderCount(memberId, emitter);
 
             return new ResponseEntity<>(emitter, HttpStatus.OK); // 연결이 됐다는 건 클라이언트에 보내기
         } catch (SseEventException e) {

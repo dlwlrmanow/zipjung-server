@@ -15,7 +15,7 @@ public interface FocusTimeRepository extends JpaRepository<FocusTime, Long> {
 //    @Query(value = "INSERT INTO FocusTime(focusedTime, startFocusTime, memberId) VALUES (:focusedTime, :startFocusTime, :memberId)")
 //    void saveWithMemberID(@Param("focusedTime") LocalDateTime focusedTime, @Param("startFocusTime") String startFocusTime, @Param("memberId") Long memberId);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("UPDATE FocusTime f SET f.focusLogId = :focusLogId WHERE f.id = :focusTimeId")
         // TODO: update한 postId를 return하도록 수정
     int updateFocusLogId(@Param("focusLogId") Long focusLogId, @Param("focusTimeId") Long focusTimeId);

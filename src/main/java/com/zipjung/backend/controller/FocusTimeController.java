@@ -2,6 +2,7 @@ package com.zipjung.backend.controller;
 
 import com.zipjung.backend.dto.FocusTimeRequestDto;
 import com.zipjung.backend.dto.FocusTimeWithEndTimeResponse;
+import com.zipjung.backend.dto.FocusedTodayTotalResponse;
 import com.zipjung.backend.dto.Result;
 import com.zipjung.backend.entity.FocusTime;
 import com.zipjung.backend.exception.FocusTimeException;
@@ -51,9 +52,10 @@ public class FocusTimeController {
         return ResponseEntity.ok().body(new Result<>(focusTimeList, focusTimeList.size()));
     }
 
-    @GetMapping("/today/fetch")
-    public ResponseEntity<Long> fetchTodayFocusTimes() {
-        Long todayFocusTime = focusTimeService.fetchTodayFocusTime();
+    // TODO: /today/fetch -> /today/total 로 수정 flutter에서 매핑 수정해야함!!
+    @GetMapping("/today/total")
+    public ResponseEntity<FocusedTodayTotalResponse> fetchTodayFocusTimes() {
+        FocusedTodayTotalResponse todayFocusTime = focusTimeService.fetchTodayFocusTime();
         return ResponseEntity.ok(todayFocusTime);
     }
 

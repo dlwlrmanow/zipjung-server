@@ -32,6 +32,7 @@ public class AuthController {
             Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequestDto.getUsername(), loginRequestDto.getPassword()));
             JwtToken token = jwtTokenProvider.generateToken(authentication);
 
+
             return ResponseEntity.ok(token); // 클라이언트에 200
         } catch (BadCredentialsException e) { // 비밀번호 오류 혹은 권한 오류
             return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED); // 401

@@ -2,6 +2,7 @@ package com.zipjung.backend.service;
 
 import com.zipjung.backend.dto.FocusTimeRequestDto;
 import com.zipjung.backend.dto.FocusTimeWithEndTimeResponse;
+import com.zipjung.backend.dto.FocusedTodayTotalResponse;
 import com.zipjung.backend.dto.Result;
 import com.zipjung.backend.entity.FocusTime;
 import com.zipjung.backend.entity.Notification;
@@ -11,7 +12,6 @@ import com.zipjung.backend.repository.EmitterRepository;
 import com.zipjung.backend.repository.FocusTimeRepository;
 
 import com.zipjung.backend.repository.NotificationRepository;
-import com.zipjung.backend.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -63,7 +62,7 @@ public class FocusTimeService {
     }
 
     @Transactional(readOnly = true) // 오늘의 집중 시간 가져오기
-    public Long fetchTodayFocusTime() {
+    public FocusedTodayTotalResponse fetchTodayFocusTime() {
         LocalDate today = LocalDate.now();
 
         LocalDateTime startOfDay = today.atStartOfDay();
@@ -77,7 +76,11 @@ public class FocusTimeService {
                 todayTimeSum += time;
             }
         }
-        return todayTimeSum;
+
+        // 00:00:00 형태로 파싱
+        FocusedTodayTotalResponse totalToday = new FocusedTodayTotalResponse(todayTimeSum);
+        System.out.println("[FocusTimeService] totalToday = " + totalToday.getTodayFocusTime() + "\n totalTodayStr: " + totalToday.getFocusedTimeStr());
+        return totalToday;
     }
 
     @Transactional(readOnly = true)
