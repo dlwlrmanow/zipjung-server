@@ -36,12 +36,40 @@ public interface FocusTimeRepository extends JpaRepository<FocusTime, Long> {
 
     @Query("SELECT f.focusedTime FROM FocusTime f " +
             "WHERE f.createdAt BETWEEN :startOfDay AND :endOfDay " +
-            "AND f.isDeleted = false")
+                "AND f.isDeleted = false")
     List<Long> getTodayFocusTimes(@Param("startOfDay") LocalDateTime startOfDay, @Param("endOfDay") LocalDateTime endOfDay);
 
-    @Query("SELECT f.focusedTime, f.startFocusTime, f.endFocusTime FROM FocusTime f " +
+    @Query("SELECT new com.zipjung.backend.dto.FocusTimeWithEndTimeResponse(f.id, f.focusedTime, f.startFocusTime, f.endFocusTime) " +
+            "FROM FocusTime f " +
             "WHERE f.createdAt BETWEEN :startOfDay AND :endOfDay " +
-            "AND f.isDeleted = false " +
-            "AND f.memberId = :memberId")
-    List<FocusTimeWithEndTimeResponse> getTodayFocusTimesWithEndTime(@Param("startOfDay") LocalDateTime startOfDay, @Param("endOfDay") LocalDateTime endOfDay);
+                "AND f.isDeleted = false " +
+                "AND f.memberId = :memberId")
+    List<FocusTimeWithEndTimeResponse> getTodayFocusTimesWithEndTime(@Param("startOfDay") LocalDateTime startOfDay, @Param("endOfDay") LocalDateTime endOfDay, Long memberId);
+
+
+    // 오늘 집중 시간 전체 삭제
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE FocusTime f " +
+            "SET f.isDeleted = true " +
+            "WHERE f.createdAt BETWEEN :startOfDay AND :endOfDay " +
+                "AND f.memberId = :memberId")
+    int updateFocusedItemDeleteAll(@Param("startOfDay") LocalDateTime startOfDay, @Param("endOfDay") LocalDateTime endOfDay, @Param("memberId") Long memberId);
+
+
+    // 해당 item 하나만 삭제
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE FocusTime f " +
+            "SET f.isDeleted = true " +
+            "WHERE f.memberId = :memberId " +
+                "AND f.id = :focusTimeId")
+    int updateFocusedItemDelete(@Param("memberId") Long memberId, @Param("focusTimeId") Long focusTimeId);
+
+
+    // notification 보내기 위해 삭제한 item의 내용 가져오기
+    @Query("SELECT new com.zipjung.backend.dto.FocusTimeWithEndTimeResponse(f.id, f.focusedTime, f.startFocusTime, f.endFocusTime) " +
+            "FROM FocusTime f " +
+            "WHERE f.isDeleted = true " +
+            "AND f.memberId = :memberId " +
+            "AND f.id = :focusTimeId")
+    FocusTimeWithEndTimeResponse getDeletedFocusTimeById(@Param("memberId") Long memberId, @Param("focusTimeId") Long focusTimeId);
 }

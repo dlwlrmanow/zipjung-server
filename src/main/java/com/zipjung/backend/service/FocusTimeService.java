@@ -4,9 +4,13 @@ import com.zipjung.backend.dto.FocusTimeRequestDto;
 import com.zipjung.backend.dto.FocusTimeWithEndTimeResponse;
 import com.zipjung.backend.dto.Result;
 import com.zipjung.backend.entity.FocusTime;
+import com.zipjung.backend.entity.Notification;
+import com.zipjung.backend.entity.NotificationType;
 import com.zipjung.backend.exception.FocusTimeException;
+import com.zipjung.backend.repository.EmitterRepository;
 import com.zipjung.backend.repository.FocusTimeRepository;
 
+import com.zipjung.backend.repository.NotificationRepository;
 import com.zipjung.backend.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,6 +26,11 @@ import java.util.Objects;
 public class FocusTimeService {
 
     private final FocusTimeRepository focusTimeRepository;
+
+    // SSE 관련
+    private final NotificationService notificationService;
+    private final NotificationRepository notificationRepository;
+    private final EmitterRepository emitterRepository;
 
     @Transactional
     public Long saveFocusTime(FocusTimeRequestDto focusTimeRequestDto, Long memberId) {
@@ -83,8 +92,66 @@ public class FocusTimeService {
         LocalDateTime startOfDay = today.atStartOfDay();
         LocalDateTime endOfDay = today.plusDays(1).atStartOfDay();
 
-        List<FocusTimeWithEndTimeResponse> focusedTimeToday = focusTimeRepository.getTodayFocusTimesWithEndTime(startOfDay, endOfDay);
+        List<FocusTimeWithEndTimeResponse> focusedTimeToday = focusTimeRepository.getTodayFocusTimesWithEndTime(startOfDay, endOfDay, memberId);
 
         return new Result<>(focusedTimeToday, focusedTimeToday.size());
+    }
+
+    @Transactional
+    public void deleteFocusedItemAll(Long memberId) {
+        LocalDate today = LocalDate.now();
+
+        LocalDateTime startOfDay = today.atStartOfDay();
+        LocalDateTime endOfDay = today.plusDays(1).atStartOfDay();
+
+        int result = focusTimeRepository.updateFocusedItemDeleteAll(startOfDay, endOfDay, memberId);
+        System.out.println("[deleteFocusedItemAll] result count: " + result);
+
+        if(result <= 0) {
+            throw new FocusTimeException("FocusTime delete failed");
+        }
+
+        // Notification에 알림 적재
+        Notification deleteFocusedTimeAllNotification = Notification.builder()
+                .notificationType(NotificationType.DELETE_FOCUSED)
+                .title("focused time 삭제")
+                .message(result + " 개의 집중 시간이 삭제되었어요!")
+                .fromId(memberId)
+                .toId(memberId)
+                .isRead(false)
+                .build();
+        notificationRepository.save(deleteFocusedTimeAllNotification);
+
+        notificationService.sendEvent(memberId, deleteFocusedTimeAllNotification, emitterRepository.getById(memberId));
+    }
+
+    @Transactional
+    public void deleteFocusTimeById(Long memberId, Long focusTimeId) {
+        int result = focusTimeRepository.updateFocusedItemDelete(memberId, focusTimeId);
+        System.out.println("[deleteFocusTimeById] result count: " + result);
+
+        if(result < 0) {
+            throw new FocusTimeException("FocusTime delete failed");
+        }
+
+        // 파싱된 데이터를 사용하기 위해 response 재사용
+        FocusTimeWithEndTimeResponse focusTimeInfo = focusTimeRepository.getDeletedFocusTimeById(memberId, focusTimeId);
+        // notification message
+        String focusMessage = "focused time: " + focusTimeInfo.getStartTime() + " ~ " + focusTimeInfo.getEndTime() +
+                "\n" + "total: " + focusTimeInfo.getFocusedTimeStr();
+        System.out.println("*****[focusMessage]" + focusMessage);
+
+        // 삭제된 내용 실시간 알림
+        Notification deleteFocusedTimeOneNotification = Notification.builder()
+                .notificationType(NotificationType.DELETE_FOCUSED)
+                .title("focused time 삭제")
+                .message(focusMessage)
+                .fromId(memberId)
+                .toId(memberId)
+                .isRead(false)
+                .build();
+        notificationRepository.save(deleteFocusedTimeOneNotification);
+
+        notificationService.sendEvent(memberId, deleteFocusedTimeOneNotification, emitterRepository.getById(memberId));
     }
 }

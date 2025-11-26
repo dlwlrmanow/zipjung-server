@@ -60,6 +60,7 @@ public class FocusTimeController {
     // 00:00 ~ 00:30 (총 30분)
     @GetMapping("/today/list/fetch")
     public ResponseEntity<Result<List<FocusTimeWithEndTimeResponse>>> fetchTodayFocusTimesWithEndTime(@AuthenticationPrincipal CustomUserDetails user) {
+        System.out.println("[/today/list/fetch] start");
         Long memberId = user.getMemberId();
 
         Result<List<FocusTimeWithEndTimeResponse>> result = focusTimeService.fetchTodayFocusTimesWithEndTime(memberId);
@@ -76,5 +77,35 @@ public class FocusTimeController {
         }
 
         return ResponseEntity.ok(savedFocusTime);
+    }
+
+    @DeleteMapping("/delete/all")
+    public ResponseEntity<?> deleteFocusedItemAllByDate(@AuthenticationPrincipal CustomUserDetails user) {
+        Long memberId = user.getMemberId();
+
+        try {
+            focusTimeService.deleteFocusedItemAll(memberId);
+
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> deleteFocusItemOneById(@AuthenticationPrincipal CustomUserDetails user, @PathVariable Long id) {
+        Long memberId = user.getMemberId();
+
+        try {
+            focusTimeService.deleteFocusTimeById(memberId, id);
+
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
     }
 }

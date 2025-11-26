@@ -8,4 +8,8 @@ public enum NotificationType {
 
     // reminder
     REMINDER, // 로그인 시 오늘 할 일이 총 n개 있어요 띄우기용
+
+    // focused time
+    DELETE_FOCUSED,
+    NEW_FOCUSED,
 }

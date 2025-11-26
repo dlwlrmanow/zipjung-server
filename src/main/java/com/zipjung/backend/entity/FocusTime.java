@@ -29,4 +29,8 @@ public class FocusTime extends BaseEntity {
 
     @Column(name = "member_id")
     private Long memberId;
+
+    public void markAsDeleted() {
+        this.isDeleted = true;
+    }
 }

@@ -2,15 +2,22 @@ package com.zipjung.backend.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 @Getter
+@NoArgsConstructor
 public class FocusTimeWithEndTimeResponse {
-    private Long focusedTime;
+    private Long id;
 
     // 원본 데이터 ignore
+    @JsonIgnore
+    private Long focusedTime;
+
     @JsonIgnore
     private String startFocusTime;
     @JsonIgnore
@@ -19,8 +26,11 @@ public class FocusTimeWithEndTimeResponse {
     // parsed 데이터
     private String startTime;
     private String endTime;
+    private String focusedTimeStr;
 
-    public FocusTimeWithEndTimeResponse(String startFocusTime, String endFocusTime) {
+    public FocusTimeWithEndTimeResponse(Long id, Long focusedTime, String startFocusTime, String endFocusTime) {
+        this.id = id;
+        this.focusedTime = focusedTime;
         this.startFocusTime = startFocusTime;
         this.endFocusTime = endFocusTime;
 
@@ -31,5 +41,14 @@ public class FocusTimeWithEndTimeResponse {
         DateTimeFormatter formatterKor = DateTimeFormatter.ofPattern("HH시 mm분 ss초");
         this.startTime = startTimeFormat.format(formatterKor);
         this.endTime = endTimeFormat.format(formatterKor);
+
+        // focused time format
+        LocalDateTime focusedTimeFormat = Instant.ofEpochSecond(focusedTime)
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
+        DateTimeFormatter fomatterTime = DateTimeFormatter.ofPattern("HH:mm:ss");
+        String focusedTimeStr = fomatterTime.format(focusedTimeFormat);
+        System.out.println(focusedTimeStr);
+        this.focusedTimeStr = focusedTimeStr;
     }
 }
