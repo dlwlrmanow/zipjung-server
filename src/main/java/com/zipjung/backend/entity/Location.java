@@ -10,10 +10,10 @@ public class Location extends BaseEntity {
     private Long postId;
 
     // 위도
-    private Long latitude;
+    // Long 사용시 00.0000 소수점 뒤에 잘림
+    private Double latitude;
     // 경도
-    private Long longitude;
+    private Double longitude;
 
     private Boolean isDeleted;
-
 }

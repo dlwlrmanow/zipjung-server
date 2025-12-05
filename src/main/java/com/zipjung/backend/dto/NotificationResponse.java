@@ -3,10 +3,8 @@ package com.zipjung.backend.dto;
 import com.zipjung.backend.entity.NotificationType;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
-@Setter
 public class NotificationResponse {
     private NotificationType notificationType;
     private String title;

@@ -1,8 +1,6 @@
 package com.zipjung.backend.service;
 
-import com.zipjung.backend.dto.Result;
-import com.zipjung.backend.dto.TodoRequestDto;
-import com.zipjung.backend.dto.TodoResponseDto;
+import com.zipjung.backend.dto.*;
 import com.zipjung.backend.entity.Notification;
 import com.zipjung.backend.entity.NotificationType;
 import com.zipjung.backend.entity.Post;
@@ -14,6 +12,7 @@ import com.zipjung.backend.repository.NotificationRepository;
 import com.zipjung.backend.repository.PostRepository;
 import com.zipjung.backend.repository.TodoRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -28,6 +27,7 @@ public class TodoService {
     private final NotificationService notificationService;
     private final NotificationRepository notificationRepository;
     private final EmitterRepository emitterRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
 
     @Transactional
@@ -67,12 +67,11 @@ public class TodoService {
                 .build();
         notificationRepository.save(todoNotification);
 
-        // notification 저장 성공 후 바로 알림
-        SseEmitter emitter = emitterRepository.getById(memberId);
+        // TODO: connection pool을 너무 많이 잡아먹기 때문에 분리!
+        eventPublisher.publishEvent(new NotificationDto(memberId, todoNotification.getId()));
+        System.out.println("[TodoService] DB Pool test: " + todoNotification.getId());
 
-        notificationService.sendEvent(memberId, todoNotification, emitter);
-
-        return todoId;
+        return todoNotification.getId();
     }
 
     // 로그인시에 바로 오늘 할 일 갯수 띄우기
@@ -103,7 +102,7 @@ public class TodoService {
         notificationRepository.save(reminderNotification);
 
         // 4. SSE 알림 보내기
-        notificationService.sendEvent(memberId, reminderNotification, emitterRepository.getById(memberId));
+        eventPublisher.publishEvent(new NotificationDto(memberId, reminderNotification.getId()));
     }
 
     public Result<List<TodoResponseDto>> getTodosAndCount (Long memberId) {
@@ -139,7 +138,7 @@ public class TodoService {
                 .build();
         notificationRepository.save(doneNotification);
 
-        notificationService.sendEvent(memberId, doneNotification, emitterRepository.getById(memberId));
+        eventPublisher.publishEvent(new NotificationDto(memberId, doneNotification.getId()));
     }
 
     // TODO: 로그아웃할 때 오늘은 n개의 할일을 마무리 했어요! - sse todo_updatedAt으로

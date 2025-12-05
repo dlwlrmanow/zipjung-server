@@ -44,14 +44,14 @@ public class JwtFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response); // 인증이 없는 상태로 진행되다가 AuthenticationEntryPoint로 걸리게 된다.
     }
     public String resolveToken (HttpServletRequest request) {
-        // 1. header에 담긴 token을 resolve
+        // 1. header에 담긴 token을 resolve: 기본 API
         String bearerToken = request.getHeader("Authorization");
 
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer")) {
             return bearerToken.substring(7); // "Bearer "을 제외한 순수한 토큰 값만 리턴
         }
 
-        // 2. 쿼리 파라미터로 담긴 token을 resolve
+        // 2. 쿼리 파라미터로 담긴 token을 resolve: SSE
         String queryToken = request.getParameter("token");
         if(StringUtils.hasText(queryToken)) {
             return queryToken;

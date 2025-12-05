@@ -1,9 +1,6 @@
 package com.zipjung.backend.service;
 
-import com.zipjung.backend.dto.FocusTimeRequestDto;
-import com.zipjung.backend.dto.FocusTimeWithEndTimeResponse;
-import com.zipjung.backend.dto.FocusedTodayTotalResponse;
-import com.zipjung.backend.dto.Result;
+import com.zipjung.backend.dto.*;
 import com.zipjung.backend.entity.FocusTime;
 import com.zipjung.backend.entity.Notification;
 import com.zipjung.backend.entity.NotificationType;
@@ -13,6 +10,7 @@ import com.zipjung.backend.repository.FocusTimeRepository;
 
 import com.zipjung.backend.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,15 +21,16 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class FocusTimeService {
-
     private final FocusTimeRepository focusTimeRepository;
 
     // SSE 관련
     private final NotificationService notificationService;
     private final NotificationRepository notificationRepository;
     private final EmitterRepository emitterRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
+    // TODO: SSE 추가하기
     public Long saveFocusTime(FocusTimeRequestDto focusTimeRequestDto, Long memberId) {
         FocusTime focusTime = new FocusTime();
         focusTime.setFocusedTime(focusTimeRequestDto.getFocusedTime());
@@ -125,7 +124,7 @@ public class FocusTimeService {
                 .build();
         notificationRepository.save(deleteFocusedTimeAllNotification);
 
-        notificationService.sendEvent(memberId, deleteFocusedTimeAllNotification, emitterRepository.getById(memberId));
+        eventPublisher.publishEvent(new NotificationDto(memberId, deleteFocusedTimeAllNotification.getId()));
     }
 
     @Transactional
@@ -155,6 +154,6 @@ public class FocusTimeService {
                 .build();
         notificationRepository.save(deleteFocusedTimeOneNotification);
 
-        notificationService.sendEvent(memberId, deleteFocusedTimeOneNotification, emitterRepository.getById(memberId));
+        eventPublisher.publishEvent(new NotificationDto(memberId, deleteFocusedTimeOneNotification.getId()));
     }
 }

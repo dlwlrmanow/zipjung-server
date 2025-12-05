@@ -25,8 +25,9 @@ public class FocusTimeController {
 
     @PostMapping("/save")
     public ResponseEntity<?> saveFocusTime(@RequestBody FocusTimeRequestDto focusTimeRequestDto, @AuthenticationPrincipal CustomUserDetails user) {
+        System.out.println("[saveFocusTime] start");
         Long memberId = user.getMemberId();
-        System.out.println("[/focus-time/save] memberId: " + memberId);
+
         try {
             Long savedId = focusTimeService.saveFocusTime(focusTimeRequestDto, memberId);
             return new ResponseEntity<>(savedId, HttpStatus.CREATED);

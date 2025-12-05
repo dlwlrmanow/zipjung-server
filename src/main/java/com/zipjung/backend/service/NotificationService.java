@@ -1,11 +1,12 @@
 package com.zipjung.backend.service;
 
-import com.zipjung.backend.dto.NotificationResponse;
 import com.zipjung.backend.entity.Notification;
 import com.zipjung.backend.exception.SseEventException;
 import com.zipjung.backend.repository.EmitterRepository;
+import com.zipjung.backend.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -18,6 +19,7 @@ public class NotificationService {
     private static final Long DEFAULT_TIMEOUT = 60L * 1000L * 60L;
     // 생성자 주입
     private final EmitterRepository emitterRepository;
+    private final NotificationRepository notificationRepository;
 
     public SseEmitter createEmitter(Long memberId) {
         SseEmitter emitter = new SseEmitter(DEFAULT_TIMEOUT);
@@ -32,33 +34,30 @@ public class NotificationService {
         return emitter;
     }
 
-    @Transactional
-    public void sendEvent(Long memberId, Notification notification, SseEmitter emitter) {
+    @Transactional (propagation = Propagation.REQUIRES_NEW) // 읽음 처리를 위해서 DB connection 열어야
+    public void sendEvent(Long memberId, Long notificationId){
+        // notificationDto
+        Notification notificationData = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new SseEventException("Notification with id " + notificationId + " not found"));
+
+        SseEmitter emitter = emitterRepository.getById(memberId); // 구독이 완료되었으면 이미 emitter가 이미 존재
+
         if(emitter != null) {
             try {
-                // notificationDto
-                NotificationResponse notificationResponse = NotificationResponse.builder()
-                        .notificationType(notification.getNotificationType()) // 그냥 enum으로 내려줘서 클라이언트에서 상수로 처리
-                        .title(notification.getTitle())
-                        .message(notification.getMessage())
-                        .toId(notification.getToId())
-                        .memberId(notification.getFromId())
-                        .build();
-
                 emitter.send(SseEmitter.event()
                         .name("notification")
                         .id(String.valueOf(memberId))
-                        .data(notificationResponse)
+                        .data(notificationData)
                 );
 
-                // 전송 성공 시 isRead = true 변경
-                notification.markAsRead();
+                // sse 알림 성공시 is_read = true
+                notificationData.markAsRead();
             } catch (IOException e) {
-                // 전송 중 오류 발생시 emitter 삭제
+                // 실패시 삭제
                 emitterRepository.deleteById(memberId);
-                // emitter 종료
                 emitter.completeWithError(e);
-                throw new SseEventException("SSE sendEvent 중 오류 발생");
+                System.out.println("[error] Notification with id " + notificationId + " has been deleted");
+//                log.error("SSE 알림 전송 실패 : memberId={}, error={}", memberId, e.getMessage());
             }
         }
     }
