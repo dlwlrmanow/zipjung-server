@@ -24,9 +24,7 @@ import java.util.List;
 public class TodoService {
     private final TodoRepository todoRepository;
     private final PostRepository postRepository;
-    private final NotificationService notificationService;
     private final NotificationRepository notificationRepository;
-    private final EmitterRepository emitterRepository;
     private final ApplicationEventPublisher eventPublisher;
 
 

@@ -15,7 +15,7 @@ public class NotificationListner {
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handleNotification(NotificationDto notificationDto) {
-        notificationService.sendEvent(notificationDto.getMemberId(), notificationDto.getNotificationId());
+    public void handleNotification(NotificationDto event) {
+        notificationService.sendEvent(event.getMemberId(), event.getNotificationId());
     }
 }
