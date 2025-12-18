@@ -3,10 +3,11 @@ package com.zipjung.backend.dto;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Getter;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Getter
-public class TodoResponseDto {
+public class TodoResponseDto implements Serializable {
     private Long id;
     private String task;
 //    private boolean isDone;

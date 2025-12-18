@@ -12,6 +12,8 @@ import com.zipjung.backend.repository.NotificationRepository;
 import com.zipjung.backend.repository.PostRepository;
 import com.zipjung.backend.repository.TodoRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +31,7 @@ public class TodoService {
 
 
     @Transactional
+    @CacheEvict(value = "getTodoList", key = "#memberId", cacheManager = "ehcacheManager") // 새로운 데이터가 추가되면 캐시 삭제
     public Long saveTodos(TodoRequestDto todoRequestDto, Long memberId) {
         // 1. post 생성
         Post post = Post.builder()
@@ -87,6 +90,7 @@ public class TodoService {
 
         // 2. notificaton 객체 생성
         // TODO: reminder의 경우 id를 추가해서 다른 todo_id의 경우에는 클라이언트에서 flag 비교 후 다시 보여주도록
+        // TODO: 위의 방식으로 수정
         Notification reminderNotification = Notification.builder()
                 .notificationType(NotificationType.REMINDER)
                 .title("Reminder")
@@ -103,12 +107,22 @@ public class TodoService {
         eventPublisher.publishEvent(new NotificationDto(memberId, reminderNotification.getId()));
     }
 
-    public Result<List<TodoResponseDto>> getTodosAndCount (Long memberId) {
-        System.out.println("[TodoService] getTodosAndCount: start");
-        List<TodoResponseDto> todos = todoRepository.getTodos(memberId);
-        int todosCount = todoRepository.countListTodo(memberId).intValue();
+// 테스트 전
+//    public Result<List<TodoResponseDto>> getTodosAndCount (Long memberId) {
+//        System.out.println("[TodoService] getTodosAndCount: start");
+//        List<TodoResponseDto> todos = todoRepository.getTodos(memberId);
+//        int todosCount = todoRepository.countListTodo(memberId).intValue();
+//
+//        return new Result<>(todos, todosCount);
+//    }
 
-        return new Result<>(todos, todosCount);
+    @Cacheable(value = "getTodoList", key = "#memberId", cacheManager = "ehcacheManager")
+    public Result<List<TodoResponseDto>> getTodosAndCount (Long memberId) {
+        List<TodoResponseDto> todos = todoRepository.getTodos(memberId);
+//        int todosCount = todoRepository.countListTodo(memberId).intValue();
+        int todosCount = todos.size();
+
+        return new Result<>(todos, todosCount); // 메서드가 뱉어내는 이게 캐싱되는것!! 완제품(더이상 가공이 필요없는 걸)을 캐싱하는 게 성능이 . 좋음
     }
 
     @Transactional

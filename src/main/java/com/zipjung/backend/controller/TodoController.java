@@ -13,8 +13,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/todo")
@@ -40,6 +43,19 @@ public class TodoController {
     @GetMapping("/fetch/list")
     public ResponseEntity<Result<List<TodoResponseDto>>> getTodosAndCount(@AuthenticationPrincipal CustomUserDetails user) {
         Long memberId = user.getMemberId();
+
+        try {
+            Result<List<TodoResponseDto>> todosResult = todoService.getTodosAndCount(memberId);
+            return new ResponseEntity<>(todosResult, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/fetch/list/test")
+    public ResponseEntity<Result<List<TodoResponseDto>>> getTodosAndCount() {
+        Long memberId = 999L;
 
         try {
             Result<List<TodoResponseDto>> todosResult = todoService.getTodosAndCount(memberId);

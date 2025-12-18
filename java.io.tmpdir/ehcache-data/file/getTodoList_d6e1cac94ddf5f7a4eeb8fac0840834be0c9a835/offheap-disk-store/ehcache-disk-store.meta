@@ -1,0 +1,4 @@
+#Key and value types
+#Thu Dec 18 06:28:11 UTC 2025
+keyType=java.lang.Long
+valueType=com.zipjung.backend.dto.Result

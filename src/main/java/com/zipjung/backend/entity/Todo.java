@@ -21,6 +21,9 @@ public class Todo extends BaseEntity{
     @Column(name = "is_done")
     private boolean isDone;
 
+    @Column(name = "member_id")
+    private Long memberId;
+
     public void markAsDone() {
         this.isDone = true;
     }
