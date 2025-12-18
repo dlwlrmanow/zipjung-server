@@ -1,6 +1,7 @@
 package com.zipjung.backend.repository;
 
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.zipjung.backend.dto.TodoResponseDto;
 import com.zipjung.backend.entity.QPost;
@@ -38,7 +39,7 @@ public class TodoCustomRepositoryImpl implements TodoCustomRepository {
     }
 
     @Override
-    public List<TodoResponseDto> getTodos(Long memberId) {
+    public List<TodoResponseDto> getTodos(Long memberId, Long lastTodoId) {
         QTodo todo = QTodo.todo;
         QPost post = QPost.post;
 
@@ -54,9 +55,19 @@ public class TodoCustomRepositoryImpl implements TodoCustomRepository {
                         post.memberId.eq(memberId)
                                 .and(todo.isDone.eq(false))
                                 .and(post.isDeleted.eq(false)) // soft delete되지 않은 post만
+                                .and(isLastTodoIdNull(lastTodoId))
                 )
+                .orderBy(todo.id.desc())
+                .limit(50)
                 .fetch();
         return todos;
+    }
+
+    private BooleanExpression isLastTodoIdNull(Long lastTodoId){
+        if(lastTodoId == null) {
+            return null;
+        }
+        return QTodo.todo.id.lt(lastTodoId); // 과거데이터를 조회하기 때문에 더 작은 id를 가져와야함!
     }
 
     @Override

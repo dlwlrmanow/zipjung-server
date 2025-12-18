@@ -41,11 +41,11 @@ public class TodoController {
     }
 
     @GetMapping("/fetch/list")
-    public ResponseEntity<Result<List<TodoResponseDto>>> getTodosAndCount(@AuthenticationPrincipal CustomUserDetails user) {
+    public ResponseEntity<Result<List<TodoResponseDto>>> getTodosAndCount(@AuthenticationPrincipal CustomUserDetails user, @RequestParam(required = false) Long lastTodoId) {
         Long memberId = user.getMemberId();
 
         try {
-            Result<List<TodoResponseDto>> todosResult = todoService.getTodosAndCount(memberId);
+            Result<List<TodoResponseDto>> todosResult = todoService.getTodosAndCount(memberId, lastTodoId);
             return new ResponseEntity<>(todosResult, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
@@ -56,9 +56,10 @@ public class TodoController {
     @GetMapping("/fetch/list/test")
     public ResponseEntity<Result<List<TodoResponseDto>>> getTodosAndCount() {
         Long memberId = 999L;
+        Long lastTodoId = null;
 
         try {
-            Result<List<TodoResponseDto>> todosResult = todoService.getTodosAndCount(memberId);
+            Result<List<TodoResponseDto>> todosResult = todoService.getTodosAndCount(memberId, lastTodoId);
             return new ResponseEntity<>(todosResult, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
@@ -68,7 +69,6 @@ public class TodoController {
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deleteTodo(@AuthenticationPrincipal CustomUserDetails user, @PathVariable(value = "id") Long id) {
-        System.out.println("[/delete/{id}] start]");
         Long memberId = user.getMemberId();
 
         try {

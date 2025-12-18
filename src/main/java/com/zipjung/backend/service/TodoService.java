@@ -31,7 +31,7 @@ public class TodoService {
 
 
     @Transactional
-    @CacheEvict(value = "getTodoList", key = "#memberId", cacheManager = "ehcacheManager") // 새로운 데이터가 추가되면 캐시 삭제
+    @CacheEvict(value = "getRecentTodoList", key = "#memberId", cacheManager = "ehcacheManager") // 새로운 데이터가 추가되면 캐시 삭제
     public Long saveTodos(TodoRequestDto todoRequestDto, Long memberId) {
         // 1. post 생성
         Post post = Post.builder()
@@ -107,25 +107,16 @@ public class TodoService {
         eventPublisher.publishEvent(new NotificationDto(memberId, reminderNotification.getId()));
     }
 
-// 테스트 전
-//    public Result<List<TodoResponseDto>> getTodosAndCount (Long memberId) {
-//        System.out.println("[TodoService] getTodosAndCount: start");
-//        List<TodoResponseDto> todos = todoRepository.getTodos(memberId);
-//        int todosCount = todoRepository.countListTodo(memberId).intValue();
-//
-//        return new Result<>(todos, todosCount);
-//    }
-
-    @Cacheable(value = "getTodoList", key = "#memberId", cacheManager = "ehcacheManager")
-    public Result<List<TodoResponseDto>> getTodosAndCount (Long memberId) {
-        List<TodoResponseDto> todos = todoRepository.getTodos(memberId);
-//        int todosCount = todoRepository.countListTodo(memberId).intValue();
-        int todosCount = todos.size();
+    @Cacheable(value = "getRecentTodoList", key = "#memberId", cacheManager = "ehcacheManager", condition = "#lastTodoId == null")
+    public Result<List<TodoResponseDto>> getTodosAndCount (Long memberId, Long lastTodoId) {
+        List<TodoResponseDto> todos = todoRepository.getTodos(memberId, lastTodoId);
+        int todosCount = todoRepository.countListTodo(memberId).intValue();
 
         return new Result<>(todos, todosCount); // 메서드가 뱉어내는 이게 캐싱되는것!! 완제품(더이상 가공이 필요없는 걸)을 캐싱하는 게 성능이 . 좋음
     }
 
     @Transactional
+    @CacheEvict(value = "getRecentTodoList", key = "#memberId", cacheManager = "ehcacheManager") // 새로운 데이터가 추가되면 캐시 삭제
     public void deleteTodo (Long memberId, Long todoId) {
         boolean delete = todoRepository.deleteTodo(memberId, todoId);
         if(!delete) {

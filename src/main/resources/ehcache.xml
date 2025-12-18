@@ -3,12 +3,12 @@
         xmlns="http://www.ehcache.org/v3"
         xsi:schemaLocation="http://www.ehcache.org/v3 http://www.ehcache.org/schema/ehcache-core-3.0.xsd">
 
-    <cache alias="getTodoList">
+    <cache alias="getRecentTodoList">
         <key-type>java.lang.Long</key-type>
         <value-type>com.zipjung.backend.dto.Result</value-type>
 
         <expiry>
-            <ttl unit="seconds">300</ttl>
+            <ttl unit="seconds">180</ttl>
         </expiry>
 
         <resources>
