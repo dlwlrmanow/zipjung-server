@@ -17,6 +17,9 @@ spring:
     redis:
       host: localhost # no auth여도 localhost는 포함시켜줘야함
       port: 6379
+  cache:
+    jcache:
+      config: ehcache.xml
   jackson:
     time-zone: UTC
 
