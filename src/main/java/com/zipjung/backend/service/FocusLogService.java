@@ -2,26 +2,37 @@ package com.zipjung.backend.service;
 
 import com.zipjung.backend.dto.FocusLogDto;
 import com.zipjung.backend.dto.FocusLogForListDto;
-import com.zipjung.backend.entity.FocusLog;
-import com.zipjung.backend.entity.Post;
-import com.zipjung.backend.repository.FocusLogRepository;
-import com.zipjung.backend.repository.FocusTimeRepository;
-import com.zipjung.backend.repository.MemberRepository;
-import com.zipjung.backend.repository.PostRepository;
+import com.zipjung.backend.dto.LocationRequest;
+import com.zipjung.backend.dto.NotificationDto;
+import com.zipjung.backend.entity.*;
+import com.zipjung.backend.repository.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class FocusLogService {
     private final FocusLogRepository focusLogRepository;
     private final PostRepository postRepository;
     private final FocusTimeRepository focusTimeRepository;
+    private final LocationRepository locationRepository;
 
-    @Transactional // transactional로 순서 꼬이지 않고 비동기적으로 처리하도록
+    // SSE
+    private final NotificationRepository notificationRepository;
+    private final ApplicationEventPublisher eventPublisher;
+
+    // Redis
+    private final RedisRankService redisRankService;
+
+    // TODO: Flutter 수정! 위치 추가하는 부분 추가됨
+    @Transactional // transactional로 순서 꼬이지 않고 비동기적으로 처리
     public boolean saveFocusLog(FocusLogDto focusLogDto, Long memberId) {
         // 1. post.id 만들기
         Post post = Post.builder()
@@ -34,10 +45,12 @@ public class FocusLogService {
 
         // 2. post.id 가져오기
         Long postId = post.getId();
-        System.out.println("postId: " + postId);
 
         // 3. focus_log.id 만들기
-        FocusLog focusLog = new FocusLog(postId, focusLogDto.getRating());
+        FocusLog focusLog = FocusLog.builder()
+                        .postId(postId)
+                                .rating(focusLogDto.getRating())
+                                        .build();
         focusLogRepository.save(focusLog);
 
         // 4. 해당하는 focus_time에 focus_log.id update
@@ -46,13 +59,65 @@ public class FocusLogService {
         for(Long focusTimeId : focusLogDto.getFocusTimeId()) { // focus_time_id가 리스트 형태로 들어옴
             int count = focusTimeRepository.updateFocusLogId(focusLogId, focusTimeId);
             if (count != 0) {
-                System.out.println("update success: " + count);
+                log.info("update success: {}", count);
                 return true;
             }
-
         }
+
         return false;
     }
+
+    // TODO: main Timer 페이지에서 +버튼으로 위치 추가시
+    @Transactional
+    public void addLocation(Long memberId, LocationRequest locationRequest) {
+        Post post = Post.builder()
+                .title("location")
+                .serviceId(1L) // DONE: service_id 생성 후 변경
+                .memberId(memberId)
+                .build();
+        postRepository.save(post);
+        Long postId = post.getId();
+
+        // 위치테이블에 데이터 추가
+        Location location = Location.builder()
+                .postId(postId)
+                .latitude(locationRequest.getLongitude())
+                .longitude(locationRequest.getLongitude())
+                .build();
+        locationRepository.save(location);
+
+        FocusLog focusLog = FocusLog.builder()
+                .postId(postId)
+                .build();
+        focusLogRepository.save(focusLog);
+        Long focusLogId = focusLog.getId();
+
+        // request에 담아온 focusTimeId로 찾아서 focusLogId 추가
+        Long focusTimeId = locationRequest.getFocusTimeId();
+
+        FocusTime focusTime = focusTimeRepository.findById(focusTimeId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 기록이 존재하지 않습니다. focus_time_id=" + focusTimeId));
+
+        focusTime.updateFocusLogId(focusLogId);
+
+        // sse 알림 보내기 위해 notification 알림 적재
+        Notification addLocationNotification = Notification.builder()
+                .notificationType(NotificationType.ADD_LOCATION)
+                .title("위치 추가")
+                .message("위치가 성공적으로 추가되었어요!")
+                .fromId(memberId)
+                .toId(memberId)
+                .isRead(false)
+                .build();
+        notificationRepository.save(addLocationNotification);
+
+        // 이벤트 발송
+        eventPublisher.publishEvent(new NotificationDto(memberId, addLocationNotification.getId()));
+
+        // redis 인기 검색어
+        redisRankService.increasePopularSpotRank(locationRequest.getSpot());
+    }
+
 
     @Transactional(readOnly = true)
     public List<FocusLogForListDto> getFocusLogList(Long memberId) {

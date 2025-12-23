@@ -5,6 +5,7 @@ import com.zipjung.backend.exception.SseEventException;
 import com.zipjung.backend.repository.EmitterRepository;
 import com.zipjung.backend.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +13,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class NotificationService {
@@ -56,8 +58,9 @@ public class NotificationService {
                 // 실패시 삭제
                 emitterRepository.deleteById(memberId);
                 emitter.completeWithError(e);
-                System.out.println("[error] Notification with id " + notificationId + " has been deleted");
-//                log.error("SSE 알림 전송 실패 : memberId={}, error={}", memberId, e.getMessage());
+
+                log.error("SSE 알림 전송 실패 : memberId={}, error={}, notificationId={}"
+                        , memberId, e.getMessage(), notificationId);
             }
         }
     }
@@ -67,7 +70,7 @@ public class NotificationService {
         SseEmitter existEmitter = emitterRepository.getById(memberId);
 
         if(existEmitter != null) {
-            System.out.println("[NotificationService] subscribe: emitter exist");
+            log.info("[NotificationService] subscribe: emitter exist");
             return existEmitter;
         }
 
@@ -80,10 +83,9 @@ public class NotificationService {
                     .id("")
             ); // 503 막기 위해서 dummy 보내기
         } catch (Exception e) {
-            System.out.println("[NotificationService] subscribe: " + e.getMessage());
+            log.error(e.getMessage());
         }
-
-        System.out.println("[NotificationService] subscribe: " + memberId);
+        log.info("[NotificationService] subscribe: {}", memberId);
         return emitter;
     }
 }

@@ -12,4 +12,8 @@ public enum NotificationType {
     // focused time
     DELETE_FOCUSED,
     NEW_FOCUSED,
+
+    // focus log 관련
+    ADD_LOCATION,
+
 }

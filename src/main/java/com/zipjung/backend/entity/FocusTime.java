@@ -11,6 +11,7 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class FocusTime extends BaseEntity {
     @Column(name = "focused_time")
     private Long focusedTime;
@@ -32,5 +33,9 @@ public class FocusTime extends BaseEntity {
 
     public void markAsDeleted() {
         this.isDeleted = true;
+    }
+
+    public void updateFocusLogId(Long focusLogId) {
+        this.focusLogId = focusLogId;
     }
 }
