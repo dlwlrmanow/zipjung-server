@@ -1,19 +1,33 @@
 package com.zipjung.backend.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "location")
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class Location extends BaseEntity {
-    private Long id;
+    @Column(name = "post_id")
     private Long postId;
 
     // 위도
     // Long 사용시 00.0000 소수점 뒤에 잘림
+    @Column(name = "latitude")
     private Double latitude;
     // 경도
+    @Column(name = "longitude")
     private Double longitude;
 
-    private Boolean isDeleted;
+    @Column(name = "is_deleted")
+    private Boolean isDeleted = false;
+
+    public void markAsDelete() {
+        this.isDeleted = true;
+    }
 }
