@@ -6,8 +6,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class LocationRequest {
-    // 인기 검색어
-    private String spot;
+    // 인기 장소 검색어
+    private String spotName;
 
     private Long focusTimeId;
     // 위도

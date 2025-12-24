@@ -115,7 +115,7 @@ public class FocusLogService {
         eventPublisher.publishEvent(new NotificationDto(memberId, addLocationNotification.getId()));
 
         // redis 인기 검색어
-        redisRankService.increasePopularSpotRank(locationRequest.getSpot());
+        redisRankService.increasePopularSpotScore(locationRequest.getSpotName());
     }
 
 
