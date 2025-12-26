@@ -1,6 +1,6 @@
 package com.zipjung.backend.controller;
 
-import com.zipjung.backend.dto.RankTop5SpotDto;
+import com.zipjung.backend.dto.RankTopSpotResponse;
 import com.zipjung.backend.service.RedisRankService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,10 +17,10 @@ public class RankingController {
     private final RedisRankService redisRankService;
 
     @GetMapping("/spot")
-    public ResponseEntity<RankTop5SpotDto> getRankTop5Spot() {
-        RankTop5SpotDto rankTop5SpotDto = redisRankService.getRankTop5Spot();
-        log.info("[/rank/spot] rankTop5SpotDto: {}", rankTop5SpotDto);
+    public ResponseEntity<RankTopSpotResponse> getRankTop5Spot() {
+        RankTopSpotResponse rankTopSpotResponse = redisRankService.getRankTop5Spot();
+        log.info("[/rank/spot] rankTop5SpotDto: {}", rankTopSpotResponse);
 
-        return ResponseEntity.ok(rankTop5SpotDto);
+        return ResponseEntity.ok(rankTopSpotResponse);
     }
 }

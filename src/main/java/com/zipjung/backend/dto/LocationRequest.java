@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter
-@Setter
 public class LocationRequest {
     // 인기 장소 검색어
     private String spotName;
@@ -14,4 +13,6 @@ public class LocationRequest {
     private Double latitude;
     // 경도
     private Double longitude;
+    // 장소ID
+    private Long placeId;
 }
