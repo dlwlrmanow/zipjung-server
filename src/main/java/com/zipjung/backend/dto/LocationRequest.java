@@ -15,4 +15,6 @@ public class LocationRequest {
     private Double longitude;
     // 장소ID
     private Long placeId;
+    // url
+    private String placeUrl;
 }

@@ -74,6 +74,7 @@ public class FocusLogService {
                 .title("location")
                 .serviceId(1L) // DONE: service_id 생성 후 변경
                 .memberId(memberId)
+                .isDeleted(false)
                 .build();
         postRepository.save(post);
         Long postId = post.getId();
@@ -88,6 +89,7 @@ public class FocusLogService {
 
         FocusLog focusLog = FocusLog.builder()
                 .postId(postId)
+                .isDeleted(false)
                 .build();
         focusLogRepository.save(focusLog);
         Long focusLogId = focusLog.getId();

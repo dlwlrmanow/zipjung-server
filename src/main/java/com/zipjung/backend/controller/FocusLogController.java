@@ -40,6 +40,8 @@ public class FocusLogController {
 
     @PostMapping("/add/location")
     public ResponseEntity<?> addLocationFocusLog(@RequestBody LocationRequest locationRequest, @AuthenticationPrincipal CustomUserDetails user) {
+        System.out.println("/add/location///////////////////////");
+
         Long memberId = user.getMemberId();
 
         try {
