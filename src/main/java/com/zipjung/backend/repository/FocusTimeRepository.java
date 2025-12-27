@@ -10,11 +10,7 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public interface FocusTimeRepository extends JpaRepository<FocusTime, Long> {
-//    @Modifying
-//    @Query(value = "INSERT INTO FocusTime(focusedTime, startFocusTime, memberId) VALUES (:focusedTime, :startFocusTime, :memberId)")
-//    void saveWithMemberID(@Param("focusedTime") LocalDateTime focusedTime, @Param("startFocusTime") String startFocusTime, @Param("memberId") Long memberId);
-
+public interface FocusTimeRepository extends JpaRepository<FocusTime, Long>, FocusTimeCustomRepository {
     @Modifying(clearAutomatically = true)
     @Query("UPDATE FocusTime f SET f.focusLogId = :focusLogId WHERE f.id = :focusTimeId")
         // TODO: update한 postId를 return하도록 수정

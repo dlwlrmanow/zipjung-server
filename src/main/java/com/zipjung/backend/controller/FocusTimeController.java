@@ -63,7 +63,6 @@ public class FocusTimeController {
     // 00:00 ~ 00:30 (총 30분)
     @GetMapping("/today/list/fetch")
     public ResponseEntity<Result<List<FocusTimeWithEndTimeResponse>>> fetchTodayFocusTimesWithEndTime(@AuthenticationPrincipal CustomUserDetails user) {
-        System.out.println("[/today/list/fetch] start");
         Long memberId = user.getMemberId();
 
         Result<List<FocusTimeWithEndTimeResponse>> result = focusTimeService.fetchTodayFocusTimesWithEndTime(memberId);

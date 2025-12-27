@@ -4,6 +4,7 @@ import com.zipjung.backend.dto.FocusLogDto;
 import com.zipjung.backend.dto.FocusLogForListDto;
 import com.zipjung.backend.dto.LocationRequest;
 import com.zipjung.backend.dto.Result;
+import com.zipjung.backend.exception.AlreadyExistDataException;
 import com.zipjung.backend.security.CustomUserDetails;
 import com.zipjung.backend.service.CustomUserDetailsService;
 import com.zipjung.backend.service.FocusLogService;
@@ -40,13 +41,16 @@ public class FocusLogController {
 
     @PostMapping("/add/location")
     public ResponseEntity<?> addLocationFocusLog(@RequestBody LocationRequest locationRequest, @AuthenticationPrincipal CustomUserDetails user) {
-        System.out.println("/add/location///////////////////////");
-
         Long memberId = user.getMemberId();
+
+        log.info("locationRequest.getFocusTimeId{} ", locationRequest.getFocusTimeId());
 
         try {
             focusLogService.addLocation(memberId, locationRequest);
             return new ResponseEntity<>(HttpStatus.CREATED);
+        } catch (AlreadyExistDataException e) {
+            log.info(e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (Exception e) {
             log.warn(e.getMessage());
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
