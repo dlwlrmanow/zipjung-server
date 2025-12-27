@@ -5,6 +5,7 @@ import com.zipjung.backend.dto.FocusLogForListDto;
 import com.zipjung.backend.dto.LocationRequest;
 import com.zipjung.backend.dto.NotificationDto;
 import com.zipjung.backend.entity.*;
+import com.zipjung.backend.exception.AlreadyExistDataException;
 import com.zipjung.backend.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -67,13 +68,20 @@ public class FocusLogService {
         return false;
     }
 
-    // TODO: main Timer 페이지에서 +버튼으로 위치 추가시
     @Transactional
     public void addLocation(Long memberId, LocationRequest locationRequest) {
+
+        // 이미 데이터가 존재하는 경우 예외 던지기
+        if(focusTimeRepository.isLocationExist(locationRequest.getFocusTimeId())) {
+            throw new AlreadyExistDataException("location already exist");
+        }
+
+        // 위치 데이터 추가
         Post post = Post.builder()
                 .title("location")
                 .serviceId(1L) // DONE: service_id 생성 후 변경
                 .memberId(memberId)
+                .isDeleted(false)
                 .build();
         postRepository.save(post);
         Long postId = post.getId();
@@ -83,11 +91,14 @@ public class FocusLogService {
                 .postId(postId)
                 .latitude(locationRequest.getLongitude())
                 .longitude(locationRequest.getLongitude())
+                .placeUrl(locationRequest.getPlaceUrl())
+                .placeId(locationRequest.getPlaceId())
                 .build();
         locationRepository.save(location);
 
         FocusLog focusLog = FocusLog.builder()
                 .postId(postId)
+                .isDeleted(false)
                 .build();
         focusLogRepository.save(focusLog);
         Long focusLogId = focusLog.getId();
@@ -115,7 +126,7 @@ public class FocusLogService {
         eventPublisher.publishEvent(new NotificationDto(memberId, addLocationNotification.getId()));
 
         // redis 인기 검색어
-        redisRankService.increasePopularSpotRank(locationRequest.getSpot());
+        redisRankService.increasePopularSpotScore(locationRequest.getSpotName(), locationRequest.getPlaceId());
     }
 
 

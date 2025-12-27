@@ -24,6 +24,12 @@ public class Location extends BaseEntity {
     @Column(name = "longitude")
     private Double longitude;
 
+    @Column(name = "place_url")
+    private String placeUrl;
+
+    @Column(name = "place_id")
+    private Long placeId;
+
     @Column(name = "is_deleted")
     private Boolean isDeleted = false;
 

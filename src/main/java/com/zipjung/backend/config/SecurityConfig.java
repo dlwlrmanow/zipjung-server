@@ -77,6 +77,7 @@ public class SecurityConfig {
                         .requestMatchers("/auth/validate", "/auth/validate/web").permitAll() // token validate
                         .requestMatchers("/auth/reissue/access/web").permitAll() // web에서 AT 재발급
                         .requestMatchers("/todo/fetch/list/test").permitAll() // ngriner 테스트
+                        .requestMatchers("/rank/spot").permitAll() // 인기 있는 장소
                         .anyRequest().authenticated())
 
                 .exceptionHandling(ex -> ex
