@@ -19,7 +19,6 @@ public class FocusTimeCustomRepositoryImpl implements FocusTimeCustomRepository 
     public boolean isLocationExist(Long focusTimeId) {
         log.info("Checking location existence for focusTimeId: {}", focusTimeId);
 
-        QPost post = QPost.post;
         QFocusTime focusTime = QFocusTime.focusTime;
         QLocation location = QLocation.location;
         QFocusLog focusLog = QFocusLog.focusLog;
@@ -27,8 +26,8 @@ public class FocusTimeCustomRepositoryImpl implements FocusTimeCustomRepository 
         Integer fetchOne = jpaQueryFactory
                 .selectOne()
                 .from(location)
-                .join(focusLog).on(location.postId.eq(focusLog.postId)) // postId로 연결
-                .join(focusTime).on(focusLog.id.eq(focusTime.focusLogId))
+                .join(focusTime).on(location.focusLogId.eq(focusTime.focusLogId))
+                .join(focusLog).on(focusTime.focusLogId.eq(focusLog.id))
                 .where(
                         focusTime.id.eq(focusTimeId),
                         location.isDeleted.eq(false),

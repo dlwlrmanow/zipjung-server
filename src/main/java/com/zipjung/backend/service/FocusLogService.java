@@ -68,6 +68,7 @@ public class FocusLogService {
         return false;
     }
 
+    // TODO: entity 때문에 수정
     @Transactional
     public void addLocation(Long memberId, LocationRequest locationRequest) {
 
@@ -86,28 +87,30 @@ public class FocusLogService {
         postRepository.save(post);
         Long postId = post.getId();
 
-        // 위치테이블에 데이터 추가
-        Location location = Location.builder()
-                .postId(postId)
-                .latitude(locationRequest.getLongitude())
-                .longitude(locationRequest.getLongitude())
-                .placeUrl(locationRequest.getPlaceUrl())
-                .placeId(locationRequest.getPlaceId())
-                .build();
-        locationRepository.save(location);
+        // request에 담아온 focusTimeId로 찾아서 focusLogId 추가
+        Long focusTimeId = locationRequest.getFocusTimeId();
+
+        FocusTime focusTime = focusTimeRepository.findById(focusTimeId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 기록이 존재하지 않습니다. focus_time_id=" + focusTimeId));
 
         FocusLog focusLog = FocusLog.builder()
                 .postId(postId)
                 .isDeleted(false)
                 .build();
         focusLogRepository.save(focusLog);
+
         Long focusLogId = focusLog.getId();
 
-        // request에 담아온 focusTimeId로 찾아서 focusLogId 추가
-        Long focusTimeId = locationRequest.getFocusTimeId();
-
-        FocusTime focusTime = focusTimeRepository.findById(focusTimeId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 기록이 존재하지 않습니다. focus_time_id=" + focusTimeId));
+        // 위치테이블에 데이터 추가
+        Location location = Location.builder()
+//                .postId(postId)
+                .focusLogId(focusLogId)
+                .latitude(locationRequest.getLongitude())
+                .longitude(locationRequest.getLongitude())
+                .placeUrl(locationRequest.getPlaceUrl())
+                .placeId(locationRequest.getPlaceId())
+                .build();
+        locationRepository.save(location);
 
         focusTime.updateFocusLogId(focusLogId);
 

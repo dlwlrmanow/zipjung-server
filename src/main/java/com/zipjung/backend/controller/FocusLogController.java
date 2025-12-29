@@ -43,7 +43,7 @@ public class FocusLogController {
     public ResponseEntity<?> addLocationFocusLog(@RequestBody LocationRequest locationRequest, @AuthenticationPrincipal CustomUserDetails user) {
         Long memberId = user.getMemberId();
 
-        log.info("locationRequest.getFocusTimeId{} ", locationRequest.getFocusTimeId());
+        log.info("locationRequest.getFocusTimeId: {} ", locationRequest.getFocusTimeId());
 
         try {
             focusLogService.addLocation(memberId, locationRequest);
@@ -61,7 +61,7 @@ public class FocusLogController {
     public ResponseEntity<Result<List<FocusLogForListDto>>> fetchFocusLogs(@AuthenticationPrincipal CustomUserDetails user) {
         Long memberId = user.getMemberId();
 
-        System.out.println("[/focus-log/fetch] memberId: " + memberId);
+        log.info("[/focus-log/fetch] memberId: {}", memberId);
         List<FocusLogForListDto> lists = focusLogService.getFocusLogList(memberId);
         if (lists.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT); // 204

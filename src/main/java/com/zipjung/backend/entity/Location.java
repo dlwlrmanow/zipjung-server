@@ -13,8 +13,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class Location extends BaseEntity {
+    // TODO: 나중에 제거하기
     @Column(name = "post_id")
     private Long postId;
+
+    @Column(name = "focus_log_id")
+    private Long focusLogId;
 
     // 위도
     // Long 사용시 00.0000 소수점 뒤에 잘림
