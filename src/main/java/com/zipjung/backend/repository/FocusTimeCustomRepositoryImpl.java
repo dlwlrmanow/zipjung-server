@@ -1,13 +1,19 @@
 package com.zipjung.backend.repository;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.zipjung.backend.dto.FocusTimeNoLocationDto;
+import com.zipjung.backend.dto.FocusTimeWithLocationDto;
+import com.zipjung.backend.dto.QFocusTimeNoLocationDto;
+import com.zipjung.backend.dto.QFocusTimeWithLocationDto;
 import com.zipjung.backend.entity.QFocusLog;
 import com.zipjung.backend.entity.QFocusTime;
 import com.zipjung.backend.entity.QLocation;
-import com.zipjung.backend.entity.QPost;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Slf4j
 @Repository
@@ -37,5 +43,59 @@ public class FocusTimeCustomRepositoryImpl implements FocusTimeCustomRepository 
                 .fetchFirst(); // 있으면 1 반환
 
         return fetchOne != null;
+    }
+
+    @Override
+    public List<FocusTimeWithLocationDto> getFocusTimeWithLocationDtoList(LocalDateTime startOfDay, LocalDateTime endOfDay, Long memberId){
+        QFocusTime focusTime = QFocusTime.focusTime;
+        QLocation location = QLocation.location;
+
+        List<FocusTimeWithLocationDto> focusTimeWithLocation = jpaQueryFactory
+                .select(new QFocusTimeWithLocationDto(
+                        focusTime.id,
+                        focusTime.focusedTime,
+                        focusTime.startFocusTime,
+                        focusTime.endFocusTime,
+                        focusTime.focusLogId
+                ))
+                .from(focusTime)
+                .join(location).on(focusTime.focusLogId.eq(location.focusLogId))
+                .where(focusTime.createdAt.between(startOfDay, endOfDay)
+                        .and(focusTime.isDeleted.eq(false))
+                        .and(focusTime.memberId.eq(memberId))
+                        .and(location.isDeleted.eq(false)) // location 데이터 삭제 여부 확인
+                )
+                .fetch();
+
+        return focusTimeWithLocation;
+    }
+
+    @Override
+    public List<FocusTimeNoLocationDto> getFocusTimeNoLocationDtoList(LocalDateTime startOfDay, LocalDateTime endOfDay, Long memberId){
+        QFocusTime focusTime = QFocusTime.focusTime;
+        QLocation location = QLocation.location;
+
+        // focus_log_id가 존재하는 경우 -> location_is_deleted가 true인지 확인
+        // focus_log_id == null은 그대로 뽑기
+
+        List<FocusTimeNoLocationDto> focusTimeNoLocation = jpaQueryFactory
+                .select(new QFocusTimeNoLocationDto(
+                        focusTime.id,
+                        focusTime.focusedTime,
+                        focusTime.startFocusTime,
+                        focusTime.endFocusTime)
+                )
+                .from(focusTime)
+                .leftJoin(location).on(focusTime.focusLogId.eq(location.focusLogId))
+                .where(focusTime.createdAt.between(startOfDay, endOfDay),
+                        focusTime.isDeleted.eq(false),
+                        focusTime.memberId.eq(memberId),
+
+                        // focus_log가 아예 없거나, location데이터가 삭제 됐거나
+                        focusTime.focusLogId.isNull().or(location.isDeleted.eq(true))
+                )
+                .fetch();
+
+        return focusTimeNoLocation;
     }
 }

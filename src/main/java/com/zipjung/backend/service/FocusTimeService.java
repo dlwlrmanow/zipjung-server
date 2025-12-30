@@ -87,16 +87,19 @@ public class FocusTimeService {
         return focusTimeRepository.findById(id).orElse(null);
     }
 
-    public Result<List<FocusTimeWithEndTimeResponse>> fetchTodayFocusTimesWithEndTime(Long memberId) {
+    public TodayFocusTimeListResponse fetchTodayFocusTimesWithEndTime(Long memberId) {
         // 오늘의 날짜 데이터
         LocalDate today = LocalDate.now();
 
         LocalDateTime startOfDay = today.atStartOfDay();
         LocalDateTime endOfDay = today.plusDays(1).atStartOfDay();
 
-        List<FocusTimeWithEndTimeResponse> focusedTimeToday = focusTimeRepository.getTodayFocusTimesWithEndTime(startOfDay, endOfDay, memberId);
+        TodayFocusTimeListResponse todayFocusTimeListResponses = TodayFocusTimeListResponse.builder()
+                .focusTimeWithLocationDtoList(focusTimeRepository.getFocusTimeWithLocationDtoList(startOfDay, endOfDay, memberId))
+                .focusTimeNoLocationDtoList(focusTimeRepository.getFocusTimeNoLocationDtoList(startOfDay, endOfDay, memberId))
+                .build();
 
-        return new Result<>(focusedTimeToday, focusedTimeToday.size());
+        return todayFocusTimeListResponses;
     }
 
     @Transactional

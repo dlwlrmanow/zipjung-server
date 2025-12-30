@@ -1,9 +1,6 @@
 package com.zipjung.backend.controller;
 
-import com.zipjung.backend.dto.FocusTimeRequestDto;
-import com.zipjung.backend.dto.FocusTimeWithEndTimeResponse;
-import com.zipjung.backend.dto.FocusedTodayTotalResponse;
-import com.zipjung.backend.dto.Result;
+import com.zipjung.backend.dto.*;
 import com.zipjung.backend.entity.FocusTime;
 import com.zipjung.backend.exception.FocusTimeException;
 import com.zipjung.backend.security.CustomUserDetails;
@@ -62,10 +59,10 @@ public class FocusTimeController {
 
     // 00:00 ~ 00:30 (총 30분)
     @GetMapping("/today/list/fetch")
-    public ResponseEntity<Result<List<FocusTimeWithEndTimeResponse>>> fetchTodayFocusTimesWithEndTime(@AuthenticationPrincipal CustomUserDetails user) {
+    public ResponseEntity<TodayFocusTimeListResponse> fetchTodayFocusTimesWithEndTime(@AuthenticationPrincipal CustomUserDetails user) {
         Long memberId = user.getMemberId();
 
-        Result<List<FocusTimeWithEndTimeResponse>> result = focusTimeService.fetchTodayFocusTimesWithEndTime(memberId);
+        TodayFocusTimeListResponse result = focusTimeService.fetchTodayFocusTimesWithEndTime(memberId);
         return ResponseEntity.ok(result);
     }
 

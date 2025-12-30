@@ -35,12 +35,14 @@ public interface FocusTimeRepository extends JpaRepository<FocusTime, Long>, Foc
                 "AND f.isDeleted = false")
     List<Long> getTodayFocusTimes(@Param("startOfDay") LocalDateTime startOfDay, @Param("endOfDay") LocalDateTime endOfDay);
 
-    @Query("SELECT new com.zipjung.backend.dto.FocusTimeWithEndTimeResponse(f.id, f.focusedTime, f.startFocusTime, f.endFocusTime) " +
-            "FROM FocusTime f " +
-            "WHERE f.createdAt BETWEEN :startOfDay AND :endOfDay " +
-                "AND f.isDeleted = false " +
-                "AND f.memberId = :memberId")
-    List<FocusTimeWithEndTimeResponse> getTodayFocusTimesWithEndTime(@Param("startOfDay") LocalDateTime startOfDay, @Param("endOfDay") LocalDateTime endOfDay, Long memberId);
+
+    // TODO: location 있는 것고 없는 걸로 나눠서 보내기
+//    @Query("SELECT new com.zipjung.backend.dto.FocusTimeWithEndTimeResponse(f.id, f.focusedTime, f.startFocusTime, f.endFocusTime) " +
+//            "FROM FocusTime f " +
+//            "WHERE f.createdAt BETWEEN :startOfDay AND :endOfDay " +
+//                "AND f.isDeleted = false " +
+//                "AND f.memberId = :memberId")
+//    List<FocusTimeWithEndTimeResponse> getTodayFocusTimesWithEndTime(@Param("startOfDay") LocalDateTime startOfDay, @Param("endOfDay") LocalDateTime endOfDay, Long memberId);
 
 
     // 오늘 집중 시간 전체 삭제
