@@ -63,10 +63,11 @@ public class RedisRankService {
             RankTopSpotDto rankTopSpotDto = RankTopSpotDto.builder()
                     .rank(i + 1)
                     .spot(rankingList.get(i))
-                    .url((String) redisTemplate.opsForHash().get(rankingList.get(i), hashKey))
+                    .url(url)
                     .build();
 
             dtos.add(rankTopSpotDto);
+            log.info("***********{} Ranking score is {} ***********", spotName, rankTopSpotDto.getUrl());
         }
 
         RankTopSpotResponse rankTopSpotResponse = RankTopSpotResponse.builder()

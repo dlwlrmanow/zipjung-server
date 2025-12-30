@@ -48,6 +48,7 @@ public class FocusLogService {
         Long postId = post.getId();
 
         // 3. focus_log.id 만들기
+        // TODO: 만들기 전에 위치 추가하면서 focus_log 생겼을 수도 있으니 확인하는 로직 필요
         FocusLog focusLog = FocusLog.builder()
                         .postId(postId)
                                 .rating(focusLogDto.getRating())
@@ -68,7 +69,7 @@ public class FocusLogService {
         return false;
     }
 
-    // TODO: entity 때문에 수정
+    // DONE: entity 때문에 수정
     @Transactional
     public void addLocation(Long memberId, LocationRequest locationRequest) {
 
@@ -129,6 +130,7 @@ public class FocusLogService {
         eventPublisher.publishEvent(new NotificationDto(memberId, addLocationNotification.getId()));
 
         // redis 인기 검색어
+        log.info("////////////[addLocation] locationRequest: {}", locationRequest.getPlaceId());
         redisRankService.increasePopularSpotScore(locationRequest.getSpotName(), locationRequest.getPlaceId());
     }
 
