@@ -1,6 +1,5 @@
 package com.zipjung.backend.repository;
 
-import com.zipjung.backend.dto.FocusTimeNoLocationDto;
 import com.zipjung.backend.dto.FocusTimeWithLocationDto;
 
 import java.time.LocalDateTime;
@@ -11,5 +10,5 @@ public interface FocusTimeCustomRepository {
 
     List<FocusTimeWithLocationDto> getFocusTimeWithLocationDtoList(LocalDateTime startOfDay, LocalDateTime endOfDay, Long memberId);
 
-    List<FocusTimeNoLocationDto> getFocusTimeNoLocationDtoList(LocalDateTime startOfDay, LocalDateTime endOfDay, Long memberId);
+//    List<FocusTimeNoLocationDto> getFocusTimeNoLocationDtoList(LocalDateTime startOfDay, LocalDateTime endOfDay, Long memberId);
 }

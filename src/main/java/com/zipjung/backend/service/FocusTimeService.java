@@ -10,14 +10,17 @@ import com.zipjung.backend.repository.FocusTimeRepository;
 
 import com.zipjung.backend.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class FocusTimeService {
@@ -89,17 +92,19 @@ public class FocusTimeService {
 
     public TodayFocusTimeListResponse fetchTodayFocusTimesWithEndTime(Long memberId) {
         // 오늘의 날짜 데이터
-        LocalDate today = LocalDate.now();
+        LocalDate todayKst = LocalDate.now(ZoneId.of("Asia/Seoul"));
 
-        LocalDateTime startOfDay = today.atStartOfDay();
-        LocalDateTime endOfDay = today.plusDays(1).atStartOfDay();
+        LocalDateTime startOfDay = todayKst.minusDays(1).atStartOfDay(); // 2025-12-30 00:00:00
+        LocalDateTime endOfDay = todayKst.plusDays(1).atStartOfDay();
 
-        TodayFocusTimeListResponse todayFocusTimeListResponses = TodayFocusTimeListResponse.builder()
+        log.info("조회 범위 (KST 기준): {} ~ {}", startOfDay, endOfDay);
+
+        // TODO: locationIsDeleted가 null로 나오면 삭제되었거나 아직 데이터 추가되지 않은 것 -> 그냥 '+'추가하면 된다.
+        TodayFocusTimeListResponse todayFocusTimeListResponse = TodayFocusTimeListResponse.builder()
                 .focusTimeWithLocationDtoList(focusTimeRepository.getFocusTimeWithLocationDtoList(startOfDay, endOfDay, memberId))
-                .focusTimeNoLocationDtoList(focusTimeRepository.getFocusTimeNoLocationDtoList(startOfDay, endOfDay, memberId))
                 .build();
 
-        return todayFocusTimeListResponses;
+        return todayFocusTimeListResponse;
     }
 
     @Transactional

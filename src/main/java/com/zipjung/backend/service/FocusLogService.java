@@ -110,6 +110,7 @@ public class FocusLogService {
                 .longitude(locationRequest.getLongitude())
                 .placeUrl(locationRequest.getPlaceUrl())
                 .placeId(locationRequest.getPlaceId())
+                .isDeleted(false)
                 .build();
         locationRepository.save(location);
 
