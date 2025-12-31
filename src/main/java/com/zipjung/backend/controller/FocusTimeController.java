@@ -59,7 +59,7 @@ public class FocusTimeController {
         return ResponseEntity.ok(todayFocusTime);
     }
 
-    // 00:00 ~ 00:30 (총 30분)
+//     00:00 ~ 00:30 (총 30분)
     @GetMapping("/today/list/fetch")
     public ResponseEntity<TodayFocusTimeListResponse> fetchTodayFocusTimesWithEndTime(@AuthenticationPrincipal CustomUserDetails user) {
         Long memberId = user.getMemberId();
@@ -67,7 +67,6 @@ public class FocusTimeController {
         TodayFocusTimeListResponse result = focusTimeService.fetchTodayFocusTimesWithEndTime(memberId);
         return ResponseEntity.ok(result);
     }
-
 
     @GetMapping("/fetch/{id}")
     public ResponseEntity<FocusTime> fetchFocusTime(@PathVariable Long id) {

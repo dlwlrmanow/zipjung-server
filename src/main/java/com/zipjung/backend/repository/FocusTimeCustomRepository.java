@@ -9,6 +9,4 @@ public interface FocusTimeCustomRepository {
     boolean isLocationExist(Long focusTimeId);
 
     List<FocusTimeWithLocationDto> getFocusTimeWithLocationDtoList(LocalDateTime startOfDay, LocalDateTime endOfDay, Long memberId);
-
-//    List<FocusTimeNoLocationDto> getFocusTimeNoLocationDtoList(LocalDateTime startOfDay, LocalDateTime endOfDay, Long memberId);
 }

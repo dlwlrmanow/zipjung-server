@@ -26,16 +26,13 @@ public class FocusTimeWithLocationDto {
 
     // location 데이터가 존재하는 경우 클릭시 이동할 수 있도록 focusLogId 담기
     private Long focusLogId;
-
-    // location 데이터 삭제 가능성
-    @JsonIgnore
+    // location 데이터가 true / null 인경우 무조건 null로 뽑힘
     private Boolean locationIsDeleted;
 
     // parsed 데이터
     private String startTime;
     private String endTime;
     private String focusedTimeStr;
-    private Boolean locationData;
 
     // 날짜 포맷된 형태로
     @QueryProjection
@@ -45,7 +42,7 @@ public class FocusTimeWithLocationDto {
         this.startFocusTime = startFocusTime;
         this.endFocusTime = endFocusTime;
         this.focusLogId = focusLogId;
-//        this.locationIsDeleted = locationIsDeleted;
+        this.locationIsDeleted = locationIsDeleted;
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS");
         LocalDateTime startTimeFormat = LocalDateTime.parse(startFocusTime, formatter);
