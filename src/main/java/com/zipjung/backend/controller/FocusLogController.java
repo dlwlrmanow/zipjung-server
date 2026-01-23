@@ -6,7 +6,6 @@ import com.zipjung.backend.dto.LocationRequest;
 import com.zipjung.backend.dto.Result;
 import com.zipjung.backend.exception.AlreadyExistDataException;
 import com.zipjung.backend.security.CustomUserDetails;
-import com.zipjung.backend.service.CustomUserDetailsService;
 import com.zipjung.backend.service.FocusLogService;
 import com.zipjung.backend.service.PostService;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

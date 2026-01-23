@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -32,13 +31,13 @@ public class FocusLogService {
     // Redis
     private final RedisRankService redisRankService;
 
-    // TODO: Flutter 수정! 위치 추가하는 부분 추가됨
+    // TODO: Flutter 수정! 위치 추가하는 부분 추가됨 -> RN에서 수정
     @Transactional // transactional로 순서 꼬이지 않고 비동기적으로 처리
     public boolean saveFocusLog(FocusLogDto focusLogDto, Long memberId) {
         // 1. post.id 만들기
         Post post = Post.builder()
-                .title(focusLogDto.getTitle())
-                .content(focusLogDto.getContent())
+                .title(focusLogDto.title())
+                .content(focusLogDto.content())
                 .serviceId(1L) // DONE: service_id 생성 후 변경
                 .memberId(memberId)
                 .build();
@@ -51,14 +50,14 @@ public class FocusLogService {
         // TODO: 만들기 전에 위치 추가하면서 focus_log 생겼을 수도 있으니 확인하는 로직 필요
         FocusLog focusLog = FocusLog.builder()
                         .postId(postId)
-                                .rating(focusLogDto.getRating())
+                                .rating(focusLogDto.rating())
                                         .build();
         focusLogRepository.save(focusLog);
 
         // 4. 해당하는 focus_time에 focus_log.id update
         Long focusLogId = focusLog.getId();
 
-        for(Long focusTimeId : focusLogDto.getFocusTimeId()) { // focus_time_id가 리스트 형태로 들어옴
+        for(Long focusTimeId : focusLogDto.focusTimeId()) { // focus_time_id가 리스트 형태로 들어옴
             int count = focusTimeRepository.updateFocusLogId(focusLogId, focusTimeId);
             if (count != 0) {
                 log.info("update success: {}", count);
