@@ -48,8 +48,6 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-
-//        configuration.setAllowedOrigins(List.of("http://127.0.0.1:63342", "http://localhost:63342", "http://localhost:8080"));
         configuration.setAllowedOrigins(List.of("http://127.0.0.1:63342", "http://localhost:63342", "http://127.0.0.1:5173", "http://localhost:5173", "http://localhost:8080"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
@@ -71,7 +69,6 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable).logout(AbstractHttpConfigurer::disable) // formLogin은 Session방식이라서 JWT와 충돌
 
                 .authorizeHttpRequests(auth -> auth
-//                        .requestMatchers("/api-test").permitAll()
                         // 허용할 매핑
                         .requestMatchers("/auth/login/**", "/auth/login/web", "/user/join", "/auth/logout/**").permitAll() // 로그인 | 로그아웃 | 회원가입
                         .requestMatchers("/auth/validate", "/auth/validate/web").permitAll() // token validate
