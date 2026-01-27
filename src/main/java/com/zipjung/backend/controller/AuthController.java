@@ -1,12 +1,14 @@
 package com.zipjung.backend.controller;
 
 import com.zipjung.backend.dto.RefreshTokenDto;
+import com.zipjung.backend.security.CustomUserDetails;
 import com.zipjung.backend.security.JwtTokenProvider;
 import com.zipjung.backend.dto.JwtToken;
 import com.zipjung.backend.dto.LoginRequestDto;
 import com.zipjung.backend.service.AuthService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -14,11 +16,13 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.TimeZone;
 
+@Slf4j
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -151,18 +155,39 @@ public class AuthController {
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
+//    @PostMapping("/logout")
+//    public ResponseEntity<?> logout(@RequestBody RefreshTokenDto refreshTokenDto) {
+//        // TODO: 클라이언트로부터 RT를 받아서 삭제 X
+//        // TODO: AT를 받아서 검증(AT가 검증토큰이기 때문에 역할 중요!!!!) 후에 AT로부터 해당 RT를 찾아서 삭제하는 방향으로 구현해야 함
+//        String refreshToken = refreshTokenDto.getRefreshToken();
+//        boolean isValid = jwtTokenProvider.validateRefreshToken(refreshToken);
+//
+//        if(!isValid) {
+//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//        }
+//        String username = jwtTokenProvider.getUserNameFromToken(refreshToken);
+//        jwtTokenProvider.deleteRefreshToken(username);
+//
+//        return ResponseEntity.ok().build();
+//    }
+
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(@RequestBody RefreshTokenDto refreshTokenDto) {
-        // redis에서 삭제하기 위해서 검증 먼저
-        String refreshToken = refreshTokenDto.getRefreshToken();
-        boolean isValid = jwtTokenProvider.validateRefreshToken(refreshToken);
+    public ResponseEntity<?> logout(@AuthenticationPrincipal CustomUserDetails user) {
+        // AT 검증 끝
+        Long memberId = user.getMemberId();
+        // 위에서 찾은 memberId에 해당하는 RT 무효화
+        String username = user.getUsername();
 
-        if(!isValid) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        // username으로 RT 삭제
+        try {
+            jwtTokenProvider.deleteRefreshToken(username);
+        } catch (IllegalArgumentException e) {
+            log.warn("[/logout] Invalid username", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        } catch (Exception e) {
+            log.warn("[/logout] Internal sever error", e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        String username = jwtTokenProvider.getUserNameFromToken(refreshToken);
-        jwtTokenProvider.deleteRefreshToken(username);
-
         return ResponseEntity.ok().build();
     }
 
