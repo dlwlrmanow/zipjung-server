@@ -19,6 +19,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -33,19 +34,22 @@ public class FocusTimeService {
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
-    // TODO: SSE 추가하기
-    public Long saveFocusTime(FocusTimeRequestDto focusTimeRequestDto, Long memberId) {
-        FocusTime focusTime = new FocusTime();
-        focusTime.setFocusedTime(focusTimeRequestDto.getFocusedTime());
-        focusTime.setStartFocusTime(focusTimeRequestDto.getStartFocusTime());
-        focusTime.setMemberId(memberId);
-        FocusTime saved = focusTimeRepository.save(focusTime);
+    public void saveFocusTime(FocusTimeRequest focusTimeRequest, Long memberId) {
+        // SSE 추가하기
+        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+        LocalDateTime endOfDay = startOfDay.plusDays(1);
 
-        if(saved.getId() == null) {
-            throw new FocusTimeException("FocusTime save failed");
-        }
+        // 오늘 쓴 데이터(오늘 집중 시간 데이터)가 있는지 확인
+        Long totalFocusedTimeToday = focusTimeRepository.getLastTotalFocusedTimeToday(startOfDay, endOfDay, memberId);
 
-        return saved.getId();
+        FocusTime focusTime = FocusTime.builder()
+                .focusedTime(focusTimeRequest.focusedTime())
+                .startFocusTime(focusTimeRequest.startFocusTime())
+                .endFocusTime(focusTimeRequest.endFocusTime())
+                .memberId(memberId)
+                .totalToday(focusTimeRequest.focusedTime() + totalFocusedTimeToday) // totalFocusedTimeToday이 없는 경우 어차피 0
+                .build();
+        focusTimeRepository.save(focusTime);
     }
 
     @Transactional(readOnly = true)
@@ -53,7 +57,7 @@ public class FocusTimeService {
         LocalDateTime oneWeekAgo = LocalDateTime.now().minusDays(7);
         List<FocusTime> focusTimes = focusTimeRepository.getRecentWeekFocusTimes(oneWeekAgo, memberId);
 
-        if(focusTimes.size() == 0) {
+        if(focusTimes.isEmpty()) {
             System.out.println("List<FocusTime> = null");
             return null;
         }
@@ -63,25 +67,23 @@ public class FocusTimeService {
         return focusTimes;
     }
 
-    @Transactional(readOnly = true) // 오늘의 집중 시간 가져오기
-    public FocusedTodayTotalResponse fetchTodayFocusTime() {
-        LocalDate today = LocalDate.now();
+    // 오늘의 집중 시간 가져오기
+    @Transactional(readOnly = true)
+    public FocusedTodayTotalResponse fetchTodayFocusTime(Long memberId) {
+        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+        LocalDateTime endOfDay = startOfDay.plusDays(1); // 내일이 되는 00:00:00
 
-        LocalDateTime startOfDay = today.atStartOfDay();
-        LocalDateTime endOfDay = today.plusDays(1).atStartOfDay(); // 내일이 되는 00:00:00
+        // 오늘 날짜에 시작한 건 오늘 날짜에 포함됨
+        Long totalTodaySum = focusTimeRepository.getTodayFocusTimes(startOfDay, endOfDay, memberId);
 
-        List<Long> timeList = focusTimeRepository.getTodayFocusTimes(startOfDay, endOfDay);
-
-        long todayTimeSum = 0;
-        for (Long time : timeList) {
-            if(time != null) {
-                todayTimeSum += time;
-            }
-        }
+        // TODO 진짜 null인 경우와 아직 집중 시간이 없는 경우 분기처리
+//        if(totalTodaySum == 0L) {
+//            throw new FocusTimeException("Today focused time not found");
+//        }
 
         // 00:00:00 형태로 파싱
-        FocusedTodayTotalResponse totalToday = new FocusedTodayTotalResponse(todayTimeSum);
-        System.out.println("[FocusTimeService] totalToday = " + totalToday.getTodayFocusTime() + "\n totalTodayStr: " + totalToday.getFocusedTimeStr());
+        FocusedTodayTotalResponse totalToday = new FocusedTodayTotalResponse(totalTodaySum);
+        log.info("[FocusTimeService] totalToday = " + totalToday.getTodayFocusTime() + "\n totalTodayStr: " + totalToday.getFocusedTimeStr());
         return totalToday;
     }
 

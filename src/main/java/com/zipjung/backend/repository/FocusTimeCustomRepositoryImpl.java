@@ -71,35 +71,23 @@ public class FocusTimeCustomRepositoryImpl implements FocusTimeCustomRepository 
         return focusTimeWithLocation;
     }
 
+    @Override
+    public Long getLastTotalFocusedTimeToday(LocalDateTime startOfDay, LocalDateTime endOfDay, Long memberId) {
+        QFocusTime focusTime = QFocusTime.focusTime;
 
+        Long totalFocusedTimeToday = jpaQueryFactory
+                .select(focusTime.totalToday)
+                .from(focusTime)
+                .where(
+                        focusTime.createdAt.between(startOfDay, endOfDay),
+                        focusTime.memberId.eq(memberId),
+                        focusTime.isDeleted.isFalse()
+                )
+//                .groupBy(focusTime.id) // 안묶어도 된다. => 어차피 PK 굳이 묶는 게 의미 없음
+                .orderBy(focusTime.id.desc())
+                .fetchFirst();
 
-//    @Override
-//    public List<FocusTimeNoLocationDto> getFocusTimeNoLocationDtoList(LocalDateTime startOfDay, LocalDateTime endOfDay, Long memberId){
-//        QFocusTime focusTime = QFocusTime.focusTime;
-//        QLocation location = QLocation.location;
-//
-//        // focus_log_id가 존재하는 경우 -> location_is_deleted가 true인지 확인
-//        // focus_log_id == null은 그대로 뽑기
-//
-//        List<FocusTimeNoLocationDto> focusTimeNoLocation = jpaQueryFactory
-//                .select(new QFocusTimeNoLocationDto(
-//                        focusTime.id,
-//                        focusTime.focusedTime,
-//                        focusTime.startFocusTime,
-//                        focusTime.endFocusTime)
-//                )
-//                .from(focusTime)
-//                .leftJoin(location).on(focusTime.focusLogId.eq(location.focusLogId))
-//                .where(
-//                        focusTime.createdAt.between(startOfDay, endOfDay),
-//                        focusTime.isDeleted.eq(false),
-//                        focusTime.memberId.eq(memberId),
-//
-//                        // focus_log가 아예 없거나, location데이터가 삭제 됐거나
-//                        focusTime.focusLogId.isNull().or(location.isDeleted.eq(true))
-//                )
-//                .fetch();
-//
-//        return focusTimeNoLocation;
-//    }
+        return totalFocusedTimeToday == null ? 0 : totalFocusedTimeToday; // null 처리
+    }
+
 }

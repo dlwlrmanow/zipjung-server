@@ -23,13 +23,13 @@ public class FocusTimeController {
     private final FocusTimeService focusTimeService;
 
     @PostMapping("/save")
-    public ResponseEntity<?> saveFocusTime(@RequestBody FocusTimeRequestDto focusTimeRequestDto, @AuthenticationPrincipal CustomUserDetails user) {
-        System.out.println("[saveFocusTime] start");
+    public ResponseEntity<?> saveFocusTime(@RequestBody FocusTimeRequest focusTimeRequest, @AuthenticationPrincipal CustomUserDetails user) {
+        log.info("save focusTime");
         Long memberId = user.getMemberId();
-
+        // TODO: 집중 시간 저장할 때 누적해서 저장하는 칼럼에도 데이터 추가
         try {
-            Long savedId = focusTimeService.saveFocusTime(focusTimeRequestDto, memberId);
-            return new ResponseEntity<>(savedId, HttpStatus.CREATED);
+            focusTimeService.saveFocusTime(focusTimeRequest, memberId);
+            return new ResponseEntity<>(HttpStatus.CREATED);
         } catch (FocusTimeException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (Exception e) { // 분류되지 않은 알 수 없는 오류
@@ -55,8 +55,8 @@ public class FocusTimeController {
     @GetMapping("/today/total")
     public ResponseEntity<FocusedTodayTotalResponse> fetchTodayFocusTimes(@AuthenticationPrincipal CustomUserDetails user) {
         Long memberId = user.getMemberId();
-        // TODO: memberId 추가, memberId로 해당하는 집중 시간 가져오기
-        FocusedTodayTotalResponse todayFocusTime = focusTimeService.fetchTodayFocusTime();
+
+        FocusedTodayTotalResponse todayFocusTime = focusTimeService.fetchTodayFocusTime(memberId);
         return ResponseEntity.ok(todayFocusTime);
     }
 

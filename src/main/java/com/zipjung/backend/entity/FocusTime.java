@@ -31,7 +31,7 @@ public class FocusTime extends BaseEntity {
     @Column(name = "is_deleted")
     private Boolean isDeleted = false;
 
-    // TODO: 나중에 제거
+    // post와 별개로 있기 때문에(게시글 형식X) memberId 필수
     @Column(name = "member_id")
     private Long memberId;
 
