@@ -52,9 +52,10 @@ public class FocusTimeController {
         return ResponseEntity.ok().body(new Result<>(focusTimeList, focusTimeList.size()));
     }
 
-    // TODO: /today/fetch -> /today/total 로 수정 flutter에서 매핑 수정해야함!!
     @GetMapping("/today/total")
-    public ResponseEntity<FocusedTodayTotalResponse> fetchTodayFocusTimes() {
+    public ResponseEntity<FocusedTodayTotalResponse> fetchTodayFocusTimes(@AuthenticationPrincipal CustomUserDetails user) {
+        Long memberId = user.getMemberId();
+        // TODO: memberId 추가, memberId로 해당하는 집중 시간 가져오기
         FocusedTodayTotalResponse todayFocusTime = focusTimeService.fetchTodayFocusTime();
         return ResponseEntity.ok(todayFocusTime);
     }

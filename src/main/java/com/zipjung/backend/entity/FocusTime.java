@@ -25,6 +25,9 @@ public class FocusTime extends BaseEntity {
     @Column(name = "focus_log_id")
     private Long focusLogId;
 
+    @Column(name = "total_today")
+    private Long totalToday;
+
     @Column(name = "is_deleted")
     private Boolean isDeleted = false;
 
