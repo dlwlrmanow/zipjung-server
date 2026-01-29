@@ -36,11 +36,8 @@ public class FocusTimeService {
     @Transactional
     public void saveFocusTime(FocusTimeRequest focusTimeRequest, Long memberId) {
         // SSE 추가하기
-        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
-        LocalDateTime endOfDay = startOfDay.plusDays(1);
-
         // 오늘 쓴 데이터(오늘 집중 시간 데이터)가 있는지 확인
-        Long totalFocusedTimeToday = focusTimeRepository.getLastTotalFocusedTimeToday(startOfDay, endOfDay, memberId);
+        Long totalFocusedTimeToday = focusTimeRepository.getLastTotalFocusedTimeToday(memberId);
 
         FocusTime focusTime = FocusTime.builder()
                 .focusedTime(focusTimeRequest.focusedTime())
@@ -70,21 +67,11 @@ public class FocusTimeService {
     // 오늘의 집중 시간 가져오기
     @Transactional(readOnly = true)
     public FocusedTodayTotalResponse fetchTodayFocusTime(Long memberId) {
-        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
-        LocalDateTime endOfDay = startOfDay.plusDays(1); // 내일이 되는 00:00:00
-
-        // 오늘 날짜에 시작한 건 오늘 날짜에 포함됨
-        Long totalTodaySum = focusTimeRepository.getTodayFocusTimes(startOfDay, endOfDay, memberId);
-
-        // TODO 진짜 null인 경우와 아직 집중 시간이 없는 경우 분기처리
-//        if(totalTodaySum == 0L) {
-//            throw new FocusTimeException("Today focused time not found");
-//        }
+        // 오늘 누적 시간 맨 마지막 데이터만 가져와서 파싱
+        Long totalFocusedTimeToday = focusTimeRepository.getLastTotalFocusedTimeToday(memberId);
 
         // 00:00:00 형태로 파싱
-        FocusedTodayTotalResponse totalToday = new FocusedTodayTotalResponse(totalTodaySum);
-        log.info("[FocusTimeService] totalToday = " + totalToday.getTodayFocusTime() + "\n totalTodayStr: " + totalToday.getFocusedTimeStr());
-        return totalToday;
+        return new FocusedTodayTotalResponse(totalFocusedTimeToday);
     }
 
     @Transactional(readOnly = true)

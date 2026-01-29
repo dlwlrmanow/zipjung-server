@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -72,7 +73,10 @@ public class FocusTimeCustomRepositoryImpl implements FocusTimeCustomRepository 
     }
 
     @Override
-    public Long getLastTotalFocusedTimeToday(LocalDateTime startOfDay, LocalDateTime endOfDay, Long memberId) {
+    public Long getLastTotalFocusedTimeToday(Long memberId) {
+        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+        LocalDateTime endOfDay = startOfDay.plusDays(1);
+
         QFocusTime focusTime = QFocusTime.focusTime;
 
         Long totalFocusedTimeToday = jpaQueryFactory

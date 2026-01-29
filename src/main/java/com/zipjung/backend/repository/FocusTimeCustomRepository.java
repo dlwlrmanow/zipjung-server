@@ -11,5 +11,5 @@ public interface FocusTimeCustomRepository {
     List<FocusTimeWithLocationDto> getFocusTimeWithLocationDtoList(LocalDateTime startOfDay, LocalDateTime endOfDay, Long memberId);
 
     // 누적 총 오늘의 집중시간 마지막 하나만 가져오기
-    Long getLastTotalFocusedTimeToday(LocalDateTime startOfDay, LocalDateTime endOfDay, Long memberId);
+    Long getLastTotalFocusedTimeToday(Long memberId);
 }

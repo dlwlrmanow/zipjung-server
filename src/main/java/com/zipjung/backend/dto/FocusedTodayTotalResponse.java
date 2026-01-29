@@ -6,18 +6,18 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class FocusedTodayTotalResponse {
-    private Long todayFocusTime;
+    private Long totalFocusedTimeToday;
 
     // formatted 데이터
     private String focusedTimeStr;
 
     // 파라미터 하나만 받아서 여기서 싹 처리
-    public FocusedTodayTotalResponse(Long todayFocusTime) {
-        this.todayFocusTime = todayFocusTime;
+    public FocusedTodayTotalResponse(Long totalFocusedTimeToday) {
+        this.totalFocusedTimeToday = totalFocusedTimeToday;
 
         // formatted
         // totalSeconde가 null이면 0초로 처리
-        long totalSeconds = (todayFocusTime != null) ? todayFocusTime : 0;
+        long totalSeconds = (totalFocusedTimeToday != null) ? totalFocusedTimeToday : 0;
 
         long hour = totalSeconds / 3600;
         long minute = (totalSeconds % 3600) / 60;
