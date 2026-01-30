@@ -16,7 +16,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -73,7 +72,7 @@ public class SecurityConfig {
                         // 허용할 매핑
                         .requestMatchers("/auth/login/**", "/auth/login/web", "/user/join", "/auth/logout/**").permitAll() // 로그인 | 로그아웃 | 회원가입
                         .requestMatchers("/auth/validate", "/auth/validate/web").permitAll() // token validate
-                        .requestMatchers("/auth/reissue/access/web").permitAll() // web에서 AT 재발급
+                        .requestMatchers("/auth/reissue/access/web", "/auth/reissue/access").permitAll() // AT 재발급
                         .requestMatchers("/todo/fetch/list/test").permitAll() // ngriner 테스트
                         .requestMatchers("/focus-time/today/list/fetch/test").permitAll() // response 수정 테스트
                         .requestMatchers("/rank/spot").permitAll() // 인기 있는 장소

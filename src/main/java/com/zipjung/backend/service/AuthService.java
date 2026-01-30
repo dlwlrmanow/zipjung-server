@@ -11,14 +11,12 @@ import org.springframework.stereotype.Service;
 public class AuthService {
     private final JwtTokenProvider jwtTokenProvider;
 
-    public JwtToken getNewAccessToken(String refreshToken) {
-        if(jwtTokenProvider.validateToken(refreshToken)) {
-            throw new InvaildTokenException("[AuthService] 유효하지 않은 Token");
+    public String parsingRefreshToken(String refreshTokenHeader) {
+        if (refreshTokenHeader != null && refreshTokenHeader.startsWith("Bearer ")) {
+            return refreshTokenHeader.substring(7);
         }
 
-        // access token만 재발급
-        JwtToken token = jwtTokenProvider.reissueAccessToken(refreshToken);
-        return token;
+        return null;
     }
 
 }

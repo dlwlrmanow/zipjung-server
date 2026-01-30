@@ -23,6 +23,6 @@ public class FocusedTodayTotalResponse {
         long minute = (totalSeconds % 3600) / 60;
         long second = totalSeconds % 60;
 
-        this.focusedTimeStr = String.format("%d:%02d:%02d", hour, minute, second);
+        this.focusedTimeStr = String.format("%02d:%02d:%02d", hour, minute, second);
     }
 }

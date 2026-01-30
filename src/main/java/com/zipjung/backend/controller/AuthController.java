@@ -28,6 +28,7 @@ import java.util.TimeZone;
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthenticationManager authenticationManager;
+    private final AuthService authService;
     private final JwtTokenProvider jwtTokenProvider;
 
     @PostMapping("/login")
@@ -121,17 +122,16 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/reissue/access")
-    public ResponseEntity<?> reissueAccess(@RequestBody RefreshTokenDto refreshTokenDto) {
+    @PostMapping("/reissue/token")
+    public ResponseEntity<?> reissueTokenApp(@RequestHeader("Authorization-Refresh") String refreshTokenHeader) {
         // refresh token 검증
-        String refreshToken = refreshTokenDto.getRefreshToken();
+        String refreshToken = authService.parsingRefreshToken(refreshTokenHeader);
 
         boolean isValid = jwtTokenProvider.validateRefreshToken(refreshToken);
 
         if (isValid) {
-            // refresh token이 유효하다면
             // JWT token 전체 재발급
-            System.out.println("isValid refreshToken");
+            log.info("[/auth/reissue/token] refresh token validated");
             JwtToken newJwtToken = jwtTokenProvider.reissueToken(refreshToken);
             return ResponseEntity.ok(newJwtToken);
         }
