@@ -27,6 +27,7 @@ public class FocusTimeController {
         log.info("save focusTime");
         Long memberId = user.getMemberId();
         // TODO: 집중 시간 저장할 때 누적해서 저장하는 칼럼에도 데이터 추가
+        // TODO: 클라이언트로부터 원본 데이터만 받아오도록 수정했기 때문에 가공해서 DB에 저장해야함!!!!!!
         try {
             focusTimeService.saveFocusTime(focusTimeRequest, memberId);
             return new ResponseEntity<>(HttpStatus.CREATED);

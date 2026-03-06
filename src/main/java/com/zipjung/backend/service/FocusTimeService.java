@@ -33,7 +33,7 @@ public class FocusTimeService {
     private final EmitterRepository emitterRepository;
     private final ApplicationEventPublisher eventPublisher;
 
-    @Transactional
+    @Transactional // TODO: RN에서 원본데이터만 받아서 포맷해서 DB에 저장하기
     public void saveFocusTime(FocusTimeRequest focusTimeRequest, Long memberId) {
         // SSE 추가하기
         // 오늘 쓴 데이터(오늘 집중 시간 데이터)가 있는지 확인
