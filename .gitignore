@@ -41,8 +41,8 @@ out/
 ### VS Code ###
 .vscode/
 
-##applicaion.properties##
-/src/main/resources/application.properties
+##applicaion-secret.properties##
+**/src/main/resources/application-secrets.yaml
 
 ## jasypt ##
-/src/test/java/com/zipjung/backend/JasyptConfigTest.java
+**/src/test/java/com/zipjung/backend/JasyptConfigTest.java

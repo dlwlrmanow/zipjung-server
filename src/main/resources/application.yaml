@@ -1,11 +1,8 @@
 spring:
   application:
     name: zipjung-backend
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3306/zipjung?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=Asia/Seoul
-    username: root
-    password: 123456
+  profiles:
+    include: secrets
   jpa:
     show-sql: true
     hibernate:
@@ -25,10 +22,6 @@ spring:
 
 server:
   port: 8080
-
-# JWT
-jwt:
-  secret: ENC(QGoA9QKXgJfdIDeuPQxez6Z/gH8XD9oF4iDoGCfBps57nme8TGKj6x2yuZiOv25GGI0TI/ixWgQxvJqWjimWaDBHYagto6gcICWlRWpAxd51yU9sdNaElizqRgS0DhvUiKqtC3dv8II=)
 
 # log
 logging:
