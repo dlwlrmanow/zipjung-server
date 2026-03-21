@@ -8,6 +8,7 @@ import com.zipjung.backend.exception.TodoDBException;
 import com.zipjung.backend.security.CustomUserDetails;
 import com.zipjung.backend.service.TodoService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/todo")
 @RequiredArgsConstructor
@@ -28,11 +30,12 @@ public class TodoController {
         Long memberId = user.getMemberId();
 
         try {
-            Long todoId = todoService.saveTodos(todoRequestDto, memberId);
+            todoService.saveTodos(todoRequestDto, memberId);
 
-            // 성공적으로 저장된 경우 todo_id 반환
-            return new ResponseEntity<>(Map.of("id", todoId), HttpStatus.OK);
-        } catch (SseEventException e) {
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (Exception e) {
+            // DB 쓰기 작업 실패
+            log.error("/save에서 DB쓰기 작업 실패: {}", e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

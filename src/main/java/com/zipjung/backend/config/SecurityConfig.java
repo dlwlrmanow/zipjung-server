@@ -76,6 +76,7 @@ public class SecurityConfig {
                         .requestMatchers("/todo/fetch/list/test").permitAll() // ngriner 테스트
                         .requestMatchers("/focus-time/today/list/fetch/test").permitAll() // response 수정 테스트
                         .requestMatchers("/rank/spot").permitAll() // 인기 있는 장소
+                        .requestMatchers("/todo/save").permitAll() // sse test
                         .anyRequest().authenticated())
 
                 .exceptionHandling(ex -> ex

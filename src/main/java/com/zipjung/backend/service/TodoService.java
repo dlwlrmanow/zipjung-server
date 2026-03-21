@@ -12,6 +12,7 @@ import com.zipjung.backend.repository.NotificationRepository;
 import com.zipjung.backend.repository.PostRepository;
 import com.zipjung.backend.repository.TodoRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
@@ -21,9 +22,11 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TodoService {
+    private final NotificationService notificationService;
     private final TodoRepository todoRepository;
     private final PostRepository postRepository;
     private final NotificationRepository notificationRepository;
@@ -31,48 +34,52 @@ public class TodoService {
 
 
     @Transactional
-    @CacheEvict(value = "getRecentTodoList", key = "#memberId", cacheManager = "ehcacheManager") // 새로운 데이터가 추가되면 기존 캐시 삭제
-    public Long saveTodos(TodoRequestDto todoRequestDto, Long memberId) {
-        // 1. post 생성
-        Post post = Post.builder()
-                .title("Todo")
-                .serviceId(2L)
-                .isDeleted(false)
-                .memberId(memberId)
-                .build();
-        postRepository.save(post);
+    @CacheEvict(value = "getRecentTodoList", key = "#memberId", cacheManager = "ehcacheManager") // 새로운 데이터가 추가되면 기존 캐시 삭제(새로 가져오ㄷ로ㅗㄱ)
+    public void saveTodos(TodoRequestDto todoRequestDto, Long memberId) { // todos_id를 return -> void로 수정
+        Todo todos; // notification save 할 때 써야함!
 
-        // 2. post_id 가져오기
-        Long postId = post.getId();
+        try {
+            // 1. post 생성
+            Post post = Post.builder()
+                    .title("Todo")
+                    .serviceId(2L)
+                    .isDeleted(false)
+                    .memberId(memberId)
+                    .build();
+            postRepository.save(post);
 
-        // 3. todos 저장
-        Todo todos = Todo.builder()
-                .task(todoRequestDto.getTask())
-                .postId(postId)
-                .isDone(false)
-                .build();
-        todoRepository.save(todos);
+            // 2. post_id 가져오기
+            Long postId = post.getId();
 
-        Long todoId = todos.getId();
-        System.out.println("[TodoService] saveTodos 방금 저장된 todo_id: " + todoId);
+            // 3. todos 저장
+            todos = Todo.builder()
+                    .task(todoRequestDto.getTask())
+                    .postId(postId)
+                    .isDone(false)
+                    .build();
+            todoRepository.save(todos);
 
+            log.info("save todo 방금 저장된 todo_id: {}", todos.getId());
+        } catch (Exception e) {
+            // @Transactional 덕분에 저장 실패시 완전히 roollback
+            log.error("save todo fail: {}", e.getMessage());
+            throw new RuntimeException(e); // RuntimeException으로 던져야 rollback이 가능(@Transactional의 기본값)
+        }
 
-        // notification에 저장
-        Notification todoNotification = Notification.builder()
-                .notificationType(NotificationType.NEW_TODO)
-                .title("new TODO ")
-                .message("새로운 Todo [" + todos.getTask() + "] 추가되었어요.")
-                .fromId(memberId)
-                .toId(memberId)
-                .isRead(false)
-                .build();
-        notificationRepository.save(todoNotification);
+        log.info("notification 알림 저장 로직 실행 시작");
+        notificationService.saveNotification(NotificationType.NEW_TODO,
+                "new Todo",
+                "새로운 TODO [" + todos.getTask() + "]가 추가되었어요.",
+                memberId,
+                memberId
+        );
 
-        // TODO: connection pool을 너무 많이 잡아먹기 때문에 분리!
-        eventPublisher.publishEvent(new NotificationDto(memberId, todoNotification.getId()));
-        System.out.println("[TodoService] DB Pool test: " + todoNotification.getId());
-
-        return todoNotification.getId();
+        // Redis Pub
+        notificationService.publishNotification(memberId,
+                NotificationType.NEW_TODO,
+                "new Todo",
+                "새로운 TODO [" + todos.getTask() + "]가 추가되었어요."
+        );
     }
 
     // 로그인시에 바로 오늘 할 일 갯수 띄우기
