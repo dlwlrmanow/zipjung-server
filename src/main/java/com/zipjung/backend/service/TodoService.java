@@ -34,7 +34,7 @@ public class TodoService {
 
 
     @Transactional
-    @CacheEvict(value = "getRecentTodoList", key = "#memberId", cacheManager = "ehcacheManager") // 새로운 데이터가 추가되면 기존 캐시 삭제(새로 가져오ㄷ로ㅗㄱ)
+//    @CacheEvict(value = "getRecentTodoList", key = "#memberId", cacheManager = "ehcacheManager") // 새로운 데이터가 추가되면 기존 캐시 삭제(새로 가져오ㄷ로ㅗㄱ)
     public void saveTodos(TodoRequestDto todoRequestDto, Long memberId) { // todos_id를 return -> void로 수정
         Todo todos; // notification save 할 때 써야함!
 
@@ -80,6 +80,7 @@ public class TodoService {
                 "new Todo",
                 "새로운 TODO [" + todos.getTask() + "]가 추가되었어요."
         );
+        log.info("todo service 끝");
     }
 
     // 로그인시에 바로 오늘 할 일 갯수 띄우기
