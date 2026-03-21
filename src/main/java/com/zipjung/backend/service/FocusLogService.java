@@ -32,7 +32,7 @@ public class FocusLogService {
     private final RedisRankService redisRankService;
 
     // TODO: Flutter 수정! 위치 추가하는 부분 추가됨 -> RN에서 수정
-    @Transactional // transactional로 순서 꼬이지 않고 비동기적으로 처리
+    @Transactional
     public boolean saveFocusLog(FocusLogDto focusLogDto, Long memberId) {
         // 1. post.id 만들기
         Post post = Post.builder()

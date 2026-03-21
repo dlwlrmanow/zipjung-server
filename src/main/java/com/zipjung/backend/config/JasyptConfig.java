@@ -8,14 +8,11 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class JasyptConfig {
-//    @Value("${JASYPT_ENCRYPTOR_PASSWORD}")
-//    private String encryptedJWTKey;
-
     @Bean("jasyptStringEncryptor")
     public StringEncryptor stringEncryptor(){
         PooledPBEStringEncryptor encryptor = new PooledPBEStringEncryptor();
         SimpleStringPBEConfig config = new SimpleStringPBEConfig();
-        config.setPassword(System.getenv("JASYPT_ENCRYPTOR_PASSWORD"));
+        config.setPassword(System.getenv("JASYPT_ENCRYPT_JWT"));
         config.setPoolSize("1");
         config.setAlgorithm("PBEWithMD5AndDES");
         config.setStringOutputType("base64");

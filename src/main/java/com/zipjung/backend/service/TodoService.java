@@ -31,7 +31,7 @@ public class TodoService {
 
 
     @Transactional
-    @CacheEvict(value = "getRecentTodoList", key = "#memberId", cacheManager = "ehcacheManager") // 새로운 데이터가 추가되면 캐시 삭제
+    @CacheEvict(value = "getRecentTodoList", key = "#memberId", cacheManager = "ehcacheManager") // 새로운 데이터가 추가되면 기존 캐시 삭제
     public Long saveTodos(TodoRequestDto todoRequestDto, Long memberId) {
         // 1. post 생성
         Post post = Post.builder()
