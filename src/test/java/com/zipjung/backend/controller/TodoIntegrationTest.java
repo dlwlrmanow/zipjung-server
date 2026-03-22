@@ -32,6 +32,5 @@ class TodoIntegrationTest {
                 .andDo(print())
                 .andExpect(status().isOk());
 
-        // @Transactional 덕분에 이 테스트가 끝나면 DB 데이터는 사라져!
     }
 }
